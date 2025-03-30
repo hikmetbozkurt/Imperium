@@ -76,6 +76,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -270,6 +272,9 @@ fun QuizScreen(
     levelId: String,
     quizType: String
 ) {
+    // Get context for accessing resources
+    val context = LocalContext.current
+    
     // Get category details
     val categoryDetail = remember<CategoryDetail>(categoryId) {
         categoryDetails[categoryId] ?: categoryDetails["ancient"]!!
@@ -395,6 +400,23 @@ fun QuizScreen(
         "Loading quiz questions"
     }
     
+    // Use different style for ancient category
+    val isAncient = categoryId == "ancient"
+    val appBarColor = if (isAncient) Color.White else gradientStart
+    val textColor = if (isAncient) Color.Black else MaterialTheme.colorScheme.onPrimary
+    val iconTint = if (isAncient) colorResource(R.color.ancient_teal) else MaterialTheme.colorScheme.onPrimary
+    val primaryColor = if (isAncient) colorResource(R.color.ancient_teal) else gradientStart
+    
+    // Get color resources for quiz answers
+    val answerCorrectColor = colorResource(id = R.color.answer_correct)
+    val answerIncorrectColor = colorResource(id = R.color.answer_incorrect)
+    val answerSelectedColor = colorResource(id = R.color.answer_selected)
+    val answerUnselectedColor = colorResource(id = R.color.answer_unselected)
+    val answerTextLight = colorResource(id = R.color.answer_text_light)
+    val answerTextDark = colorResource(id = R.color.answer_text_dark)
+    val answerBorderLight = colorResource(id = R.color.answer_border_light)
+    val cardBackgroundLight = colorResource(id = R.color.ancient_background_light)
+    
     Scaffold(
         topBar = {
             TopAppBar(
@@ -404,12 +426,12 @@ fun QuizScreen(
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight = FontWeight.Bold
                         ),
-                        color = MaterialTheme.colorScheme.onPrimary
+                        color = textColor
                     ) 
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = gradientStart,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                    containerColor = appBarColor,
+                    titleContentColor = textColor
                 ),
                 navigationIcon = {
                     IconButton(
@@ -422,7 +444,8 @@ fun QuizScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Navigate back to levels"
+                            contentDescription = "Navigate back to levels",
+                            tint = iconTint
                         )
                     }
                 },
@@ -434,6 +457,9 @@ fun QuizScreen(
                                     contentDescription = "Remaining time: $remainingTime seconds"
                                 }
                                 .padding(end = 8.dp)
+                                .clip(CircleShape)
+                                .background(if (isAncient) primaryColor else Color.Transparent)
+                                .padding(horizontal = 12.dp, vertical = 4.dp)
                         ) {
                             Text(
                                 text = remainingTime.toString(),
@@ -441,6 +467,7 @@ fun QuizScreen(
                                     fontWeight = FontWeight.Bold
                                 ),
                                 color = when {
+                                    isAncient -> answerTextLight
                                     remainingTime > 10 -> MaterialTheme.colorScheme.onPrimary
                                     remainingTime > 5 -> Color.Yellow
                                     else -> Color.Red
@@ -456,14 +483,7 @@ fun QuizScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            gradientStart.copy(alpha = 0.1f),
-                            gradientEnd.copy(alpha = 0.05f)
-                        )
-                    )
-                )
+                .background(Color.White)
         ) {
             // Loading state
             if (isLoading) {
@@ -479,7 +499,7 @@ fun QuizScreen(
                         }
                     ) {
                         CircularProgressIndicator(
-                            color = gradientStart
+                            color = primaryColor
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
@@ -518,12 +538,14 @@ fun QuizScreen(
                         Spacer(modifier = Modifier.height(24.dp))
                         Button(
                             onClick = { navController.popBackStack() },
-                            modifier = Modifier.semantics { 
-                                contentDescription = "Return to levels" 
-                            },
-                            shape = RoundedCornerShape(24.dp),
+                            modifier = Modifier
+                                .height(56.dp)
+                                .semantics { 
+                                    contentDescription = "Return to levels" 
+                                },
+                            shape = RoundedCornerShape(8.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = gradientStart
+                                containerColor = primaryColor
                             )
                         ) {
                             Icon(
@@ -541,7 +563,7 @@ fun QuizScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(16.dp)
+                        .padding(24.dp)
                         .semantics { 
                             contentDescription = questionAccessibilityDesc
                         },
@@ -557,48 +579,85 @@ fun QuizScreen(
                             .semantics { 
                                 contentDescription = "Question ${currentQuestionIndex + 1} of ${questions.size}"
                             },
-                        color = gradientStart,
-                        trackColor = MaterialTheme.colorScheme.surfaceVariant
+                        color = primaryColor,
+                        trackColor = Color.LightGray.copy(alpha = 0.3f)
                     )
                     
                     Spacer(modifier = Modifier.height(24.dp))
                     
-                    // Question number
-                    Text(
-                        text = "Question ${currentQuestionIndex + 1}/${questions.size}",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = gradientStart,
-                        fontWeight = FontWeight.Bold
-                    )
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    // Question
-                    Text(
-                        text = questions[currentQuestionIndex].text,
-                        style = MaterialTheme.typography.headlineSmall,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
-                    
-                    Spacer(modifier = Modifier.height(32.dp))
+                    // Question card
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 24.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = cardBackgroundLight
+                        ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(20.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            // Question number
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .clip(CircleShape)
+                                    .background(primaryColor),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "${currentQuestionIndex + 1}",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = answerTextLight,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                            
+                            Spacer(modifier = Modifier.height(16.dp))
+                            
+                            // Question
+                            Text(
+                                text = questions[currentQuestionIndex].text,
+                                style = MaterialTheme.typography.titleLarge,
+                                textAlign = TextAlign.Center,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    }
                     
                     // Answer options
                     questions[currentQuestionIndex].options.forEachIndexed { index, option ->
                         val isSelected = selectedAnswerIndex == index
                         val isCorrect = index == questions[currentQuestionIndex].correctAnswerIndex
                         
-                        val backgroundColor = when {
-                            showFeedback && isCorrect -> CorrectAnswer
-                            showFeedback && isSelected && !isCorrect -> IncorrectAnswer
-                            isSelected -> gradientStart.copy(alpha = 0.7f)
-                            else -> MaterialTheme.colorScheme.surfaceVariant
+                        // Determine colors based on state
+                        val answerBackgroundColor = when {
+                            // If showing feedback and this is the correct answer, always show green regardless of selection
+                            showFeedback && isCorrect -> answerCorrectColor
+                            // If showing feedback and this was selected but incorrect, show red
+                            showFeedback && isSelected -> answerIncorrectColor
+                            // If selected but not showing feedback yet, show the selected color
+                            isSelected -> answerSelectedColor
+                            // Otherwise, show default color
+                            else -> answerUnselectedColor
                         }
                         
+                        val answerBorderColor = when {
+                            showFeedback && isCorrect -> answerCorrectColor
+                            showFeedback && isSelected -> answerIncorrectColor
+                            isSelected -> answerSelectedColor
+                            else -> answerBorderLight
+                        }
+                        
+                        // Text is white on colored backgrounds, black on white background
                         val textColor = when {
-                            showFeedback && (isCorrect || isSelected) -> Color.White
-                            isSelected -> Color.White
-                            else -> MaterialTheme.colorScheme.onSurface
+                            showFeedback && isCorrect -> answerTextLight
+                            showFeedback && isSelected -> answerTextLight
+                            isSelected -> answerTextLight
+                            else -> answerTextDark
                         }
                         
                         val answerState = when {
@@ -608,7 +667,8 @@ fun QuizScreen(
                             else -> "Option ${index + 1}"
                         }
                         
-                        Card(
+                        // Elevated Card with consistent colors
+                        ElevatedCard(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 8.dp)
@@ -616,8 +676,8 @@ fun QuizScreen(
                                     contentDescription = "$answerState: $option"
                                 },
                             onClick = {
-                                // Only process click if we're in a valid state
-                                if (!showFeedback && !quizCompleted && selectedAnswerIndex == -1) {
+                                // Only process click if we're not already showing feedback
+                                if (!showFeedback && !quizCompleted) {
                                     // Update state
                                     selectedAnswerIndex = index
                                     showFeedback = true
@@ -652,10 +712,15 @@ fun QuizScreen(
                                 }
                             },
                             shape = RoundedCornerShape(12.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = backgroundColor
+                            colors = CardDefaults.elevatedCardColors(
+                                containerColor = answerBackgroundColor,
+                                disabledContainerColor = answerBackgroundColor // Important! Keep the same color even when disabled
                             ),
-                            enabled = !showFeedback && !quizCompleted
+                            elevation = CardDefaults.elevatedCardElevation(
+                                defaultElevation = if (isSelected || (showFeedback && isCorrect)) 4.dp else 1.dp,
+                                disabledElevation = if (isSelected || (showFeedback && isCorrect)) 4.dp else 1.dp // Keep elevation even when disabled
+                            ),
+                            enabled = !quizCompleted // Only disable if quiz is fully completed
                         ) {
                             Box(
                                 modifier = Modifier
@@ -665,7 +730,10 @@ fun QuizScreen(
                             ) {
                                 Text(
                                     text = option,
-                                    style = MaterialTheme.typography.bodyLarge,
+                                    style = MaterialTheme.typography.bodyLarge.copy(
+                                        fontWeight = if (isSelected || (showFeedback && isCorrect)) 
+                                            FontWeight.Bold else FontWeight.Normal
+                                    ),
                                     color = textColor,
                                     textAlign = TextAlign.Center
                                 )
@@ -676,15 +744,38 @@ fun QuizScreen(
                     // Show timeout message if no answer was selected
                     if (showFeedback && selectedAnswerIndex == -2) {
                         Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = "Time's up! The correct answer was: ${questions[currentQuestionIndex].options[questions[currentQuestionIndex].correctAnswerIndex]}",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.error,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.semantics { 
-                                contentDescription = "Time's up notification. The correct answer was: ${questions[currentQuestionIndex].options[questions[currentQuestionIndex].correctAnswerIndex]}"
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = Color(0xFFFFEBEE) // Light red background
+                            ),
+                            border = BorderStroke(1.dp, answerIncorrectColor),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(16.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = "Time's up!",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = answerIncorrectColor,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                
+                                Text(
+                                    text = "The correct answer was: ${questions[currentQuestionIndex].options[questions[currentQuestionIndex].correctAnswerIndex]}",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = Color.Black,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier
+                                        .padding(top = 8.dp)
+                                        .semantics { 
+                                            contentDescription = "Time's up notification. The correct answer was: ${questions[currentQuestionIndex].options[questions[currentQuestionIndex].correctAnswerIndex]}"
+                                        }
+                                )
                             }
-                        )
+                        }
                     }
                 }
             }

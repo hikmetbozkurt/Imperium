@@ -37,4 +37,15 @@
     <!-- World Wars - Somber dark red and gray tones representing conflict and gravity -->
     <color name="worldwars_gradient_start">#FF8B0000</color> <!-- Dark blood red -->
     <color name="worldwars_gradient_end">#FF3C3C3C</color> <!-- Dark charcoal gray -->
+    
+    <!-- Quiz Answer Colors -->
+    <color name="answer_correct">#FF4CAF50</color> <!-- Warm green for correct answers -->
+    <color name="answer_incorrect">#FFE53935</color> <!-- Bright red for incorrect answers -->
+    <color name="answer_selected">#FF227C70</color> <!-- Teal color for selected answers (before feedback) -->
+    <color name="answer_unselected">#FFFFFFFF</color> <!-- White background for unselected answers -->
+    <color name="answer_text_light">#FFFFFFFF</color> <!-- White text for selected/correct/incorrect answers -->
+    <color name="answer_text_dark">#FF000000</color> <!-- Black text for unselected answers -->
+    <color name="answer_border_light">#20000000</color> <!-- Light border for unselected answers (12% opacity) -->
+    <color name="ancient_teal">#FF227C70</color> <!-- Teal color for Ancient theme -->
+    <color name="ancient_background_light">#FFF0F9F8</color> <!-- Light teal background for cards -->
 </resources>

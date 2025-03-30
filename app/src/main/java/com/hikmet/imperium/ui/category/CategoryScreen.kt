@@ -228,12 +228,12 @@ fun CategoryScreen(
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight = FontWeight.Bold
                         ),
-                        color = MaterialTheme.colorScheme.onPrimary
+                        color = if (categoryId == "ancient") Color.Black else MaterialTheme.colorScheme.onPrimary
                     ) 
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = gradientColors.first(),
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                    containerColor = if (categoryId == "ancient") Color.White else gradientColors.first(),
+                    titleContentColor = if (categoryId == "ancient") Color.Black else MaterialTheme.colorScheme.onPrimary
                 ),
                 navigationIcon = {
                     IconButton(
@@ -245,7 +245,7 @@ fun CategoryScreen(
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Back",
-                            tint = MaterialTheme.colorScheme.onPrimary
+                            tint = if (categoryId == "ancient") Color(0xFF227C70) else MaterialTheme.colorScheme.onPrimary
                         )
                     }
                 }
@@ -256,14 +256,7 @@ fun CategoryScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            gradientColors.first().copy(alpha = 0.1f),
-                            gradientColors.last().copy(alpha = 0.05f)
-                        )
-                    )
-                )
+                .background(Color.White)
         ) {
             if (isLoading) {
                 // Loading state
@@ -295,51 +288,139 @@ fun CategoryScreen(
                         .fillMaxSize()
                         .padding(16.dp)
                         .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    verticalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
-                    // About section
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .semantics { 
-                                contentDescription = "About ${categoryDetail.title}" 
-                            },
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface
-                        ),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-                    ) {
-                        Column(
+                    // About section with illustration for Ancient Civilizations
+                    if (categoryId == "ancient") {
+                        // Special design for Ancient Civilizations page
+                        Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(16.dp)
+                                .semantics { 
+                                    contentDescription = "About ${categoryDetail.title}" 
+                                },
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = Color(0xFFF0F9F8)  // Light teal background
+                            ),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                         ) {
                             Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.padding(bottom = 8.dp)
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.Info,
-                                    contentDescription = "Information about this category",
-                                    tint = gradientColors.first()
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = "About",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold
+                                Column(
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier.padding(bottom = 12.dp)
+                                    ) {
+                                        // Teal circle with i icon
+                                        Box(
+                                            modifier = Modifier
+                                                .size(40.dp)
+                                                .clip(CircleShape)
+                                                .background(Color(0xFF227C70)),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text(
+                                                text = "i",
+                                                style = MaterialTheme.typography.titleMedium,
+                                                color = Color.White,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                        }
+                                        
+                                        Spacer(modifier = Modifier.width(12.dp))
+                                        
+                                        Text(
+                                            text = "About",
+                                            style = MaterialTheme.typography.titleLarge,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                    
+                                    Text(
+                                        text = categoryDetail.longDescription,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        modifier = Modifier.padding(end = 8.dp)
+                                    )
+                                }
+                                
+                                // Image of pyramids and temple
+                                Image(
+                                    painter = painterResource(R.drawable.ancient_page_image),
+                                    contentDescription = "Ancient Civilizations Illustration",
+                                    modifier = Modifier
+                                        .size(width = 160.dp, height = 160.dp)
+                                        .padding(start = 8.dp),
+                                    contentScale = ContentScale.Fit
                                 )
                             }
-                            
-                            Text(
-                                text = categoryDetail.longDescription,
-                                style = MaterialTheme.typography.bodyMedium
-                            )
+                        }
+                    } else {
+                        // Standard About card for other categories
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .semantics { 
+                                    contentDescription = "About ${categoryDetail.title}" 
+                                },
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surface
+                            ),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                            ) {
+                                Column(
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier.padding(bottom = 12.dp)
+                                    ) {
+                                        // Circular icon
+                                        Box(
+                                            modifier = Modifier
+                                                .size(32.dp)
+                                                .clip(CircleShape)
+                                                .background(gradientColors.first()),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Info,
+                                                contentDescription = "Information about this category",
+                                                tint = Color.White,
+                                                modifier = Modifier.size(18.dp)
+                                            )
+                                        }
+                                        
+                                        Spacer(modifier = Modifier.width(12.dp))
+                                        
+                                        Text(
+                                            text = "About",
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                    
+                                    Text(
+                                        text = categoryDetail.longDescription,
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                }
+                            }
                         }
                     }
                     
-                    // Actions section
+                    // What would you like to do section
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -356,7 +437,7 @@ fun CategoryScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
                             Text(
                                 text = "What would you like to do?",
@@ -364,94 +445,214 @@ fun CategoryScreen(
                                 fontWeight = FontWeight.Bold
                             )
                             
-                            // Start learning button
+                            // Start learning button - Updated for Ancient
                             Button(
                                 onClick = { navController.navigate("level/$categoryId/1") },
                                 modifier = Modifier
                                     .fillMaxWidth()
+                                    .height(56.dp)
                                     .semantics { 
                                         contentDescription = "Start learning levels in ${categoryDetail.title}" 
                                     },
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = gradientColors.first()
+                                    containerColor = if (categoryId == "ancient") 
+                                        Color(0xFF227C70) 
+                                    else 
+                                        gradientColors.first()
                                 ),
                                 shape = RoundedCornerShape(8.dp)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.KeyboardArrowRight,
+                                    imageVector = Icons.Default.PlayArrow,
                                     contentDescription = "Start learning icon",
+                                    modifier = Modifier.size(24.dp)
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Start Learning")
+                                Text(
+                                    "Start Learning",
+                                    fontWeight = FontWeight.SemiBold,
+                                    style = MaterialTheme.typography.titleMedium
+                                )
                             }
                             
-                            // Take a quiz button
+                            // Take a quiz button - Updated for Ancient
                             OutlinedButton(
                                 onClick = { navController.navigate("quiz/$categoryId/1/STANDARD") },
                                 modifier = Modifier
                                     .fillMaxWidth()
+                                    .height(56.dp)
                                     .semantics { 
                                         contentDescription = "Take a quiz on ${categoryDetail.title}" 
                                     },
-                                shape = RoundedCornerShape(8.dp)
+                                shape = RoundedCornerShape(8.dp),
+                                colors = if (categoryId == "ancient") {
+                                    ButtonDefaults.outlinedButtonColors(
+                                        contentColor = Color(0xFF227C70)
+                                    )
+                                } else {
+                                    ButtonDefaults.outlinedButtonColors(
+                                        contentColor = gradientColors.first()
+                                    )
+                                }
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.Help,
+                                    imageVector = Icons.Filled.Help,
                                     contentDescription = "Quiz icon",
+                                    modifier = Modifier.size(24.dp)
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Take a Quiz")
+                                Text(
+                                    "Take a Quiz",
+                                    fontWeight = FontWeight.SemiBold,
+                                    style = MaterialTheme.typography.titleMedium
+                                )
                             }
                         }
                     }
                     
-                    // Progress section
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .semantics { 
-                                contentDescription = "Your progress in ${categoryDetail.title}" 
-                            },
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface
-                        ),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-                    ) {
-                        Column(
+                    // Your Progress Section - Updated for Ancient
+                    if (categoryId == "ancient") {
+                        // Modern circular progress with stats
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surface
+                            ),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                Text(
+                                    text = "Your Progress",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(24.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    // Circle with number
+                                    Box(
+                                        modifier = Modifier.size(100.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        CircularProgressIndicator(
+                                            progress = 0.75f, // 9 out of 12 levels completed
+                                            modifier = Modifier.size(100.dp),
+                                            strokeWidth = 8.dp,
+                                            color = Color(0xFF227C70),
+                                            trackColor = Color(0xFFE0E0E0)
+                                        )
+                                        
+                                        Text(
+                                            text = "9",
+                                            style = MaterialTheme.typography.displayMedium,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color(0xFF227C70)
+                                        )
+                                    }
+                                    
+                                    // Stats columns
+                                    Column(
+                                        modifier = Modifier.weight(1f)
+                                    ) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween
+                                        ) {
+                                            Column(
+                                                horizontalAlignment = Alignment.CenterHorizontally
+                                            ) {
+                                                Text(
+                                                    text = "10",
+                                                    style = MaterialTheme.typography.headlineMedium,
+                                                    color = Color(0xFF227C70),
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                                Text(
+                                                    text = "Unlocked",
+                                                    style = MaterialTheme.typography.bodyMedium,
+                                                    color = Color.Gray
+                                                )
+                                            }
+                                            
+                                            Column(
+                                                horizontalAlignment = Alignment.CenterHorizontally
+                                            ) {
+                                                Text(
+                                                    text = "12",
+                                                    style = MaterialTheme.typography.headlineMedium,
+                                                    color = Color(0xFF227C70),
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                                Text(
+                                                    text = "Total",
+                                                    style = MaterialTheme.typography.bodyMedium,
+                                                    color = Color.Gray
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        // Standard progress display for other categories
+                        Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(16.dp)
+                                .semantics { 
+                                    contentDescription = "Your progress in ${categoryDetail.title}" 
+                                },
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surface
+                            ),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                         ) {
-                            Text(
-                                text = "Your Progress",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
-                            )
-                            
-                            Spacer(modifier = Modifier.height(12.dp))
-                            
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
                             ) {
-                                ProgressStat(
-                                    value = "${categoryDetail.completedLevels}",
-                                    label = "Levels completed",
-                                    color = gradientColors.first()
+                                Text(
+                                    text = "Your Progress",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold
                                 )
                                 
-                                ProgressStat(
-                                    value = "${categoryDetail.unlockedLevels}",
-                                    label = "Unlocked",
-                                    color = gradientColors.first()
-                                )
+                                Spacer(modifier = Modifier.height(12.dp))
                                 
-                                ProgressStat(
-                                    value = "${categoryDetail.totalLevels}",
-                                    label = "Total",
-                                    color = gradientColors.first()
-                                )
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    ProgressStat(
+                                        value = "${categoryDetail.completedLevels}",
+                                        label = "Levels completed",
+                                        color = gradientColors.first()
+                                    )
+                                    
+                                    ProgressStat(
+                                        value = "${categoryDetail.unlockedLevels}",
+                                        label = "Unlocked",
+                                        color = gradientColors.first()
+                                    )
+                                    
+                                    ProgressStat(
+                                        value = "${categoryDetail.totalLevels}",
+                                        label = "Total",
+                                        color = gradientColors.first()
+                                    )
+                                }
                             }
                         }
                     }

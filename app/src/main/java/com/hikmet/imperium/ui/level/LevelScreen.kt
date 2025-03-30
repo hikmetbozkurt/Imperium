@@ -210,6 +210,13 @@ fun LevelScreen(
         "${categoryDetail.title} Levels - ${categoryLevels.size} levels available"
     }
     
+    // Use different style for ancient category
+    val isAncient = categoryId == "ancient"
+    val appBarColor = if (isAncient) Color.White else gradientColors[0]
+    val textColor = if (isAncient) Color.Black else MaterialTheme.colorScheme.onPrimary
+    val iconTint = if (isAncient) Color(0xFF227C70) else MaterialTheme.colorScheme.onPrimary
+    val primaryColor = if (isAncient) Color(0xFF227C70) else gradientColors[0]
+    
     Scaffold(
         topBar = {
             TopAppBar(
@@ -219,12 +226,12 @@ fun LevelScreen(
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight = FontWeight.Bold
                         ),
-                        color = MaterialTheme.colorScheme.onPrimary
+                        color = textColor
                     ) 
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = gradientColors[0],
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                    containerColor = appBarColor,
+                    titleContentColor = textColor
                 ),
                 navigationIcon = {
                     IconButton(
@@ -237,7 +244,8 @@ fun LevelScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Navigate back to categories"
+                            contentDescription = "Navigate back to categories",
+                            tint = iconTint
                         )
                     }
                 }
@@ -248,14 +256,7 @@ fun LevelScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            gradientColors[0].copy(alpha = 0.1f),
-                            gradientColors[1].copy(alpha = 0.05f)
-                        )
-                    )
-                )
+                .background(Color.White)
                 .semantics { 
                     contentDescription = levelScreenAccessibilityDescription
                 }
@@ -272,7 +273,7 @@ fun LevelScreen(
                         modifier = Modifier.semantics { contentDescription = "Loading levels" }
                     ) {
                         CircularProgressIndicator(
-                            color = gradientColors[0]
+                            color = primaryColor
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Text(
@@ -308,10 +309,12 @@ fun LevelScreen(
                         Spacer(modifier = Modifier.height(24.dp))
                         Button(
                             onClick = { navController.popBackStack() },
-                            modifier = Modifier.semantics { contentDescription = "Return to categories" },
-                            shape = RoundedCornerShape(24.dp),
+                            modifier = Modifier
+                                .height(56.dp)
+                                .semantics { contentDescription = "Return to categories" },
+                            shape = RoundedCornerShape(8.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = gradientColors[0]
+                                containerColor = primaryColor
                             )
                         ) {
                             Icon(
@@ -324,13 +327,27 @@ fun LevelScreen(
                     }
                 }
             } else {
-                // Content - show levels grid
-                LevelGrid(
-                    levels = categoryLevels,
-                    navController = navController,
-                    categoryId = categoryId,
-                    categoryColor = gradientColors[0]
-                )
+                // Content - show level grid with title
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = "Select a Level",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black,
+                        modifier = Modifier.padding(bottom = 16.dp, start = 4.dp)
+                    )
+                    
+                    LevelGrid(
+                        levels = categoryLevels,
+                        navController = navController,
+                        categoryId = categoryId,
+                        categoryColor = primaryColor
+                    )
+                }
             }
         }
     }
@@ -348,7 +365,7 @@ fun LevelGrid(
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(3),
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = PaddingValues(4.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
         modifier = Modifier.fillMaxSize()
@@ -392,14 +409,16 @@ fun LevelCard(
                 contentDescription = levelAccessibilityDescription
             },
         elevation = CardDefaults.cardElevation(
-            defaultElevation = if (level.isUnlocked) 2.dp else 0.dp
+            defaultElevation = if (level.isUnlocked) 4.dp else 0.dp
         ),
         colors = CardDefaults.cardColors(
             containerColor = if (level.isUnlocked) 
-                MaterialTheme.colorScheme.surfaceVariant 
+                Color.White
             else 
-                Color.Gray.copy(alpha = 0.2f)
-        )
+                Color.Gray.copy(alpha = 0.1f)
+        ),
+        shape = RoundedCornerShape(12.dp),
+        border = if (level.isUnlocked) null else androidx.compose.foundation.BorderStroke(1.dp, Color.Gray.copy(alpha = 0.3f))
     ) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -412,20 +431,47 @@ fun LevelCard(
             ) {
                 if (!level.isUnlocked) {
                     // Locked level
-                    Icon(
-                        imageVector = Icons.Default.Lock,
-                        contentDescription = "Locked Level",
-                        tint = Color.Gray,
-                        modifier = Modifier.size(32.dp)
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .background(Color.Gray.copy(alpha = 0.1f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Lock,
+                            contentDescription = "Locked Level",
+                            tint = Color.Gray,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.height(4.dp))
+                    
+                    Text(
+                        text = "Level ${level.id}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Gray,
+                        fontWeight = FontWeight.Medium
                     )
                 } else {
-                    // Level number
-                    Text(
-                        text = level.id.toString(),
-                        style = MaterialTheme.typography.headlineLarge,
-                        color = categoryColor,
-                        fontWeight = FontWeight.Bold
-                    )
+                    // Unlocked level - circular background with number
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .background(categoryColor),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = level.id.toString(),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.height(4.dp))
                     
                     // Show stars if any
                     if (level.isUnlocked) {
