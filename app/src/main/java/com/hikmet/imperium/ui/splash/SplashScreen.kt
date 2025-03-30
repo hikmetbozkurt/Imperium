@@ -48,8 +48,17 @@ fun SplashScreen(navController: NavHostController) {
         startAnimation = true
         // Splash screen displays for 2 seconds
         delay(2000)
-        navController.navigate(NavDestinations.HOME_ROUTE) {
-            popUpTo(NavDestinations.SPLASH_ROUTE) { inclusive = true }
+        try {
+            navController.navigate(NavDestinations.HOME_ROUTE) {
+                popUpTo(NavDestinations.SPLASH_ROUTE) { inclusive = true }
+            }
+        } catch (e: Exception) {
+            // Fallback navigation if the first attempt fails
+            try {
+                navController.navigate(NavDestinations.HOME_ROUTE)
+            } catch (e: Exception) {
+                // Last resort, do nothing and let the system handle back press
+            }
         }
     }
 

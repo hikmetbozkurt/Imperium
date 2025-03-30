@@ -31,6 +31,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Quiz
@@ -40,13 +41,17 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -118,6 +123,7 @@ val sampleProgress = UserProgress(
 /**
  * Progress screen showing user statistics
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProgressScreen(
     navController: NavHostController,
@@ -137,43 +143,46 @@ fun ProgressScreen(
     
     // Trigger animation for the selected tab
     LaunchedEffect(selectedTabIndex) {
-        tabStates.forEachIndexed { index, state ->
+        tabStates.forEach { state ->
             state.targetState = false
         }
         delay(100)
         tabStates[selectedTabIndex].targetState = true
     }
     
-    Scaffold { paddingValues ->
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { 
+                    Text(
+                        "Your Progress",
+                        style = MaterialTheme.typography.headlineMedium.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                        color = MaterialTheme.colorScheme.onPrimary
+                    ) 
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                ),
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Back",
+                            tint = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Header with title
-            Surface(
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
-                ) {
-                    Text(
-                        text = "Your Progress",
-                        style = MaterialTheme.typography.headlineMedium.copy(
-                            fontWeight = FontWeight.Bold
-                        ),
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                    
-                    Text(
-                        text = "Track your learning journey",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
-                    )
-                }
-            }
-            
             // Tabs
             TabRow(
                 selectedTabIndex = selectedTabIndex,
@@ -193,7 +202,7 @@ fun ProgressScreen(
                             ) {
                                 Icon(
                                     imageVector = tab.icon,
-                                    contentDescription = null,
+                                    contentDescription = "${tab.title} tab icon",
                                     modifier = Modifier.size(18.dp)
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
@@ -216,7 +225,7 @@ fun ProgressScreen(
             when (selectedTabIndex) {
                 0 -> OverallProgressTab(progress, tabStates[0])
                 1 -> CategoryProgressTab(progress, tabStates[1])
-                2 -> TimeAttackTab(progress, tabStates[2])
+                2 -> TimeAttackTab(tabStates[2])
             }
         }
     }
@@ -557,7 +566,7 @@ private fun RenderCategoryProgressBars(progress: UserProgress) {
  * Time attack tab
  */
 @Composable
-fun TimeAttackTab(progress: UserProgress, animationState: MutableTransitionState<Boolean>) {
+fun TimeAttackTab(animationState: MutableTransitionState<Boolean>) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -705,9 +714,10 @@ fun AccuracyChart(
     accuracy: Float,
     modifier: Modifier = Modifier
 ) {
-    // Store color outside of Canvas scope
+    // Store colors outside of Canvas scope
     val surfaceVariantColor = MaterialTheme.colorScheme.surfaceVariant
     val primaryColor = MaterialTheme.colorScheme.primary
+    val tertiaryColor = MaterialTheme.colorScheme.tertiary
     
     // Animate the progress
     val animatedProgress by animateFloatAsState(
@@ -747,7 +757,7 @@ fun AccuracyChart(
             val gradient = Brush.linearGradient(
                 colors = listOf(
                     primaryColor,
-                    MaterialTheme.colorScheme.tertiary
+                    tertiaryColor
                 )
             )
             
@@ -795,6 +805,23 @@ fun AccuracyChart(
  */
 @Composable
 fun CategoryComparisonChart(progress: UserProgress) {
+    // Store theme colors outside Canvas
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val secondaryColor = MaterialTheme.colorScheme.secondary
+    val tertiaryColor = MaterialTheme.colorScheme.tertiary
+    val primaryFaded = primaryColor.copy(alpha = 0.7f)
+    val secondaryFaded = secondaryColor.copy(alpha = 0.7f)
+    val surfaceVariant = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+
+    // Prepare color list outside Canvas
+    val barColors = listOf(
+        primaryColor,
+        secondaryColor,
+        tertiaryColor,
+        primaryFaded,
+        secondaryFaded
+    )
+
     Column(modifier = Modifier.fillMaxWidth()) {
         // Legend
         Row(
@@ -803,10 +830,10 @@ fun CategoryComparisonChart(progress: UserProgress) {
                 .padding(bottom = 12.dp),
             horizontalArrangement = Arrangement.SpaceAround
         ) {
-            ColorLegendItem(color = MaterialTheme.colorScheme.primary, label = "Ancient")
-            ColorLegendItem(color = MaterialTheme.colorScheme.secondary, label = "Medieval")
-            ColorLegendItem(color = MaterialTheme.colorScheme.tertiary, label = "Renaissance")
-            ColorLegendItem(color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f), label = "Modern")
+            ColorLegendItem(color = primaryColor, label = "Ancient")
+            ColorLegendItem(color = secondaryColor, label = "Medieval")
+            ColorLegendItem(color = tertiaryColor, label = "Renaissance")
+            ColorLegendItem(color = primaryFaded, label = "Modern")
         }
         
         // Animated bar chart
@@ -815,7 +842,7 @@ fun CategoryComparisonChart(progress: UserProgress) {
                 .fillMaxWidth()
                 .height(160.dp)
                 .clip(RoundedCornerShape(8.dp))
-                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+                .background(surfaceVariant)
         ) {
             val canvasWidth = size.width
             val canvasHeight = size.height
@@ -823,21 +850,12 @@ fun CategoryComparisonChart(progress: UserProgress) {
             val maxBarHeight = canvasHeight * 0.9f
             val verticalPadding = canvasHeight * 0.05f
             
-            // Draw bars with rounded corners
-            val colors = listOf(
-                MaterialTheme.colorScheme.primary,
-                MaterialTheme.colorScheme.secondary,
-                MaterialTheme.colorScheme.tertiary,
-                MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
-                MaterialTheme.colorScheme.secondary.copy(alpha = 0.7f)
-            )
-            
             val heights = progress.categoryProgress.map { it.second * maxBarHeight }
             
             heights.forEachIndexed { index, height ->
-                if (index < colors.size) {
+                if (index < barColors.size) {
                     drawRoundRect(
-                        color = colors[index],
+                        color = barColors[index],
                         topLeft = Offset(
                             (index + 1) * barWidth - barWidth * 0.8f,
                             canvasHeight - height - verticalPadding
@@ -970,7 +988,7 @@ fun StatCard(
                 ) {
                     Icon(
                         imageVector = icon,
-                        contentDescription = null,
+                        contentDescription = "$title icon",
                         tint = iconTint,
                         modifier = Modifier.size(24.dp)
                     )
@@ -1024,7 +1042,7 @@ fun ActivityItem(
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_launcher_foreground),
-                    contentDescription = null,
+                    contentDescription = "Activity icon for $category",
                     tint = MaterialTheme.colorScheme.onPrimaryContainer,
                     modifier = Modifier.size(24.dp)
                 )
@@ -1075,7 +1093,7 @@ fun TimeAttackHistoryItem(
             ) {
                 Icon(
                     imageVector = Icons.Default.Timeline,
-                    contentDescription = null,
+                    contentDescription = "Time attack icon for $category",
                     tint = MaterialTheme.colorScheme.onSecondaryContainer,
                     modifier = Modifier.size(24.dp)
                 )

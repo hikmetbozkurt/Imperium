@@ -9,6 +9,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -21,23 +23,32 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShowChart
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.ShowChart
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -45,6 +56,8 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -55,18 +68,57 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.hikmet.imperium.R
+import com.hikmet.imperium.ui.category.categoryDetails
 import com.hikmet.imperium.ui.navigation.NavDestinations
+import com.hikmet.imperium.ui.theme.AncientGradientEnd
+import com.hikmet.imperium.ui.theme.AncientGradientStart
+import com.hikmet.imperium.ui.theme.ImperiumTheme
+import com.hikmet.imperium.ui.theme.MedievalGradientEnd
+import com.hikmet.imperium.ui.theme.MedievalGradientStart
+import com.hikmet.imperium.ui.theme.ModernGradientEnd
+import com.hikmet.imperium.ui.theme.ModernGradientStart
+import com.hikmet.imperium.ui.theme.RenaissanceGradientEnd
+import com.hikmet.imperium.ui.theme.RenaissanceGradientStart
+import com.hikmet.imperium.ui.theme.WorldWarsGradientEnd
+import com.hikmet.imperium.ui.theme.WorldWarsGradientStart
 import kotlinx.coroutines.delay
+import androidx.compose.foundation.verticalScroll
+
+/**
+ * Bottom navigation items
+ */
+sealed class BottomNavItem(val route: String, val title: String, val icon: ImageVector) {
+    object Home : BottomNavItem(NavDestinations.HOME_ROUTE, "Home", Icons.Default.Home)
+    object Progress : BottomNavItem(NavDestinations.PROGRESS_ROUTE, "Progress", Icons.Default.ShowChart)
+    object Profile : BottomNavItem(NavDestinations.PROFILE_ROUTE, "Profile", Icons.Default.Person)
+}
+
+val BottomNavItems = listOf(
+    BottomNavItem.Home,
+    BottomNavItem.Progress,
+    BottomNavItem.Profile
+)
 
 /**
  * Data class for categories
@@ -76,7 +128,9 @@ data class HistoryCategory(
     val title: String,
     val description: String,
     val imageResId: Int,
-    val completion: Int // percentage of completion
+    val completion: Int, // percentage of completion
+    val gradientStart: Color,
+    val gradientEnd: Color
 )
 
 /**
@@ -87,36 +141,46 @@ val sampleCategories = listOf(
         "ancient", 
         "Ancient Civilizations", 
         "Egypt, Greece, Rome and more",
-        R.drawable.ic_launcher_foreground, 
-        75
+        R.drawable.ic_ancient, 
+        75,
+        AncientGradientStart,
+        AncientGradientEnd
     ),
     HistoryCategory(
         "medieval", 
         "Medieval Period", 
         "Castles, knights, and feudal systems",
-        R.drawable.ic_launcher_foreground, 
-        30
+        R.drawable.ic_medieval, 
+        30,
+        MedievalGradientStart,
+        MedievalGradientEnd
     ),
     HistoryCategory(
         "renaissance", 
         "Renaissance",
         "Art, science and cultural rebirth",
-        R.drawable.ic_launcher_foreground, 
-        0
+        R.drawable.ic_renaissance, 
+        0,
+        RenaissanceGradientStart,
+        RenaissanceGradientEnd
     ),
     HistoryCategory(
         "modern", 
         "Modern History", 
         "Industrial revolution to present day",
-        R.drawable.ic_launcher_foreground, 
-        10
+        R.drawable.ic_modern, 
+        10,
+        ModernGradientStart,
+        ModernGradientEnd
     ),
     HistoryCategory(
         "world_wars", 
         "World Wars", 
         "The two major global conflicts",
-        R.drawable.ic_launcher_foreground, 
-        50
+        R.drawable.ic_wars, 
+        50,
+        WorldWarsGradientStart,
+        WorldWarsGradientEnd
     )
 )
 
@@ -125,315 +189,226 @@ val sampleCategories = listOf(
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavHostController) {
-    var selectedItem by remember { mutableStateOf(0) }
-    var showWelcome by remember { mutableStateOf(true) }
-
-    // Hide welcome banner after 3 seconds
-    LaunchedEffect(key1 = Unit) {
-        delay(3000)
-        showWelcome = false
-    }
+fun HomeScreen(navController: NavController) {
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+    
+    // Single background color - warm beige
+    val backgroundColor = Color(0xFFEDE3D2)
+    // Text color - dark gray for better contrast
+    val textColor = Color(0xFF333333)
     
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
+            TopAppBar(
                 title = { 
                     Text(
-                        "Imperium",
+                        "Imperium : History Quiz",
                         style = MaterialTheme.typography.headlineMedium.copy(
                             fontWeight = FontWeight.Bold
-                        )
+                        ),
+                        color = textColor
                     ) 
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = backgroundColor,
+                    titleContentColor = textColor
                 ),
-                actions = {
-                    Surface(
-                        modifier = Modifier
-                            .size(40.dp)
-                            .padding(end = 8.dp),
-                        shape = CircleShape,
-                        color = MaterialTheme.colorScheme.primaryContainer
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.ic_launcher_foreground),
-                            contentDescription = "User Avatar",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
-                        )
-                    }
-                }
+                scrollBehavior = scrollBehavior
             )
         },
         bottomBar = {
-            NavigationBar {
-                NavigationBarItem(
-                    selected = selectedItem == 0,
-                    onClick = { 
-                        selectedItem = 0 
-                        navController.navigate(NavDestinations.HOME_ROUTE) {
-                            popUpTo(NavDestinations.HOME_ROUTE) { inclusive = true }
-                        }
-                    },
-                    icon = { 
-                        Icon(
-                            if (selectedItem == 0) Icons.Filled.Home else Icons.Outlined.Home,
-                            contentDescription = "Home"
-                        ) 
-                    },
-                    label = { Text("Home") }
-                )
-                NavigationBarItem(
-                    selected = selectedItem == 1,
-                    onClick = { 
-                        selectedItem = 1 
-                        navController.navigate(NavDestinations.PROGRESS_ROUTE)
-                    },
-                    icon = { 
-                        Icon(
-                            if (selectedItem == 1) Icons.Filled.ShowChart else Icons.Outlined.ShowChart,
-                            contentDescription = "Progress"
-                        ) 
-                    },
-                    label = { Text("Progress") }
-                )
-                NavigationBarItem(
-                    selected = selectedItem == 2,
-                    onClick = { 
-                        selectedItem = 2 
-                        navController.navigate(NavDestinations.PROFILE_ROUTE)
-                    },
-                    icon = { 
-                        Icon(
-                            if (selectedItem == 2) Icons.Filled.Person else Icons.Outlined.Person,
-                            contentDescription = "Profile"
-                        ) 
-                    },
-                    label = { Text("Profile") }
-                )
-            }
-        },
-        content = { paddingValues ->
-            Column(modifier = Modifier.fillMaxSize()) {
-                // Welcome Banner with animation
-                AnimatedVisibility(
-                    visible = showWelcome,
-                    enter = fadeIn() + slideInVertically(),
-                    exit = fadeOut(animationSpec = tween(durationMillis = 500))
-                ) {
-                    WelcomeBanner()
-                }
-
-                // Main content
-                CategoryList(
-                    categories = sampleCategories,
-                    onCategoryClick = { category ->
-                        navController.navigate("category/${category.id}")
-                    },
-                    contentPadding = paddingValues
-                )
-            }
-        }
-    )
-}
-
-/**
- * Welcome banner that appears on app launch
- */
-@Composable
-fun WelcomeBanner() {
-    ElevatedCard(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp),
-        colors = CardDefaults.elevatedCardColors(
-            containerColor = MaterialTheme.colorScheme.tertiaryContainer
-        )
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Text(
-                text = "Welcome back!",
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onTertiaryContainer
-                )
-            )
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            Text(
-                text = "Continue your historical journey with Imperium.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onTertiaryContainer
-            )
-        }
-    }
-}
-
-/**
- * List of categories
- */
-@Composable
-fun CategoryList(
-    categories: List<HistoryCategory>,
-    onCategoryClick: (HistoryCategory) -> Unit,
-    contentPadding: PaddingValues
-) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(
-            top = contentPadding.calculateTopPadding() + 8.dp,
-            bottom = contentPadding.calculateBottomPadding() + 16.dp,
-            start = 16.dp,
-            end = 16.dp
-        )
-    ) {
-        itemsIndexed(categories) { index, category ->
-            // Add animation for each item
-            AnimatedVisibility(
-                visible = true,
-                enter = fadeIn(
-                    animationSpec = tween(
-                        durationMillis = 300,
-                        delayMillis = 100 * index
-                    )
-                ) + slideInVertically(
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessLow
-                    ),
-                    initialOffsetY = { it * 2 } // slide from below
-                )
+            NavigationBar(
+                containerColor = backgroundColor,
+                contentColor = textColor
             ) {
-                Column {
-                    CategoryCard(
-                        category = category,
-                        onClick = { onCategoryClick(category) }
+                val navBackStackEntry by navController.currentBackStackEntryAsState()
+                val currentDestination = navBackStackEntry?.destination
+                
+                BottomNavItems.forEach { screen ->
+                    NavigationBarItem(
+                        icon = { 
+                            Icon(imageVector = screen.icon, contentDescription = screen.title) 
+                        },
+                        label = { Text(screen.title) },
+                        selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
+                        onClick = {
+                            navController.navigate(screen.route) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
                 }
             }
         }
-    }
-}
-
-/**
- * Card for a single category
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun CategoryCard(
-    category: HistoryCategory,
-    onClick: () -> Unit
-) {
-    ElevatedCard(
-        onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(110.dp),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.elevatedCardElevation(
-            defaultElevation = 3.dp,
-            pressedElevation = 6.dp
-        ),
-        colors = CardDefaults.elevatedCardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        )
-    ) {
-        Row(
+    ) { innerPadding ->
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .background(backgroundColor)
         ) {
-            // Category image
-            Image(
-                painter = painterResource(id = category.imageResId),
-                contentDescription = category.title,
-                modifier = Modifier
-                    .size(84.dp)
-                    .clip(RoundedCornerShape(8.dp)),
-                contentScale = ContentScale.Crop
-            )
-            
-            Spacer(modifier = Modifier.width(16.dp))
-            
-            // Category text content
             Column(
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .nestedScroll(scrollBehavior.nestedScrollConnection)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                Text(
-                    text = category.title,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold
-                    ),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                
-                Spacer(modifier = Modifier.height(4.dp))
-                
-                Text(
-                    text = category.description,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-                
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                // Progress bar
-                if (category.completion > 0) {
-                    Column {
-                        LinearProgressIndicator(
-                            progress = category.completion / 100f,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(6.dp)
-                                .clip(RoundedCornerShape(3.dp)),
-                            color = MaterialTheme.colorScheme.primary,
-                            trackColor = MaterialTheme.colorScheme.surfaceVariant
+                // Welcome text centered with modern styling
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 24.dp, bottom = 8.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "Welcome to",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = textColor.copy(alpha = 0.8f),
+                            fontWeight = FontWeight.Medium,
+                            textAlign = TextAlign.Center
+                        )
+                        
+                        Text(
+                            text = "IMPERIUM",
+                            style = MaterialTheme.typography.headlineLarge.copy(
+                                fontWeight = FontWeight.ExtraBold,
+                                letterSpacing = 2.sp
+                            ),
+                            color = textColor,
+                            textAlign = TextAlign.Center
                         )
                         
                         Spacer(modifier = Modifier.height(4.dp))
                         
-                        Text(
-                            text = "${category.completion}% Complete",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.primary
+                        Divider(
+                            modifier = Modifier.width(80.dp),
+                            color = textColor.copy(alpha = 0.5f),
+                            thickness = 2.dp
                         )
                     }
                 }
-            }
-            
-            // Completion badge
-            if (category.completion == 100) {
-                BadgedBox(
-                    badge = {
-                        Badge {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_launcher_foreground),
-                                contentDescription = "Completed",
-                                modifier = Modifier.size(12.dp),
-                                tint = Color.White
-                            )
-                        }
-                    },
-                    modifier = Modifier.padding(start = 8.dp)
+                
+                // Categories header
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
                 ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_launcher_foreground),
-                        contentDescription = "Completed",
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(24.dp)
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Categories",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = textColor
+                        )
+                        
+                        Text(
+                            text = "Explore",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = textColor.copy(alpha = 0.7f)
+                        )
+                    }
                 }
+                
+                // Using fixed height for the grid to avoid the infinity constraints error
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(12.dp),
+                    verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(16.dp),
+                    modifier = Modifier.height(600.dp) // Fixed height to prevent infinite height constraints
+                ) {
+                    items(sampleCategories) { category ->
+                        CategoryCard(category = category, onClick = {
+                            try {
+                                navController.navigate("category/${category.id}")
+                            } catch (e: Exception) {
+                                // Fail silently
+                            }
+                        })
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CategoryCard(category: HistoryCategory, onClick: () -> Unit) {
+    Card(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        )
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(140.dp)
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            category.gradientStart,
+                            category.gradientEnd
+                        )
+                    )
+                )
+        ) {
+            // Add a subtle pattern/overlay for modern gaming feel
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        brush = Brush.radialGradient(
+                            colors = listOf(
+                                Color.White.copy(alpha = 0.1f),
+                                Color.Transparent
+                            )
+                        )
+                    )
+            )
+            
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Text(
+                    text = category.title,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 25.sp,
+                        letterSpacing = 0.5.sp
+                    ),
+                    color = Color.White
+                )
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                Text(
+                    text = category.description,
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    color = Color.White.copy(alpha = 0.9f)
+                )
             }
         }
     }
@@ -442,7 +417,7 @@ fun CategoryCard(
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenPreview() {
-    MaterialTheme {
+    ImperiumTheme {
         HomeScreen(rememberNavController())
     }
 }
@@ -450,9 +425,9 @@ fun HomeScreenPreview() {
 @Preview(showBackground = true)
 @Composable
 fun CategoryCardPreview() {
-    MaterialTheme {
+    ImperiumTheme {
         CategoryCard(
-            category = sampleCategories[0],
+            category = sampleCategories.first(),
             onClick = {}
         )
     }

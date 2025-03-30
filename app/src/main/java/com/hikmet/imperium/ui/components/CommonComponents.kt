@@ -50,7 +50,7 @@ fun ImperiumPrimaryButton(
         if (icon != null) {
             Icon(
                 imageVector = icon,
-                contentDescription = null,
+                contentDescription = "Button icon",
                 modifier = Modifier.size(24.dp)
             )
         }
@@ -84,7 +84,7 @@ fun ImperiumSecondaryButton(
         if (icon != null) {
             Icon(
                 imageVector = icon,
-                contentDescription = null,
+                contentDescription = "Button icon",
                 modifier = Modifier.size(24.dp)
             )
         }

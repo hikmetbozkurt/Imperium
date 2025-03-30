@@ -2,8 +2,10 @@ package com.hikmet.imperium.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.hikmet.imperium.ui.category.CategoryScreen
 import com.hikmet.imperium.ui.home.HomeScreen
 import com.hikmet.imperium.ui.level.LevelScreen
@@ -33,7 +35,7 @@ object NavDestinations {
 @Composable
 fun ImperiumNavGraph(
     navController: NavHostController,
-    startDestination: String = NavDestinations.SPLASH_ROUTE
+    startDestination: String = NavDestinations.HOME_ROUTE
 ) {
     NavHost(
         navController = navController,
@@ -50,31 +52,36 @@ fun ImperiumNavGraph(
         }
         
         // Category detail screen
-        composable(NavDestinations.CATEGORY_ROUTE) { backStackEntry ->
-            val categoryId = backStackEntry.arguments?.getString("categoryId")
+        composable(
+            route = "category/{categoryId}",
+            arguments = listOf(
+                navArgument("categoryId") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val categoryId = backStackEntry.arguments?.getString("categoryId") ?: "ancient"
             CategoryScreen(navController, categoryId)
         }
         
         // Level selection screen
         composable(NavDestinations.LEVEL_ROUTE) { backStackEntry ->
-            val categoryId = backStackEntry.arguments?.getString("categoryId")
-            val levelId = backStackEntry.arguments?.getString("levelId")
+            val categoryId = backStackEntry.arguments?.getString("categoryId") ?: "ancient"
+            val levelId = backStackEntry.arguments?.getString("levelId") ?: "1"
             LevelScreen(navController, categoryId, levelId)
         }
         
         // Quiz screen
         composable(NavDestinations.QUIZ_ROUTE) { backStackEntry ->
-            val categoryId = backStackEntry.arguments?.getString("categoryId")
-            val levelId = backStackEntry.arguments?.getString("levelId")
-            val quizType = backStackEntry.arguments?.getString("quizType")
+            val categoryId = backStackEntry.arguments?.getString("categoryId") ?: "ancient"
+            val levelId = backStackEntry.arguments?.getString("levelId") ?: "1"
+            val quizType = backStackEntry.arguments?.getString("quizType") ?: "STANDARD"
             QuizScreen(navController, categoryId, levelId, quizType)
         }
         
         // Results screen
         composable(NavDestinations.RESULTS_ROUTE) { backStackEntry ->
-            val categoryId = backStackEntry.arguments?.getString("categoryId")
-            val levelId = backStackEntry.arguments?.getString("levelId")
-            val score = backStackEntry.arguments?.getString("score")
+            val categoryId = backStackEntry.arguments?.getString("categoryId") ?: "ancient"
+            val levelId = backStackEntry.arguments?.getString("levelId") ?: "1"
+            val score = backStackEntry.arguments?.getString("score") ?: "0"
             ResultsScreen(navController, categoryId, levelId, score)
         }
         
