@@ -7,4 +7,34 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    
+    <!-- HomeScreen colors -->
+    <color name="home_background">#FFEDE3D2</color>
+    <color name="home_text_color">#FF333333</color>
+    <color name="home_text_secondary">#B3333333</color> <!-- 70% opacity -->
+    <color name="home_divider">#80333333</color> <!-- 50% opacity -->
+    <color name="category_overlay_start">#1AFFFFFF</color> <!-- 10% white -->
+    <color name="category_overlay_end">#00FFFFFF</color> <!-- transparent -->
+    
+    <!-- Category Card Colors - Thematically appropriate for each historical period -->
+    
+    <!-- Ancient Civilizations - Sand and gold tones representing pyramids, monuments and ancient wealth -->
+    <color name="ancient_gradient_start">#FFD4AF37</color> <!-- Rich gold color -->
+    <color name="ancient_gradient_end">#FFC19A6B</color> <!-- Desert sand color -->
+    
+    <!-- Medieval Period - Deep royal blue and purple representing monarchy and nobility -->
+    <color name="medieval_gradient_start">#FF4B0082</color> <!-- Indigo/deep purple -->
+    <color name="medieval_gradient_end">#FF26428B</color> <!-- Royal blue -->
+    
+    <!-- Renaissance - Vibrant colors inspired by Renaissance art and cultural rebirth -->
+    <color name="renaissance_gradient_start">#FF227C70</color> <!-- Rich teal/green -->
+    <color name="renaissance_gradient_end">#FF1E5631</color> <!-- Deep forest green -->
+    
+    <!-- Modern History - Industrial grays to bright modern colors representing progress -->
+    <color name="modern_gradient_start">#FF375E97</color> <!-- Modern blue -->
+    <color name="modern_gradient_end">#FF0A3442</color> <!-- Deep navy -->
+    
+    <!-- World Wars - Somber dark red and gray tones representing conflict and gravity -->
+    <color name="worldwars_gradient_start">#FF8B0000</color> <!-- Dark blood red -->
+    <color name="worldwars_gradient_end">#FF3C3C3C</color> <!-- Dark charcoal gray -->
 </resources>

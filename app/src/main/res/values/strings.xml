@@ -1,3 +1,27 @@
 <resources>
     <string name="app_name">Imperium</string>
+    
+    <!-- HomeScreen strings -->
+    <string name="app_title">Imperium : History Quiz</string>
+    <string name="welcome_prefix">Welcome to</string>
+    <string name="welcome_title">IMPERIUM</string>
+    <string name="categories_title">Categories</string>
+    <string name="explore_label">Explore</string>
+    
+    <!-- Bottom navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_progress">Progress</string>
+    <string name="nav_profile">Profile</string>
+    
+    <!-- Categories -->
+    <string name="category_ancient_title">Ancient Civilizations</string>
+    <string name="category_ancient_desc">Egypt, Greece, Rome and more</string>
+    <string name="category_medieval_title">Medieval Period</string>
+    <string name="category_medieval_desc">Castles, knights, and feudal systems</string>
+    <string name="category_renaissance_title">Renaissance</string>
+    <string name="category_renaissance_desc">Art, science and cultural rebirth</string>
+    <string name="category_modern_title">Modern History</string>
+    <string name="category_modern_desc">Industrial revolution to present day</string>
+    <string name="category_worldwars_title">World Wars</string>
+    <string name="category_worldwars_desc">The two major global conflicts</string>
 </resources>

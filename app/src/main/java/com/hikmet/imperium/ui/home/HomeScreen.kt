@@ -30,6 +30,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocalFireDepartment
@@ -74,7 +75,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -103,15 +106,14 @@ import com.hikmet.imperium.ui.theme.RenaissanceGradientStart
 import com.hikmet.imperium.ui.theme.WorldWarsGradientEnd
 import com.hikmet.imperium.ui.theme.WorldWarsGradientStart
 import kotlinx.coroutines.delay
-import androidx.compose.foundation.verticalScroll
 
 /**
  * Bottom navigation items
  */
-sealed class BottomNavItem(val route: String, val title: String, val icon: ImageVector) {
-    object Home : BottomNavItem(NavDestinations.HOME_ROUTE, "Home", Icons.Default.Home)
-    object Progress : BottomNavItem(NavDestinations.PROGRESS_ROUTE, "Progress", Icons.Default.ShowChart)
-    object Profile : BottomNavItem(NavDestinations.PROFILE_ROUTE, "Profile", Icons.Default.Person)
+sealed class BottomNavItem(val route: String, val title: Int, val icon: ImageVector) {
+    object Home : BottomNavItem(NavDestinations.HOME_ROUTE, R.string.nav_home, Icons.Default.Home)
+    object Progress : BottomNavItem(NavDestinations.PROGRESS_ROUTE, R.string.nav_progress, Icons.Default.ShowChart)
+    object Profile : BottomNavItem(NavDestinations.PROFILE_ROUTE, R.string.nav_profile, Icons.Default.Person)
 }
 
 val BottomNavItems = listOf(
@@ -121,16 +123,34 @@ val BottomNavItems = listOf(
 )
 
 /**
+ * Color scheme data class for category cards
+ */
+data class CategoryColorScheme(
+    val startColorResId: Int,
+    val endColorResId: Int
+)
+
+/**
+ * Map of category color schemes
+ */
+val categoryColorSchemes = mapOf(
+    "ancient" to CategoryColorScheme(R.color.ancient_gradient_start, R.color.ancient_gradient_end),
+    "medieval" to CategoryColorScheme(R.color.medieval_gradient_start, R.color.medieval_gradient_end),
+    "renaissance" to CategoryColorScheme(R.color.renaissance_gradient_start, R.color.renaissance_gradient_end),
+    "modern" to CategoryColorScheme(R.color.modern_gradient_start, R.color.modern_gradient_end),
+    "world_wars" to CategoryColorScheme(R.color.worldwars_gradient_start, R.color.worldwars_gradient_end)
+)
+
+/**
  * Data class for categories
  */
 data class HistoryCategory(
     val id: String,
-    val title: String,
-    val description: String,
+    val titleRes: Int,
+    val descriptionRes: Int,
     val imageResId: Int,
     val completion: Int, // percentage of completion
-    val gradientStart: Color,
-    val gradientEnd: Color
+    val colorScheme: CategoryColorScheme
 )
 
 /**
@@ -139,48 +159,43 @@ data class HistoryCategory(
 val sampleCategories = listOf(
     HistoryCategory(
         "ancient", 
-        "Ancient Civilizations", 
-        "Egypt, Greece, Rome and more",
+        R.string.category_ancient_title, 
+        R.string.category_ancient_desc,
         R.drawable.ic_ancient, 
         75,
-        AncientGradientStart,
-        AncientGradientEnd
+        categoryColorSchemes["ancient"]!!
     ),
     HistoryCategory(
         "medieval", 
-        "Medieval Period", 
-        "Castles, knights, and feudal systems",
+        R.string.category_medieval_title, 
+        R.string.category_medieval_desc,
         R.drawable.ic_medieval, 
         30,
-        MedievalGradientStart,
-        MedievalGradientEnd
+        categoryColorSchemes["medieval"]!!
     ),
     HistoryCategory(
         "renaissance", 
-        "Renaissance",
-        "Art, science and cultural rebirth",
+        R.string.category_renaissance_title,
+        R.string.category_renaissance_desc,
         R.drawable.ic_renaissance, 
         0,
-        RenaissanceGradientStart,
-        RenaissanceGradientEnd
+        categoryColorSchemes["renaissance"]!!
     ),
     HistoryCategory(
         "modern", 
-        "Modern History", 
-        "Industrial revolution to present day",
+        R.string.category_modern_title, 
+        R.string.category_modern_desc,
         R.drawable.ic_modern, 
         10,
-        ModernGradientStart,
-        ModernGradientEnd
+        categoryColorSchemes["modern"]!!
     ),
     HistoryCategory(
         "world_wars", 
-        "World Wars", 
-        "The two major global conflicts",
+        R.string.category_worldwars_title, 
+        R.string.category_worldwars_desc,
         R.drawable.ic_wars, 
         50,
-        WorldWarsGradientStart,
-        WorldWarsGradientEnd
+        categoryColorSchemes["world_wars"]!!
     )
 )
 
@@ -192,17 +207,18 @@ val sampleCategories = listOf(
 fun HomeScreen(navController: NavController) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     
-    // Single background color - warm beige
-    val backgroundColor = Color(0xFFEDE3D2)
-    // Text color - dark gray for better contrast
-    val textColor = Color(0xFF333333)
+    // Get colors from resources
+    val backgroundColor = colorResource(id = R.color.home_background)
+    val textColor = colorResource(id = R.color.home_text_color)
+    val textSecondaryColor = colorResource(id = R.color.home_text_secondary)
+    val dividerColor = colorResource(id = R.color.home_divider)
     
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { 
                     Text(
-                        "Imperium : History Quiz",
+                        stringResource(R.string.app_title),
                         style = MaterialTheme.typography.headlineMedium.copy(
                             fontWeight = FontWeight.Bold
                         ),
@@ -227,9 +243,9 @@ fun HomeScreen(navController: NavController) {
                 BottomNavItems.forEach { screen ->
                     NavigationBarItem(
                         icon = { 
-                            Icon(imageVector = screen.icon, contentDescription = screen.title) 
+                            Icon(imageVector = screen.icon, contentDescription = stringResource(screen.title)) 
                         },
-                        label = { Text(screen.title) },
+                        label = { Text(stringResource(screen.title)) },
                         selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                         onClick = {
                             navController.navigate(screen.route) {
@@ -269,15 +285,15 @@ fun HomeScreen(navController: NavController) {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "Welcome to",
+                            text = stringResource(R.string.welcome_prefix),
                             style = MaterialTheme.typography.titleMedium,
-                            color = textColor.copy(alpha = 0.8f),
+                            color = textSecondaryColor,
                             fontWeight = FontWeight.Medium,
                             textAlign = TextAlign.Center
                         )
                         
                         Text(
-                            text = "IMPERIUM",
+                            text = stringResource(R.string.welcome_title),
                             style = MaterialTheme.typography.headlineLarge.copy(
                                 fontWeight = FontWeight.ExtraBold,
                                 letterSpacing = 2.sp
@@ -290,7 +306,7 @@ fun HomeScreen(navController: NavController) {
                         
                         Divider(
                             modifier = Modifier.width(80.dp),
-                            color = textColor.copy(alpha = 0.5f),
+                            color = dividerColor,
                             thickness = 2.dp
                         )
                     }
@@ -308,16 +324,16 @@ fun HomeScreen(navController: NavController) {
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Categories",
+                            text = stringResource(R.string.categories_title),
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
                             color = textColor
                         )
                         
                         Text(
-                            text = "Explore",
+                            text = stringResource(R.string.explore_label),
                             style = MaterialTheme.typography.labelLarge,
-                            color = textColor.copy(alpha = 0.7f)
+                            color = textSecondaryColor
                         )
                     }
                 }
@@ -348,6 +364,14 @@ fun HomeScreen(navController: NavController) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryCard(category: HistoryCategory, onClick: () -> Unit) {
+    // Get overlay colors from resources
+    val overlayStartColor = colorResource(id = R.color.category_overlay_start)
+    val overlayEndColor = colorResource(id = R.color.category_overlay_end)
+    
+    // Get the gradient colors for this specific category from resources
+    val gradientStartColor = colorResource(id = category.colorScheme.startColorResId)
+    val gradientEndColor = colorResource(id = category.colorScheme.endColorResId)
+    
     Card(
         onClick = onClick,
         modifier = Modifier
@@ -355,7 +379,7 @@ fun CategoryCard(category: HistoryCategory, onClick: () -> Unit) {
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White
+            containerColor = colorResource(id = R.color.white)
         )
     ) {
         Box(
@@ -365,8 +389,8 @@ fun CategoryCard(category: HistoryCategory, onClick: () -> Unit) {
                 .background(
                     brush = Brush.verticalGradient(
                         colors = listOf(
-                            category.gradientStart,
-                            category.gradientEnd
+                            gradientStartColor,
+                            gradientEndColor
                         )
                     )
                 )
@@ -378,8 +402,8 @@ fun CategoryCard(category: HistoryCategory, onClick: () -> Unit) {
                     .background(
                         brush = Brush.radialGradient(
                             colors = listOf(
-                                Color.White.copy(alpha = 0.1f),
-                                Color.Transparent
+                                overlayStartColor,
+                                overlayEndColor
                             )
                         )
                     )
@@ -391,23 +415,23 @@ fun CategoryCard(category: HistoryCategory, onClick: () -> Unit) {
                     .padding(16.dp)
             ) {
                 Text(
-                    text = category.title,
+                    text = stringResource(category.titleRes),
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = 25.sp,
                         letterSpacing = 0.5.sp
                     ),
-                    color = Color.White
+                    color = colorResource(id = R.color.white)
                 )
                 
                 Spacer(modifier = Modifier.height(8.dp))
                 
                 Text(
-                    text = category.description,
+                    text = stringResource(category.descriptionRes),
                     style = MaterialTheme.typography.bodySmall,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    color = Color.White.copy(alpha = 0.9f)
+                    color = colorResource(id = R.color.white).copy(alpha = 0.9f)
                 )
             }
         }
