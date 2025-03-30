@@ -1,6 +1,14 @@
 package com.hikmet.imperium.ui.category
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,12 +27,14 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -36,25 +46,25 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.Color
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
 import com.hikmet.imperium.R
-import com.hikmet.imperium.ui.home.HistoryCategory
-import com.hikmet.imperium.ui.theme.ImperiumTheme
-import com.hikmet.imperium.ui.theme.Primary
+import kotlinx.coroutines.delay
 
 /**
  * Extended category data with description and statistics
@@ -97,10 +107,32 @@ fun CategoryScreen(
     categoryId: String?,
     category: CategoryDetail = sampleCategoryDetail
 ) {
+    // Animation states
+    val bannerState = remember { MutableTransitionState(false).apply { targetState = true } }
+    val cardsState = remember { MutableTransitionState(false).apply { targetState = true } }
+    val buttonsState = remember { MutableTransitionState(false).apply { targetState = true } }
+    
+    // Sequential animations
+    LaunchedEffect(Unit) {
+        delay(100) // Show banner first
+        bannerState.targetState = true
+        delay(300) // Show cards after banner
+        cardsState.targetState = true
+        delay(200) // Show buttons last
+        buttonsState.targetState = true
+    }
+    
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(category.title) },
+                title = { 
+                    Text(
+                        category.title,
+                        style = MaterialTheme.typography.headlineSmall.copy(
+                            fontWeight = FontWeight.Bold
+                        )
+                    ) 
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
@@ -124,34 +156,73 @@ fun CategoryScreen(
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Banner image
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp)
+                // Banner image with animation
+                AnimatedVisibility(
+                    visibleState = bannerState,
+                    enter = fadeIn(animationSpec = tween(500)) + 
+                            slideInVertically(
+                                animationSpec = spring(
+                                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                                    stiffness = Spring.StiffnessLow
+                                ),
+                                initialOffsetY = { -200 }
+                            )
                 ) {
-                    Image(
-                        painter = painterResource(id = category.imageResId),
-                        contentDescription = category.title,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                    
-                    // Overlay for text
-                    Surface(
-                        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
+                    Box(
                         modifier = Modifier
-                            .align(Alignment.BottomCenter)
                             .fillMaxWidth()
-                            .padding(bottom = 16.dp, start = 16.dp, end = 16.dp)
-                            .clip(RoundedCornerShape(8.dp))
+                            .height(220.dp)
                     ) {
-                        Text(
-                            text = category.description,
-                            style = MaterialTheme.typography.titleMedium,
-                            modifier = Modifier.padding(16.dp),
-                            textAlign = TextAlign.Center
+                        // Background image
+                        Image(
+                            painter = painterResource(id = category.imageResId),
+                            contentDescription = category.title,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .blur(2.dp)
                         )
+                        
+                        // Gradient overlay
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(
+                                    Brush.verticalGradient(
+                                        colors = listOf(
+                                            Color.Transparent,
+                                            MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
+                                        )
+                                    )
+                                )
+                        )
+                        
+                        // Category image centered
+                        Image(
+                            painter = painterResource(id = category.imageResId),
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .size(120.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .align(Alignment.Center)
+                        )
+                        
+                        // Title and description
+                        Column(
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = category.description,
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                textAlign = TextAlign.Center
+                            )
+                        }
                     }
                 }
                 
@@ -161,135 +232,221 @@ fun CategoryScreen(
                         .fillMaxWidth()
                         .padding(16.dp)
                 ) {
-                    // Progress section
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                        shape = RoundedCornerShape(8.dp)
+                    // Progress section with animation
+                    AnimatedVisibility(
+                        visibleState = cardsState,
+                        enter = fadeIn(animationSpec = tween(500)) + 
+                                slideInVertically(
+                                    animationSpec = tween(500),
+                                    initialOffsetY = { it / 2 }
+                                )
                     ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp)
+                        ElevatedCard(
+                            modifier = Modifier.fillMaxWidth(),
+                            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 3.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.elevatedCardColors(
+                                containerColor = MaterialTheme.colorScheme.surface
+                            )
                         ) {
-                            Text(
-                                text = "Progress",
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                            
-                            Spacer(modifier = Modifier.height(8.dp))
-                            
-                            // Progress bar
-                            LinearProgressIndicator(
-                                progress = category.completion / 100f,
-                                modifier = Modifier.fillMaxWidth(),
-                                color = Primary
-                            )
-                            
-                            Spacer(modifier = Modifier.height(8.dp))
-                            
-                            // Stats row
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
                             ) {
-                                StatItem(
-                                    value = category.totalLevels.toString(),
-                                    label = "Total Levels",
-                                    icon = Icons.Default.CheckCircle
+                                Text(
+                                    text = "Your Progress",
+                                    style = MaterialTheme.typography.titleMedium.copy(
+                                        fontWeight = FontWeight.Bold
+                                    ),
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                                 
-                                StatItem(
-                                    value = category.completedLevels.toString(),
-                                    label = "Completed",
-                                    icon = Icons.Default.CheckCircle
-                                )
+                                Spacer(modifier = Modifier.height(12.dp))
                                 
-                                StatItem(
-                                    value = category.unlockedLevels.toString(),
-                                    label = "Unlocked",
-                                    icon = Icons.Default.CheckCircle
-                                )
+                                // Progress bar
+                                Column {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(
+                                            text = "Completion",
+                                            style = MaterialTheme.typography.bodyMedium
+                                        )
+                                        
+                                        Text(
+                                            text = "${category.completion}%",
+                                            style = MaterialTheme.typography.bodyMedium.copy(
+                                                fontWeight = FontWeight.Bold
+                                            ),
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
+                                    
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    
+                                    LinearProgressIndicator(
+                                        progress = category.completion / 100f,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(8.dp)
+                                            .clip(RoundedCornerShape(4.dp)),
+                                        color = MaterialTheme.colorScheme.primary,
+                                        trackColor = MaterialTheme.colorScheme.surfaceVariant
+                                    )
+                                }
+                                
+                                Spacer(modifier = Modifier.height(16.dp))
+                                
+                                // Stats row
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceEvenly
+                                ) {
+                                    StatItem(
+                                        value = category.totalLevels.toString(),
+                                        label = "Total Levels",
+                                        icon = Icons.Default.CheckCircle,
+                                        iconTint = MaterialTheme.colorScheme.primary
+                                    )
+                                    
+                                    StatItem(
+                                        value = category.completedLevels.toString(),
+                                        label = "Completed",
+                                        icon = Icons.Default.Star,
+                                        iconTint = MaterialTheme.colorScheme.tertiary
+                                    )
+                                    
+                                    StatItem(
+                                        value = category.unlockedLevels.toString(),
+                                        label = "Unlocked",
+                                        icon = Icons.Default.LockOpen,
+                                        iconTint = MaterialTheme.colorScheme.secondary
+                                    )
+                                }
                             }
                         }
                     }
                     
                     Spacer(modifier = Modifier.height(16.dp))
                     
-                    // Description
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                        shape = RoundedCornerShape(8.dp)
+                    // Description with animation
+                    AnimatedVisibility(
+                        visibleState = cardsState,
+                        enter = fadeIn(animationSpec = tween(500, delayMillis = 100)) + 
+                                slideInVertically(
+                                    animationSpec = tween(500, delayMillis = 100),
+                                    initialOffsetY = { it / 2 }
+                                )
                     ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp)
+                        ElevatedCard(
+                            modifier = Modifier.fillMaxWidth(),
+                            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 3.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.elevatedCardColors(
+                                containerColor = MaterialTheme.colorScheme.surface
+                            )
                         ) {
-                            Text(
-                                text = "About ${category.title}",
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                            
-                            Spacer(modifier = Modifier.height(8.dp))
-                            
-                            Text(
-                                text = category.longDescription,
-                                style = MaterialTheme.typography.bodyLarge
-                            )
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                            ) {
+                                Text(
+                                    text = "About ${category.title}",
+                                    style = MaterialTheme.typography.titleMedium.copy(
+                                        fontWeight = FontWeight.Bold
+                                    ),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                
+                                Spacer(modifier = Modifier.height(12.dp))
+                                
+                                Text(
+                                    text = category.longDescription,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                         }
                     }
                     
                     Spacer(modifier = Modifier.height(24.dp))
                     
-                    // Quiz type buttons
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    // Quiz type buttons with animation
+                    AnimatedVisibility(
+                        visibleState = buttonsState,
+                        enter = fadeIn(animationSpec = tween(500, delayMillis = 200)) + 
+                                slideInVertically(
+                                    animationSpec = tween(500, delayMillis = 200),
+                                    initialOffsetY = { it / 2 }
+                                )
                     ) {
-                        // Standard Quiz
-                        Button(
-                            onClick = { 
-                                navController.navigate("level/${category.id}/1") 
-                            },
-                            modifier = Modifier.weight(1f),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primary
-                            ),
-                            shape = RoundedCornerShape(24.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.PlayArrow,
-                                contentDescription = null,
-                                modifier = Modifier.size(24.dp)
+                        Column {
+                            Text(
+                                text = "Choose Your Challenge",
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontWeight = FontWeight.Bold
+                                ),
+                                modifier = Modifier.padding(bottom = 12.dp)
                             )
                             
-                            Spacer(modifier = Modifier.width(4.dp))
-                            
-                            Text("Play")
-                        }
-                        
-                        // Time Attack Quiz
-                        Button(
-                            onClick = { 
-                                navController.navigate("quiz/${category.id}/1/TIME_ATTACK") 
-                            },
-                            modifier = Modifier.weight(1f),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.secondary
-                            ),
-                            shape = RoundedCornerShape(24.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Timer,
-                                contentDescription = null,
-                                modifier = Modifier.size(24.dp)
-                            )
-                            
-                            Spacer(modifier = Modifier.width(4.dp))
-                            
-                            Text("Time Attack")
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                // Standard Quiz
+                                Button(
+                                    onClick = { 
+                                        navController.navigate("level/${category.id}/1") 
+                                    },
+                                    modifier = Modifier.weight(1f),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.primary
+                                    ),
+                                    shape = RoundedCornerShape(24.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.PlayArrow,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                    
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    
+                                    Text(
+                                        "Standard Mode",
+                                        style = MaterialTheme.typography.labelLarge
+                                    )
+                                }
+                                
+                                // Time Attack Quiz
+                                Button(
+                                    onClick = { 
+                                        navController.navigate("quiz/${category.id}/1/TIME_ATTACK") 
+                                    },
+                                    modifier = Modifier.weight(1f),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.secondary
+                                    ),
+                                    shape = RoundedCornerShape(24.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Timer,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                    
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    
+                                    Text(
+                                        "Time Attack",
+                                        style = MaterialTheme.typography.labelLarge
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -305,31 +462,38 @@ fun CategoryScreen(
 fun StatItem(
     value: String,
     label: String,
-    icon: ImageVector
+    icon: ImageVector,
+    iconTint: Color
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Surface(
-            color = MaterialTheme.colorScheme.primaryContainer,
+            color = MaterialTheme.colorScheme.surfaceVariant,
             shape = CircleShape,
-            modifier = Modifier.size(40.dp)
+            modifier = Modifier.size(48.dp)
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .size(24.dp)
-                    .padding(8.dp)
-            )
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = iconTint,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
         }
         
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(6.dp))
         
         Text(
             text = value,
-            style = MaterialTheme.typography.titleMedium
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontWeight = FontWeight.Bold
+            ),
+            color = MaterialTheme.colorScheme.onSurface
         )
         
         Text(
@@ -343,7 +507,7 @@ fun StatItem(
 @Preview(showBackground = true)
 @Composable
 fun CategoryScreenPreview() {
-    ImperiumTheme {
+    MaterialTheme {
         CategoryScreen(
             navController = rememberNavController(),
             categoryId = "ancient"
