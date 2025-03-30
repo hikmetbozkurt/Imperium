@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "com.hikmet.imperium"
-        minSdk = 24
+        minSdk = 30
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -40,7 +40,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.0"
     }
     packaging {
         resources {
@@ -72,7 +72,14 @@ dependencies {
     // Optional: for animations
     implementation(libs.androidx.animation)
     implementation(libs.androidx.animation.graphics)
+    implementation(libs.firebase.perf.ktx)
     
+    // Icons - Add Material icons extended for the missing icons
+    implementation("androidx.compose.material:material-icons-extended")
+    
+    // Foundation for background modifier
+    implementation("androidx.compose.foundation:foundation")
+
     // Testing dependencies
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

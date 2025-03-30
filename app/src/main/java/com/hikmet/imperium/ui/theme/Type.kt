@@ -2,18 +2,13 @@ package com.hikmet.imperium.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.hikmet.imperium.R
 
 // Define Nunito Sans font family
-private val NunitoSans = FontFamily(
-    Font(R.font.nunito_sans_regular, FontWeight.Normal),
-    Font(R.font.nunito_sans_bold, FontWeight.Bold),
-    Font(R.font.nunito_sans_semibold, FontWeight.SemiBold)
-)
+private val NunitoSans = FontFamily.Default
 
 // Typography based on the design guide
 val Typography = Typography(

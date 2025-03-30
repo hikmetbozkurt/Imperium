@@ -1,6 +1,8 @@
 package com.hikmet.imperium.ui.progress
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -390,6 +392,9 @@ fun AccuracyChart(
     accuracy: Float,
     modifier: Modifier = Modifier
 ) {
+    // Store color outside of Canvas scope
+    val surfaceVariantColor = MaterialTheme.colorScheme.surfaceVariant
+    
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
@@ -402,7 +407,7 @@ fun AccuracyChart(
             
             // Background circle
             drawArc(
-                color = MaterialTheme.colorScheme.surfaceVariant,
+                color = surfaceVariantColor,
                 startAngle = 0f,
                 sweepAngle = 360f,
                 useCenter = false,

@@ -236,7 +236,7 @@ fun QuizScreen(
             ) {
                 // Progress indicator
                 LinearProgressIndicator(
-                    progress = { (currentQuestionIndex.toFloat() + 1) / questions.size.toFloat() },
+                    progress = (currentQuestionIndex.toFloat() + 1) / questions.size.toFloat(),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(8.dp),
@@ -249,7 +249,7 @@ fun QuizScreen(
                 if (isTimeAttack) {
                     // Time Attack progress bar
                     LinearProgressIndicator(
-                        progress = { timeRemaining },
+                        progress = timeRemaining,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(4.dp),

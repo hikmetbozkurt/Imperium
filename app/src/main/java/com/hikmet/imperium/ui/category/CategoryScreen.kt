@@ -39,6 +39,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -46,6 +47,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.Color
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 import com.hikmet.imperium.R
 import com.hikmet.imperium.ui.home.HistoryCategory
 import com.hikmet.imperium.ui.theme.ImperiumTheme
@@ -176,7 +181,7 @@ fun CategoryScreen(
                             
                             // Progress bar
                             LinearProgressIndicator(
-                                progress = { category.completion / 100f },
+                                progress = category.completion / 100f,
                                 modifier = Modifier.fillMaxWidth(),
                                 color = Primary
                             )
@@ -300,7 +305,7 @@ fun CategoryScreen(
 fun StatItem(
     value: String,
     label: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector
+    icon: ImageVector
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
