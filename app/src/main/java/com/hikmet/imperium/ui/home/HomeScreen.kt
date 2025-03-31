@@ -92,7 +92,6 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.hikmet.imperium.R
-import com.hikmet.imperium.ui.category.categoryDetails
 import com.hikmet.imperium.ui.navigation.NavDestinations
 import com.hikmet.imperium.ui.theme.AncientGradientEnd
 import com.hikmet.imperium.ui.theme.AncientGradientStart

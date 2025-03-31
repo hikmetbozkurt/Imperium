@@ -53,9 +53,11 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -63,18 +65,26 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.hikmet.imperium.ImperiumApplication
 import com.hikmet.imperium.R
+import com.hikmet.imperium.data.entities.CategoryEntity
+import com.hikmet.imperium.data.entities.UserProgressEntity
+import com.hikmet.imperium.ui.navigation.NavDestinations
 import com.hikmet.imperium.ui.theme.AncientGradientEnd
 import com.hikmet.imperium.ui.theme.AncientGradientStart
 import com.hikmet.imperium.ui.theme.MedievalGradientEnd
@@ -85,7 +95,11 @@ import com.hikmet.imperium.ui.theme.RenaissanceGradientEnd
 import com.hikmet.imperium.ui.theme.RenaissanceGradientStart
 import com.hikmet.imperium.ui.theme.WorldWarsGradientEnd
 import com.hikmet.imperium.ui.theme.WorldWarsGradientStart
-import kotlinx.coroutines.delay
+import com.hikmet.imperium.ui.viewmodel.CategoryViewModel
+import com.hikmet.imperium.ui.viewmodel.DataState
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 /**
  * Extended category data with description and statistics
@@ -108,90 +122,63 @@ data class CategoryDetail(
 val CategoryDetail.gradientColors: List<Color> get() = listOf(gradientStart, gradientEnd)
 val CategoryDetail.imageRes: Int get() = imageResId
 
-/**
- * Collection of category details for all categories
- */
-val categoryDetails = mapOf(
-    "ancient" to CategoryDetail(
-        id = "ancient",
-        title = "Ancient Civilizations",
-        description = "Egypt, Greece, Rome and more",
-        longDescription = "Explore the fascinating world of ancient civilizations that laid the foundation for modern society. " +
-                "From the pyramids of Egypt to the forums of Rome, discover the inventions, cultures, and legacies that shaped human history.",
-        imageResId = R.drawable.ic_ancient,
-        completion = 75,
-        totalLevels = 12,
-        completedLevels = 9,
-        unlockedLevels = 10,
-        gradientStart = AncientGradientStart,
-        gradientEnd = AncientGradientEnd
-    ),
-    "medieval" to CategoryDetail(
-        id = "medieval",
-        title = "Medieval Period",
-        description = "Castles, knights, and feudal systems",
-        longDescription = "Journey to the Middle Ages, a time of castles, knights, and feudal systems. " +
-                "Learn about the rise of kingdoms, the influence of the church, the Crusades, and the cultural developments " +
-                "that bridged the ancient world to the Renaissance.",
-        imageResId = R.drawable.ic_medieval,
-        completion = 30,
-        totalLevels = 12,
-        completedLevels = 4,
-        unlockedLevels = 6,
-        gradientStart = MedievalGradientStart,
-        gradientEnd = MedievalGradientEnd
-    ),
-    "renaissance" to CategoryDetail(
-        id = "renaissance",
-        title = "Renaissance",
-        description = "Art, science and cultural rebirth",
-        longDescription = "Witness the rebirth of art, science, and culture during the Renaissance. From Michelangelo's " +
-                "masterpieces to Leonardo da Vinci's inventions, discover how this period of innovation and enlightenment " +
-                "transformed Europe and set the stage for the modern world.",
-        imageResId = R.drawable.ic_renaissance,
-        completion = 0,
-        totalLevels = 12,
-        completedLevels = 0,
-        unlockedLevels = 3,
-        gradientStart = RenaissanceGradientStart,
-        gradientEnd = RenaissanceGradientEnd
-    ),
-    "modern" to CategoryDetail(
-        id = "modern",
-        title = "Modern History",
-        description = "Industrial revolution to present day",
-        longDescription = "From the Industrial Revolution to the Digital Age, explore the rapid transformations of the modern era. " +
-                "Learn about technological innovations, social movements, political revolutions, and global conflicts that have " +
-                "shaped our contemporary world in the past few centuries.",
-        imageResId = R.drawable.ic_modern,
-        completion = 10,
-        totalLevels = 12,
-        completedLevels = 1,
-        unlockedLevels = 4,
-        gradientStart = ModernGradientStart,
-        gradientEnd = ModernGradientEnd
-    ),
-    "world_wars" to CategoryDetail(
-        id = "world_wars",
-        title = "World Wars",
-        description = "The two major global conflicts",
-        longDescription = "Delve into the defining conflicts of the 20th century: World War I and World War II. " +
-                "Study the complex causes, pivotal battles, technological advancements, humanitarian crises, and lasting " +
-                "consequences of these global struggles that reshaped international relations and redefined modern warfare.",
-        imageResId = R.drawable.ic_wars,
-        completion = 50,
-        totalLevels = 12,
-        completedLevels = 6,
-        unlockedLevels = 8,
-        gradientStart = WorldWarsGradientStart,
-        gradientEnd = WorldWarsGradientEnd
+// Function to convert CategoryEntity to CategoryDetail
+fun CategoryEntity.toCategoryDetail(
+    completion: Int,
+    completedLevels: Int,
+    unlockedLevels: Int
+): CategoryDetail {
+    // Determine gradient colors based on category ID
+    val (gradientStart, gradientEnd) = when (id) {
+        "ancient" -> Pair(AncientGradientStart, AncientGradientEnd)
+        "medieval" -> Pair(MedievalGradientStart, MedievalGradientEnd)
+        "renaissance" -> Pair(RenaissanceGradientStart, RenaissanceGradientEnd)
+        "modern" -> Pair(ModernGradientStart, ModernGradientEnd)
+        "world_wars" -> Pair(WorldWarsGradientStart, WorldWarsGradientEnd)
+        else -> Pair(AncientGradientStart, AncientGradientEnd)
+    }
+    
+    // Determine drawable resource ID based on iconResourceName
+    val imageResId = when (iconResourceName) {
+        "ic_ancient" -> R.drawable.ic_ancient
+        "ic_medieval" -> R.drawable.ic_medieval
+        "ic_renaissance" -> R.drawable.ic_renaissance
+        "ic_modern" -> R.drawable.ic_modern
+        "ic_wars" -> R.drawable.ic_wars
+        else -> R.drawable.ic_ancient
+    }
+    
+    return CategoryDetail(
+        id = id,
+        title = title,
+        description = description,
+        longDescription = longDescription,
+        imageResId = imageResId,
+        completion = completion,
+        totalLevels = totalLevels,
+        completedLevels = completedLevels,
+        unlockedLevels = unlockedLevels,
+        gradientStart = gradientStart,
+        gradientEnd = gradientEnd
     )
-)
+}
 
 /**
  * Default category for fallback
  */
-val defaultCategoryDetail = categoryDetails["ancient"]!!
+val defaultCategoryDetail = CategoryDetail(
+    id = "ancient",
+    title = "Ancient Civilizations",
+    description = "Egypt, Greece, Rome and more",
+    longDescription = "Explore the fascinating world of ancient civilizations that laid the foundation for modern society.",
+    imageResId = R.drawable.ic_ancient,
+    completion = 0,
+    totalLevels = 0,
+    completedLevels = 0,
+    unlockedLevels = 0,
+    gradientStart = AncientGradientStart,
+    gradientEnd = AncientGradientEnd
+)
 
 /**
  * Category detail screen
@@ -202,18 +189,50 @@ fun CategoryScreen(
     navController: NavHostController,
     categoryId: String
 ) {
-    // Get category details, with fallback
-    val categoryDetail = remember<CategoryDetail>(categoryId) {
-        categoryDetails[categoryId] ?: categoryDetails["ancient"]!!
-    }
+    // Get the repository from the application
+    val context = LocalContext.current
+    val repository = (context.applicationContext as ImperiumApplication).repository
     
-    // Loading state
+    // Initialize ViewModel
+    val categoryViewModel: CategoryViewModel = viewModel(
+        factory = CategoryViewModel.Factory(repository)
+    )
+    
+    // Coroutine scope for async operations
+    val coroutineScope = rememberCoroutineScope()
+    
+    // States
+    var categoryDetail by remember { mutableStateOf(defaultCategoryDetail) }
+    var userProgress by remember { mutableStateOf<UserProgressEntity?>(null) }
     var isLoading by remember { mutableStateOf(true) }
+    var completionPercentage by remember { mutableStateOf(0) }
     
-    // Simulate loading delay for demo purposes
+    // Selected category from ViewModel
+    val selectedCategory by categoryViewModel.selectedCategory.collectAsState()
+    
+    // Load category data
     LaunchedEffect(categoryId) {
         isLoading = true
-        delay(600)
+        categoryViewModel.selectCategory(categoryId)
+        
+        // Get completion percentage
+        completionPercentage = (categoryViewModel.getCategoryCompletionPercentage(categoryId) * 100).roundToInt()
+        
+        // Get user progress 
+        userProgress = categoryViewModel.getUserProgressForCategory(categoryId).firstOrNull()
+        
+        // Create category detail from database entity
+        selectedCategory?.let { category ->
+            val completedLevels = (completionPercentage * category.totalLevels / 100)
+            val unlockedLevels = userProgress?.unlockedLevels ?: 1
+            
+            categoryDetail = category.toCategoryDetail(
+                completion = completionPercentage,
+                completedLevels = completedLevels,
+                unlockedLevels = unlockedLevels
+            )
+        }
+        
         isLoading = false
     }
     
@@ -351,7 +370,7 @@ fun CategoryScreen(
                                 
                                 // Image of pyramids and temple
                                 Image(
-                                    painter = painterResource(R.drawable.ancient_page_image),
+                                    painter = painterResource(id = if (categoryId == "ancient") R.drawable.ancient_page_image else categoryDetail.imageResId),
                                     contentDescription = "Ancient Civilizations Illustration",
                                     modifier = Modifier
                                         .size(width = 160.dp, height = 160.dp)
@@ -447,7 +466,7 @@ fun CategoryScreen(
                             
                             // Start learning button - Updated for Ancient
                             Button(
-                                onClick = { navController.navigate("level/$categoryId/1") },
+                                onClick = { navController.navigate(NavDestinations.LEVEL_SELECTION_ROUTE.replace("{categoryId}", categoryId)) },
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(56.dp)
@@ -475,37 +494,44 @@ fun CategoryScreen(
                                 )
                             }
                             
-                            // Take a quiz button - Updated for Ancient
-                            OutlinedButton(
-                                onClick = { navController.navigate("quiz/$categoryId/1/STANDARD") },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(56.dp)
-                                    .semantics { 
-                                        contentDescription = "Take a quiz on ${categoryDetail.title}" 
+                            // Only show "Take a quiz" button if there's at least one level unlocked
+                            if (categoryDetail.unlockedLevels > 0) {
+                                // Take a quiz button - Updated for Ancient
+                                OutlinedButton(
+                                    onClick = { navController.navigate(NavDestinations.QUIZ_ROUTE
+                                        .replace("{categoryId}", categoryId)
+                                        .replace("{levelId}", "1")
+                                        .replace("{quizType}", "STANDARD")) 
                                     },
-                                shape = RoundedCornerShape(8.dp),
-                                colors = if (categoryId == "ancient") {
-                                    ButtonDefaults.outlinedButtonColors(
-                                        contentColor = Color(0xFF227C70)
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(56.dp)
+                                        .semantics { 
+                                            contentDescription = "Take a quiz on ${categoryDetail.title}" 
+                                        },
+                                    shape = RoundedCornerShape(8.dp),
+                                    colors = if (categoryId == "ancient") {
+                                        ButtonDefaults.outlinedButtonColors(
+                                            contentColor = Color(0xFF227C70)
+                                        )
+                                    } else {
+                                        ButtonDefaults.outlinedButtonColors(
+                                            contentColor = gradientColors.first()
+                                        )
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Help,
+                                        contentDescription = "Quiz icon",
+                                        modifier = Modifier.size(24.dp)
                                     )
-                                } else {
-                                    ButtonDefaults.outlinedButtonColors(
-                                        contentColor = gradientColors.first()
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        "Take a Quiz",
+                                        fontWeight = FontWeight.SemiBold,
+                                        style = MaterialTheme.typography.titleMedium
                                     )
                                 }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Help,
-                                    contentDescription = "Quiz icon",
-                                    modifier = Modifier.size(24.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    "Take a Quiz",
-                                    fontWeight = FontWeight.SemiBold,
-                                    style = MaterialTheme.typography.titleMedium
-                                )
                             }
                         }
                     }
@@ -545,7 +571,7 @@ fun CategoryScreen(
                                         contentAlignment = Alignment.Center
                                     ) {
                                         CircularProgressIndicator(
-                                            progress = 0.75f, // 9 out of 12 levels completed
+                                            progress = categoryDetail.completion / 100f,
                                             modifier = Modifier.size(100.dp),
                                             strokeWidth = 8.dp,
                                             color = Color(0xFF227C70),
@@ -553,7 +579,7 @@ fun CategoryScreen(
                                         )
                                         
                                         Text(
-                                            text = "9",
+                                            text = categoryDetail.completedLevels.toString(),
                                             style = MaterialTheme.typography.displayMedium,
                                             fontWeight = FontWeight.Bold,
                                             color = Color(0xFF227C70)
@@ -572,7 +598,7 @@ fun CategoryScreen(
                                                 horizontalAlignment = Alignment.CenterHorizontally
                                             ) {
                                                 Text(
-                                                    text = "10",
+                                                    text = categoryDetail.unlockedLevels.toString(),
                                                     style = MaterialTheme.typography.headlineMedium,
                                                     color = Color(0xFF227C70),
                                                     fontWeight = FontWeight.Bold
@@ -588,7 +614,7 @@ fun CategoryScreen(
                                                 horizontalAlignment = Alignment.CenterHorizontally
                                             ) {
                                                 Text(
-                                                    text = "12",
+                                                    text = categoryDetail.totalLevels.toString(),
                                                     style = MaterialTheme.typography.headlineMedium,
                                                     color = Color(0xFF227C70),
                                                     fontWeight = FontWeight.Bold

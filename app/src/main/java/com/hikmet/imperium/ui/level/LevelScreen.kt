@@ -39,6 +39,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,15 +50,18 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.hikmet.imperium.ui.category.categoryDetails
+import com.hikmet.imperium.ImperiumApplication
+import com.hikmet.imperium.ui.navigation.NavDestinations
 import com.hikmet.imperium.ui.theme.AncientGradientStart
 import com.hikmet.imperium.ui.theme.CorrectAnswer
 import com.hikmet.imperium.ui.theme.ImperiumTheme
@@ -67,6 +71,9 @@ import com.hikmet.imperium.ui.theme.ModernGradientStart
 import com.hikmet.imperium.ui.theme.Primary
 import com.hikmet.imperium.ui.theme.RenaissanceGradientStart
 import com.hikmet.imperium.ui.theme.WorldWarsGradientStart
+import com.hikmet.imperium.ui.viewmodel.CategoryViewModel
+import com.hikmet.imperium.ui.viewmodel.DataState
+import com.hikmet.imperium.ui.viewmodel.LevelWithProgress
 
 /**
  * Level data class
@@ -164,88 +171,83 @@ val defaultLevels = levelsMap["ancient"] ?: emptyList()
 @Composable
 fun LevelScreen(
     navController: NavHostController,
-    categoryId: String,
-    levelSetId: String
+    categoryId: String
 ) {
-    // Get category details, with fallback to Ancient History if not found
-    val categoryDetail = remember(categoryId) {
-        categoryDetails[categoryId] ?: categoryDetails["ancient"]!!
+    // Get the repository from the application
+    val context = LocalContext.current
+    val repository = (context.applicationContext as ImperiumApplication).repository
+    
+    // Initialize ViewModel
+    val categoryViewModel: CategoryViewModel = viewModel(
+        factory = CategoryViewModel.Factory(repository)
+    )
+    
+    // Select category to load its levels
+    LaunchedEffect(categoryId) {
+        categoryViewModel.selectCategory(categoryId)
     }
     
-    val gradientColors = remember<List<Color>>(categoryDetail) {
-        listOf(categoryDetail.gradientStart, categoryDetail.gradientEnd)
+    // Collect state from ViewModel
+    val levelsState by categoryViewModel.levelsState.collectAsState()
+    val selectedCategory by categoryViewModel.selectedCategory.collectAsState()
+    val totalStars by categoryViewModel.totalStars.collectAsState()
+    
+    // Set up UI elements
+    val categoryTitle = selectedCategory?.title ?: "Select Level"
+    
+    // Determine primary color for this category
+    val primaryColor = when (categoryId) {
+        "ancient" -> AncientGradientStart
+        "medieval" -> MedievalGradientStart
+        "renaissance" -> RenaissanceGradientStart
+        "modern" -> ModernGradientStart
+        "world_wars" -> WorldWarsGradientStart
+        else -> Primary
     }
     
-    // Loading state
-    var isLoading by remember { mutableStateOf(true) }
-    var hasError by remember { mutableStateOf(false) }
-    
-    // Simulate loading delay for demo purposes
-    LaunchedEffect(categoryId, levelSetId) {
-        isLoading = true
-        hasError = false
-        
-        // Simulate network delay
-        kotlinx.coroutines.delay(800)
-        
-        // Check if we have data for this category
-        if (levelsMap.containsKey(categoryId)) {
-            isLoading = false
-        } else {
-            isLoading = false
-            hasError = true
-        }
-    }
-    
-    // Get levels for selected category, with fallback
-    val categoryLevels = remember<List<Level>>(categoryId, isLoading) {
-        if (!isLoading) {
-            levelsMap[categoryId] ?: levelsMap["ancient"] ?: emptyList()
-        } else {
-            emptyList()
-        }
-    }
-    
-    val levelScreenAccessibilityDescription = remember(categoryDetail, categoryLevels.size) {
-        "${categoryDetail.title} Levels - ${categoryLevels.size} levels available"
-    }
-    
-    // Use different style for ancient category
-    val isAncient = categoryId == "ancient"
-    val appBarColor = if (isAncient) Color.White else gradientColors[0]
-    val textColor = if (isAncient) Color.Black else MaterialTheme.colorScheme.onPrimary
-    val iconTint = if (isAncient) Color(0xFF227C70) else MaterialTheme.colorScheme.onPrimary
-    val primaryColor = if (isAncient) Color(0xFF227C70) else gradientColors[0]
+    // Accessibility description
+    val levelScreenAccessibilityDescription = "Level selection screen for $categoryTitle"
     
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { 
                     Text(
-                        "${categoryDetail.title}: Levels",
+                        text = categoryTitle,
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight = FontWeight.Bold
-                        ),
-                        color = textColor
-                    ) 
+                        )
+                    )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = appBarColor,
-                    titleContentColor = textColor
+                    containerColor = Color.White,
+                    titleContentColor = Color.Black
                 ),
                 navigationIcon = {
-                    IconButton(
-                        onClick = { 
-                            navController.popBackStack() 
-                        },
-                        modifier = Modifier.semantics { 
-                            contentDescription = "Back to categories"
-                        }
-                    ) {
+                    IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Navigate back to categories",
-                            tint = iconTint
+                            contentDescription = "Navigate back"
+                        )
+                    }
+                },
+                actions = {
+                    // Show total stars earned
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(end = 16.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Star,
+                            contentDescription = null,
+                            tint = Color(0xFFFFD700),
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = totalStars.toString(),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
                         )
                     }
                 }
@@ -261,125 +263,148 @@ fun LevelScreen(
                     contentDescription = levelScreenAccessibilityDescription
                 }
         ) {
-            if (isLoading) {
-                // Loading state
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
-                        modifier = Modifier.semantics { contentDescription = "Loading levels" }
+            when (levelsState) {
+                is DataState.Loading -> {
+                    // Loading state
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
                     ) {
-                        CircularProgressIndicator(
-                            color = primaryColor
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = "Loading levels...",
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    }
-                }
-            } else if (hasError || categoryLevels.isEmpty()) {
-                // Error state
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
-                        modifier = Modifier
-                            .padding(32.dp)
-                            .semantics { contentDescription = "No levels available for this category" }
-                    ) {
-                        Text(
-                            text = "No levels available",
-                            style = MaterialTheme.typography.titleLarge,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "We couldn't find any levels for ${categoryDetail.title}. Please try another category.",
-                            style = MaterialTheme.typography.bodyLarge,
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(modifier = Modifier.height(24.dp))
-                        Button(
-                            onClick = { navController.popBackStack() },
-                            modifier = Modifier
-                                .height(56.dp)
-                                .semantics { contentDescription = "Return to categories" },
-                            shape = RoundedCornerShape(8.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = primaryColor
-                            )
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.semantics { contentDescription = "Loading levels" }
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.ArrowBack,
-                                contentDescription = null
+                            CircularProgressIndicator(
+                                color = primaryColor
                             )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("Back to Categories")
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = "Loading levels...",
+                                style = MaterialTheme.typography.bodyLarge
+                            )
                         }
                     }
                 }
-            } else {
-                // Content - show level grid with title
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp)
-                ) {
-                    Text(
-                        text = "Select a Level",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black,
-                        modifier = Modifier.padding(bottom = 16.dp, start = 4.dp)
-                    )
+                
+                is DataState.Empty -> {
+                    // No levels found
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.padding(32.dp)
+                        ) {
+                            Text(
+                                text = "No levels available",
+                                style = MaterialTheme.typography.titleLarge,
+                                textAlign = TextAlign.Center
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Button(
+                                onClick = { navController.popBackStack() },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = primaryColor
+                                )
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.ArrowBack,
+                                    contentDescription = null
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Back to Categories")
+                            }
+                        }
+                    }
+                }
+                
+                is DataState.Error -> {
+                    // Error state
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.padding(32.dp)
+                        ) {
+                            Text(
+                                text = "Error loading levels",
+                                style = MaterialTheme.typography.titleLarge,
+                                textAlign = TextAlign.Center
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = (levelsState as DataState.Error).message,
+                                style = MaterialTheme.typography.bodyLarge,
+                                textAlign = TextAlign.Center,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Button(
+                                onClick = { navController.popBackStack() },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = primaryColor
+                                )
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.ArrowBack,
+                                    contentDescription = null
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Back to Categories")
+                            }
+                        }
+                    }
+                }
+                
+                is DataState.Success -> {
+                    // Content - show level grid with title
+                    val levels = (levelsState as DataState.Success<List<LevelWithProgress>>).data
                     
-                    LevelGrid(
-                        levels = categoryLevels,
-                        navController = navController,
-                        categoryId = categoryId,
-                        categoryColor = primaryColor
-                    )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp)
+                    ) {
+                        Text(
+                            text = "Select a Level",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black,
+                            modifier = Modifier.padding(bottom = 16.dp, start = 4.dp)
+                        )
+                        
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(3),
+                            contentPadding = PaddingValues(4.dp),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            items(levels) { levelWithProgress ->
+                                LevelCard(
+                                    levelWithProgress = levelWithProgress,
+                                    onClick = {
+                                        if (levelWithProgress.isUnlocked) {
+                                            navController.navigate(NavDestinations.QUIZ_ROUTE
+                                                .replace("{categoryId}", categoryId)
+                                                .replace("{levelId}", levelWithProgress.level.levelNumber.toString())
+                                                .replace("{quizType}", "STANDARD")
+                                            )
+                                        }
+                                    },
+                                    categoryColor = primaryColor
+                                )
+                            }
+                        }
+                    }
                 }
             }
-        }
-    }
-}
-
-/**
- * Grid of level cards
- */
-@Composable
-fun LevelGrid(
-    levels: List<Level>,
-    navController: NavHostController,
-    categoryId: String,
-    categoryColor: Color
-) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(3),
-        contentPadding = PaddingValues(4.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        modifier = Modifier.fillMaxSize()
-    ) {
-        items(levels) { level ->
-            LevelCard(
-                level = level,
-                onClick = {
-                    if (level.isUnlocked) {
-                        navController.navigate("quiz/$categoryId/${level.id}/STANDARD")
-                    }
-                },
-                categoryColor = categoryColor
-            )
         }
     }
 }
@@ -390,35 +415,39 @@ fun LevelGrid(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LevelCard(
-    level: Level,
+    levelWithProgress: LevelWithProgress,
     onClick: () -> Unit,
     categoryColor: Color
 ) {
-    val levelAccessibilityDescription = remember(level) {
-        "Level ${level.id}, " + 
-        (if (level.isUnlocked) "Unlocked, " else "Locked, ") + 
-        "${level.stars} stars earned"
+    val level = levelWithProgress.level
+    val isUnlocked = levelWithProgress.isUnlocked
+    val starsEarned = levelWithProgress.starsEarned
+    
+    val levelAccessibilityDescription = remember(level, isUnlocked, starsEarned) {
+        "Level ${level.levelNumber}, " + 
+        (if (isUnlocked) "Unlocked, " else "Locked, ") + 
+        "$starsEarned stars earned"
     }
     
     Card(
         onClick = onClick,
-        enabled = level.isUnlocked,
+        enabled = isUnlocked,
         modifier = Modifier
             .size(100.dp)
             .semantics { 
                 contentDescription = levelAccessibilityDescription
             },
         elevation = CardDefaults.cardElevation(
-            defaultElevation = if (level.isUnlocked) 4.dp else 0.dp
+            defaultElevation = if (isUnlocked) 4.dp else 0.dp
         ),
         colors = CardDefaults.cardColors(
-            containerColor = if (level.isUnlocked) 
+            containerColor = if (isUnlocked) 
                 Color.White
             else 
                 Color.Gray.copy(alpha = 0.1f)
         ),
         shape = RoundedCornerShape(12.dp),
-        border = if (level.isUnlocked) null else androidx.compose.foundation.BorderStroke(1.dp, Color.Gray.copy(alpha = 0.3f))
+        border = if (isUnlocked) null else androidx.compose.foundation.BorderStroke(1.dp, Color.Gray.copy(alpha = 0.3f))
     ) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -429,7 +458,7 @@ fun LevelCard(
                 verticalArrangement = Arrangement.Center,
                 modifier = Modifier.fillMaxSize()
             ) {
-                if (!level.isUnlocked) {
+                if (!isUnlocked) {
                     // Locked level
                     Box(
                         modifier = Modifier
@@ -449,11 +478,32 @@ fun LevelCard(
                     Spacer(modifier = Modifier.height(4.dp))
                     
                     Text(
-                        text = "Level ${level.id}",
+                        text = "Level ${level.levelNumber}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.Gray,
                         fontWeight = FontWeight.Medium
                     )
+                    
+                    if (levelWithProgress.starsRequired > 0) {
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(top = 4.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Star,
+                                contentDescription = null,
+                                tint = Color(0xFFFFD700).copy(alpha = 0.5f),
+                                modifier = Modifier.size(14.dp)
+                            )
+                            Spacer(modifier = Modifier.width(2.dp))
+                            Text(
+                                text = levelWithProgress.starsRequired.toString(),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.Gray
+                            )
+                        }
+                    }
                 } else {
                     // Unlocked level - circular background with number
                     Box(
@@ -464,7 +514,7 @@ fun LevelCard(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = level.id.toString(),
+                            text = level.levelNumber.toString(),
                             style = MaterialTheme.typography.titleMedium,
                             color = Color.White,
                             fontWeight = FontWeight.Bold
@@ -473,23 +523,28 @@ fun LevelCard(
                     
                     Spacer(modifier = Modifier.height(4.dp))
                     
+                    Text(
+                        text = if (levelWithProgress.isCompleted) "Completed" else "Level ${level.levelNumber}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (levelWithProgress.isCompleted) categoryColor else Color.Black,
+                        fontWeight = if (levelWithProgress.isCompleted) FontWeight.Bold else FontWeight.Normal
+                    )
+                    
                     // Show stars if any
-                    if (level.isUnlocked) {
-                        Row(
-                            horizontalArrangement = Arrangement.Center,
-                            modifier = Modifier.padding(top = 4.dp)
-                        ) {
-                            repeat(3) { index ->
-                                Icon(
-                                    imageVector = Icons.Default.Star,
-                                    contentDescription = null, // Already covered by parent
-                                    tint = if (index < level.stars) 
-                                        categoryColor 
-                                    else 
-                                        Color.Gray.copy(alpha = 0.3f),
-                                    modifier = Modifier.size(16.dp)
-                                )
-                            }
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.padding(top = 4.dp)
+                    ) {
+                        repeat(3) { index ->
+                            Icon(
+                                imageVector = Icons.Default.Star,
+                                contentDescription = null, // Already covered by parent
+                                tint = if (index < starsEarned) 
+                                    Color(0xFFFFD700) // Gold
+                                else 
+                                    Color.Gray.copy(alpha = 0.3f),
+                                modifier = Modifier.size(16.dp)
+                            )
                         }
                     }
                 }
@@ -498,26 +553,13 @@ fun LevelCard(
     }
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
 fun LevelScreenPreview() {
     ImperiumTheme {
         LevelScreen(
             navController = rememberNavController(),
-            categoryId = "ancient",
-            levelSetId = ""
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun LevelCardPreview() {
-    ImperiumTheme {
-        LevelCard(
-            level = levelsMap["ancient"]!![0],
-            onClick = {},
-            categoryColor = AncientGradientStart
+            categoryId = "ancient"
         )
     }
 } 

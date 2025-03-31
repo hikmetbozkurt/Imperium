@@ -60,6 +60,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -86,11 +87,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.hikmet.imperium.ImperiumApplication
 import com.hikmet.imperium.R
-import com.hikmet.imperium.ui.category.CategoryDetail
-import com.hikmet.imperium.ui.category.categoryDetails
+import com.hikmet.imperium.data.entities.AnswerEntity
+import com.hikmet.imperium.data.entities.QuestionEntity
 import com.hikmet.imperium.ui.navigation.NavDestinations
 import com.hikmet.imperium.ui.theme.AncientGradientEnd
 import com.hikmet.imperium.ui.theme.AncientGradientStart
@@ -106,6 +109,10 @@ import com.hikmet.imperium.ui.theme.RenaissanceGradientStart
 import com.hikmet.imperium.ui.theme.SelectedAnswer
 import com.hikmet.imperium.ui.theme.WorldWarsGradientEnd
 import com.hikmet.imperium.ui.theme.WorldWarsGradientStart
+import com.hikmet.imperium.ui.util.formatTime
+import com.hikmet.imperium.ui.util.rememberQuizTimer
+import com.hikmet.imperium.ui.viewmodel.QuizState
+import com.hikmet.imperium.ui.viewmodel.QuizViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -275,9 +282,36 @@ fun QuizScreen(
     // Get context for accessing resources
     val context = LocalContext.current
     
-    // Get category details
-    val categoryDetail = remember<CategoryDetail>(categoryId) {
-        categoryDetails[categoryId] ?: categoryDetails["ancient"]!!
+    // Get the repository from the application
+    val repository = (context.applicationContext as ImperiumApplication).repository
+    
+    // Initialize ViewModel
+    val quizViewModel: QuizViewModel = viewModel(
+        factory = QuizViewModel.Factory(repository)
+    )
+    
+    // Collect quiz state
+    val quizState by quizViewModel.quizState.collectAsState()
+    val currentQuestionIndex by quizViewModel.currentQuestionIndex.collectAsState()
+    val selectedAnswerId by quizViewModel.selectedAnswerId.collectAsState()
+    val quizProgress by quizViewModel.quizProgress.collectAsState()
+    val timerState by quizViewModel.timerState.collectAsState()
+    val quizResults by quizViewModel.quizResults.collectAsState()
+    
+    // Current question and answers
+    val currentQuestion = quizViewModel.getCurrentQuestion()
+    val currentAnswers = quizViewModel.getCurrentAnswers()
+    
+    // Load quiz data when the screen is first displayed
+    LaunchedEffect(categoryId, levelId) {
+        quizViewModel.loadQuiz(categoryId, levelId.toIntOrNull() ?: 1)
+    }
+    
+    // Start the quiz when it's ready
+    LaunchedEffect(quizState) {
+        if (quizState == QuizState.Ready) {
+            quizViewModel.startQuiz()
+        }
     }
     
     // Get gradient colors based on category
@@ -302,8 +336,8 @@ fun QuizScreen(
     }
     
     // Create a meaningful title for the quiz
-    val quizTitle = remember<String>(categoryDetail, quizTypeEnum) {
-        "${categoryDetail.title}: ${
+    val quizTitle = remember<String>(categoryId, quizTypeEnum) {
+        "Level $levelId: ${
             when (quizTypeEnum) {
                 QuizType.STANDARD -> "Quiz"
                 QuizType.TIME_ATTACK -> "Time Challenge"
@@ -312,92 +346,21 @@ fun QuizScreen(
         }"
     }
     
-    // State for loading questions
-    var isLoading by remember { mutableStateOf(true) }
-    var hasError by remember { mutableStateOf(false) }
-    
-    // Get questions for this category and level
-    val questions = remember<List<Question>>(categoryId, levelId) {
-        when (categoryId) {
-            "ancient" -> ancientQuestions
-            "medieval" -> medievalQuestions
-            "renaissance" -> renaissanceQuestions
-            "modern" -> modernQuestions
-            "world_wars" -> worldWarsQuestions
-            else -> ancientQuestions
-        }
-    }
-    
-    // Simulate loading delay for demo purposes
-    LaunchedEffect(categoryId, levelId) {
-        isLoading = true
-        hasError = false
-        
-        // Simulate network delay
-        delay(800)
-        
-        // Check if we have questions for this category
-        if (questions.isNotEmpty()) {
-            isLoading = false
-        } else {
-            isLoading = false
-            hasError = true
-        }
-    }
-    
-    // State for the quiz
-    var currentQuestionIndex by remember { mutableIntStateOf(0) }
-    var selectedAnswerIndex by remember { mutableIntStateOf(-1) }
-    var score by remember { mutableIntStateOf(0) }
-    var showFeedback by remember { mutableStateOf(false) }
-    var isAnswerCorrect by remember { mutableStateOf(false) }
-    var quizCompleted by remember { mutableStateOf(false) }
-    
-    // Timer for time attack mode
-    var remainingTime by remember { mutableIntStateOf(if (quizTypeEnum == QuizType.TIME_ATTACK) 30 else -1) }
-    
-    // Start the timer if in TIME_ATTACK mode
-    LaunchedEffect(quizTypeEnum, currentQuestionIndex) {
-        if (quizTypeEnum == QuizType.TIME_ATTACK && !quizCompleted) {
-            remainingTime = 30
-            while (remainingTime > 0 && !quizCompleted) {
-                delay(1000)
-                remainingTime--
-            }
-            
-            // Time's up - auto move to next question
-            if (remainingTime <= 0 && !quizCompleted && selectedAnswerIndex == -1) {
-                selectedAnswerIndex = -2 // Special value for timeout
-                showFeedback = true
-                delay(1500) // Show timeout feedback briefly
-                
-                // Move to next question or end quiz
-                if (currentQuestionIndex < questions.size - 1) {
-                    currentQuestionIndex++
-                    selectedAnswerIndex = -1
-                    showFeedback = false
-                } else {
-                    quizCompleted = true
-                    // Simple navigation - just go back to levels
-                    navController.popBackStack()
-                }
-            }
-        }
-    }
-    
     // Coroutine scope for animations and delayed actions
     val coroutineScope = rememberCoroutineScope()
     
     // Calculate progress
-    val progress = remember<Float>(currentQuestionIndex, questions.size) {
-        if (questions.isEmpty()) 0f else (currentQuestionIndex.toFloat() / questions.size.toFloat())
+    val progressValue = when {
+        quizState == QuizState.Completed -> 1f
+        currentQuestion == null -> 0f
+        else -> currentQuestionIndex.toFloat() / QuizViewModel.QUESTIONS_PER_QUIZ.toFloat()
     }
     
     // Accessibility description for current question
-    val questionAccessibilityDesc = if (!isLoading && !hasError && questions.isNotEmpty() && currentQuestionIndex < questions.size) {
-        "Question ${currentQuestionIndex + 1} of ${questions.size}: ${questions[currentQuestionIndex].text}"
-    } else {
-        "Loading quiz questions"
+    val questionAccessibilityDesc = when (quizState) {
+        is QuizState.Loading -> "Loading quiz questions"
+        is QuizState.Error -> "Error loading quiz: ${(quizState as QuizState.Error).message}"
+        else -> currentQuestion?.let { "Question ${currentQuestionIndex + 1} of ${QuizViewModel.QUESTIONS_PER_QUIZ}: ${it.text}" } ?: "Loading quiz questions"
     }
     
     // Use different style for ancient category
@@ -416,6 +379,28 @@ fun QuizScreen(
     val answerTextDark = colorResource(id = R.color.answer_text_dark)
     val answerBorderLight = colorResource(id = R.color.answer_border_light)
     val cardBackgroundLight = colorResource(id = R.color.ancient_background_light)
+    
+    // State for time expiration alert
+    var showTimeExpirationAlert by remember { mutableStateOf(false) }
+    
+    // Timer for UI display
+    val timerValue = rememberQuizTimer(
+        initialTimeMs = 40000L, // 40 seconds total per level
+        isStarted = quizState == QuizState.Active,
+        onTick = { remainingTimeMs ->
+            quizViewModel.updateTimer(remainingTimeMs)
+            // If time is running out, show a warning
+            if (remainingTimeMs <= 5000 && !showTimeExpirationAlert) {
+                // Time is almost up
+                println("TIME ALMOST UP: $remainingTimeMs")
+            }
+        },
+        onFinish = {
+            // When time expires, show the alert dialog
+            println("TIMER FINISHED - SHOWING ALERT")
+            showTimeExpirationAlert = true
+        }
+    )
     
     Scaffold(
         topBar = {
@@ -450,11 +435,12 @@ fun QuizScreen(
                     }
                 },
                 actions = {
-                    if (quizTypeEnum == QuizType.TIME_ATTACK && !quizCompleted && !isLoading && !hasError) {
+                    // Show timer
+                    if (quizState == QuizState.Active) {
                         Box(
                             modifier = Modifier
                                 .semantics { 
-                                    contentDescription = "Remaining time: $remainingTime seconds"
+                                    contentDescription = "Remaining time: ${formatTime(timerState.remainingTimeMs)}"
                                 }
                                 .padding(end = 8.dp)
                                 .clip(CircleShape)
@@ -462,14 +448,14 @@ fun QuizScreen(
                                 .padding(horizontal = 12.dp, vertical = 4.dp)
                         ) {
                             Text(
-                                text = remainingTime.toString(),
+                                text = formatTime(timerState.remainingTimeMs),
                                 style = MaterialTheme.typography.bodyLarge.copy(
                                     fontWeight = FontWeight.Bold
                                 ),
                                 color = when {
                                     isAncient -> answerTextLight
-                                    remainingTime > 10 -> MaterialTheme.colorScheme.onPrimary
-                                    remainingTime > 5 -> Color.Yellow
+                                    timerState.remainingTimeMs > 60000 -> MaterialTheme.colorScheme.onPrimary
+                                    timerState.remainingTimeMs > 30000 -> Color.Yellow
                                     else -> Color.Red
                                 }
                             )
@@ -486,294 +472,356 @@ fun QuizScreen(
                 .background(Color.White)
         ) {
             // Loading state
-            if (isLoading) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
-                        modifier = Modifier.semantics { 
-                            contentDescription = "Loading quiz questions"
-                        }
-                    ) {
-                        CircularProgressIndicator(
-                            color = primaryColor
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = "Loading questions...",
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    }
-                }
-            }
-            // Error state
-            else if (hasError || questions.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
-                        modifier = Modifier
-                            .padding(32.dp)
-                            .semantics { 
-                                contentDescription = "Error loading questions for this quiz"
-                            }
-                    ) {
-                        Text(
-                            text = "No questions available",
-                            style = MaterialTheme.typography.titleLarge,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "We couldn't find any questions for ${categoryDetail.title}. Please try another category.",
-                            style = MaterialTheme.typography.bodyLarge,
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(modifier = Modifier.height(24.dp))
-                        Button(
-                            onClick = { navController.popBackStack() },
-                            modifier = Modifier
-                                .height(56.dp)
-                                .semantics { 
-                                    contentDescription = "Return to levels" 
-                                },
-                            shape = RoundedCornerShape(8.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = primaryColor
-                            )
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.ArrowBack,
-                                contentDescription = "Navigate back to levels"
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("Back to Levels")
-                        }
-                    }
-                }
-            }
-            // Quiz content
-            else {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(24.dp)
-                        .semantics { 
-                            contentDescription = questionAccessibilityDesc
-                        },
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    // Progress indicator
-                    LinearProgressIndicator(
-                        progress = progress,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(8.dp)
-                            .clip(RoundedCornerShape(4.dp))
-                            .semantics { 
-                                contentDescription = "Question ${currentQuestionIndex + 1} of ${questions.size}"
-                            },
-                        color = primaryColor,
-                        trackColor = Color.LightGray.copy(alpha = 0.3f)
-                    )
-                    
-                    Spacer(modifier = Modifier.height(24.dp))
-                    
-                    // Question card
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 24.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = cardBackgroundLight
-                        ),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            when (quizState) {
+                QuizState.Loading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
                     ) {
                         Column(
-                            modifier = Modifier.padding(20.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            // Question number
-                            Box(
-                                modifier = Modifier
-                                    .size(40.dp)
-                                    .clip(CircleShape)
-                                    .background(primaryColor),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = "${currentQuestionIndex + 1}",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = answerTextLight,
-                                    fontWeight = FontWeight.Bold
-                                )
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.semantics { 
+                                contentDescription = "Loading quiz questions"
                             }
-                            
+                        ) {
+                            CircularProgressIndicator(
+                                color = primaryColor,
+                                modifier = Modifier.size(48.dp)
+                            )
                             Spacer(modifier = Modifier.height(16.dp))
-                            
-                            // Question
                             Text(
-                                text = questions[currentQuestionIndex].text,
-                                style = MaterialTheme.typography.titleLarge,
-                                textAlign = TextAlign.Center,
-                                fontWeight = FontWeight.Medium
+                                text = "Loading Questions...",
+                                style = MaterialTheme.typography.bodyLarge
                             )
                         }
                     }
-                    
-                    // Answer options
-                    questions[currentQuestionIndex].options.forEachIndexed { index, option ->
-                        val isSelected = selectedAnswerIndex == index
-                        val isCorrect = index == questions[currentQuestionIndex].correctAnswerIndex
-                        
-                        // Determine colors based on state
-                        val answerBackgroundColor = when {
-                            // If showing feedback and this is the correct answer, always show green regardless of selection
-                            showFeedback && isCorrect -> answerCorrectColor
-                            // If showing feedback and this was selected but incorrect, show red
-                            showFeedback && isSelected -> answerIncorrectColor
-                            // If selected but not showing feedback yet, show the selected color
-                            isSelected -> answerSelectedColor
-                            // Otherwise, show default color
-                            else -> answerUnselectedColor
-                        }
-                        
-                        val answerBorderColor = when {
-                            showFeedback && isCorrect -> answerCorrectColor
-                            showFeedback && isSelected -> answerIncorrectColor
-                            isSelected -> answerSelectedColor
-                            else -> answerBorderLight
-                        }
-                        
-                        // Text is white on colored backgrounds, black on white background
-                        val textColor = when {
-                            showFeedback && isCorrect -> answerTextLight
-                            showFeedback && isSelected -> answerTextLight
-                            isSelected -> answerTextLight
-                            else -> answerTextDark
-                        }
-                        
-                        val answerState = when {
-                            showFeedback && isCorrect -> "Correct answer"
-                            showFeedback && isSelected && !isCorrect -> "Incorrect answer"
-                            isSelected -> "Selected"
-                            else -> "Option ${index + 1}"
-                        }
-                        
-                        // Elevated Card with consistent colors
-                        ElevatedCard(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 8.dp)
-                                .semantics { 
-                                    contentDescription = "$answerState: $option"
-                                },
-                            onClick = {
-                                // Only process click if we're not already showing feedback
-                                if (!showFeedback && !quizCompleted) {
-                                    // Update state
-                                    selectedAnswerIndex = index
-                                    showFeedback = true
-                                    
-                                    // Check if answer is correct
-                                    if (index == questions[currentQuestionIndex].correctAnswerIndex) {
-                                        score++
-                                        isAnswerCorrect = true
-                                    } else {
-                                        isAnswerCorrect = false
-                                    }
-                                    
-                                    // Use the coroutine scope to delay before moving to next question
-                                    coroutineScope.launch {
-                                        // Show feedback for 1.5 seconds
-                                        delay(1500)
-                                        
-                                        // Move to next question or end quiz
-                                        if (currentQuestionIndex < questions.size - 1) {
-                                            // Go to next question
-                                            currentQuestionIndex++
-                                            selectedAnswerIndex = -1
-                                            showFeedback = false
-                                        } else {
-                                            // Quiz is done
-                                            quizCompleted = true
-                                            
-                                            // Just go back instead of trying to navigate to results
-                                            navController.popBackStack()
-                                        }
-                                    }
-                                }
-                            },
-                            shape = RoundedCornerShape(12.dp),
-                            colors = CardDefaults.elevatedCardColors(
-                                containerColor = answerBackgroundColor,
-                                disabledContainerColor = answerBackgroundColor // Important! Keep the same color even when disabled
-                            ),
-                            elevation = CardDefaults.elevatedCardElevation(
-                                defaultElevation = if (isSelected || (showFeedback && isCorrect)) 4.dp else 1.dp,
-                                disabledElevation = if (isSelected || (showFeedback && isCorrect)) 4.dp else 1.dp // Keep elevation even when disabled
-                            ),
-                            enabled = !quizCompleted // Only disable if quiz is fully completed
+                }
+                
+                is QuizState.Error -> {
+                    // Error state
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.padding(24.dp)
                         ) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Error",
+                                tint = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.size(64.dp)
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = "Failed to load questions",
+                                style = MaterialTheme.typography.headlineSmall,
+                                textAlign = TextAlign.Center
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = (quizState as QuizState.Error).message,
+                                style = MaterialTheme.typography.bodyLarge,
+                                textAlign = TextAlign.Center,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                            Spacer(modifier = Modifier.height(24.dp))
+                            Button(
+                                onClick = {
+                                    navController.popBackStack()
+                                },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = primaryColor
+                                )
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.ArrowBack,
+                                    contentDescription = "Navigate back to levels"
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Back to Levels")
+                            }
+                        }
+                    }
+                }
+                
+                QuizState.Completed -> {
+                    // Results are shown on the ResultsScreen after navigation
+                    LaunchedEffect(Unit) {
+                        val results = quizResults
+                        if (results != null) {
+                            // Navigate to results screen
+                            navController.navigate(
+                                NavDestinations.RESULTS_ROUTE.replace(
+                                    "{categoryId}", categoryId
+                                ).replace(
+                                    "{levelId}", levelId
+                                ).replace(
+                                    "{score}", results.score.toString()
+                                ).replace(
+                                    "{stars}", results.stars.toString()
+                                ).replace(
+                                    "{correct}", results.correctAnswers.toString()
+                                ).replace(
+                                    "{total}", results.totalQuestions.toString()
+                                )
+                            ) {
+                                // Pop up to the level selection screen
+                                popUpTo(NavDestinations.LEVEL_SELECTION_ROUTE) {
+                                    inclusive = false
+                                }
+                            }
+                        } else {
+                            // Something went wrong, just go back
+                            navController.popBackStack()
+                        }
+                    }
+                }
+                
+                else -> {
+                    // Quiz content - ready or active state
+                    if (currentQuestion != null && currentAnswers.isNotEmpty()) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(24.dp)
+                                .semantics { 
+                                    contentDescription = questionAccessibilityDesc
+                                },
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            // Progress indicator
+                            LinearProgressIndicator(
+                                progress = progressValue,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(8.dp)
+                                    .clip(RoundedCornerShape(4.dp)),
+                                color = primaryColor,
+                                trackColor = answerUnselectedColor
+                            )
+                            
+                            Spacer(modifier = Modifier.height(24.dp))
+                            
+                            // Question card
+                            ElevatedCard(
+                                modifier = Modifier.fillMaxWidth(),
+                                elevation = CardDefaults.elevatedCardElevation(
+                                    defaultElevation = 4.dp
+                                ),
+                                colors = CardDefaults.elevatedCardColors(
+                                    containerColor = if (isAncient) cardBackgroundLight else MaterialTheme.colorScheme.surface
+                                )
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(20.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    // Question number
+                                    Box(
+                                        modifier = Modifier
+                                            .size(40.dp)
+                                            .clip(CircleShape)
+                                            .background(primaryColor),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = "${currentQuestionIndex + 1}",
+                                            style = MaterialTheme.typography.titleMedium,
+                                            color = answerTextLight,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                    
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    
+                                    // Question
+                                    Text(
+                                        text = currentQuestion.text,
+                                        style = MaterialTheme.typography.titleLarge,
+                                        textAlign = TextAlign.Center,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                }
+                            }
+                            
+                            Spacer(modifier = Modifier.height(24.dp))
+                            
+                            // Timer section
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(16.dp),
-                                contentAlignment = Alignment.Center
+                                    .padding(horizontal = 24.dp, vertical = 8.dp)
+                                    .semantics { contentDescription = "Timer" }
                             ) {
-                                Text(
-                                    text = option,
-                                    style = MaterialTheme.typography.bodyLarge.copy(
-                                        fontWeight = if (isSelected || (showFeedback && isCorrect)) 
-                                            FontWeight.Bold else FontWeight.Normal
-                                    ),
-                                    color = textColor,
-                                    textAlign = TextAlign.Center
+                                // Background
+                                val timerProgress = (timerValue.value.toFloat() / 40000f).coerceIn(0f, 1f)
+                                
+                                // Timer color changes as time runs out
+                                val timerColor = when {
+                                    timerValue.value > 30000 -> primaryColor // Normal color for most of the time
+                                    timerValue.value > 20000 -> Color(0xFFFFA000) // Amber when under 30 seconds
+                                    timerValue.value > 10000 -> Color(0xFFFF6D00) // Orange when under 20 seconds
+                                    else -> Color(0xFFD32F2F) // Red when under 10 seconds
+                                }
+                                
+                                LinearProgressIndicator(
+                                    progress = timerProgress,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(8.dp),
+                                    color = timerColor,
+                                    trackColor = timerColor.copy(alpha = 0.2f)
                                 )
+                            }
+                            
+                            Spacer(modifier = Modifier.height(24.dp))
+                            
+                            // Answer options
+                            currentAnswers.forEach { answer ->
+                                val isSelected = selectedAnswerId == answer.id
+                                val isCorrect = answer.isCorrect
+                                val showFeedback = selectedAnswerId != null
+                                
+                                // Determine colors based on state
+                                val answerBackgroundColor = when {
+                                    // If showing feedback and this is the correct answer, always show green regardless of selection
+                                    showFeedback && isCorrect -> answerCorrectColor
+                                    // If showing feedback and this was selected but incorrect, show red
+                                    showFeedback && isSelected -> answerIncorrectColor
+                                    // If selected but not showing feedback yet, show the selected color
+                                    isSelected -> answerSelectedColor
+                                    // Otherwise, show default color
+                                    else -> answerUnselectedColor
+                                }
+                                
+                                // Text is white on colored backgrounds, black on white background
+                                val textColor = when {
+                                    showFeedback && isCorrect -> answerTextLight
+                                    showFeedback && isSelected -> answerTextLight
+                                    isSelected -> answerTextLight
+                                    else -> answerTextDark
+                                }
+                                
+                                Spacer(modifier = Modifier.height(8.dp))
+                                
+                                // Answer card
+                                ElevatedCard(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            // Only process click if no answer is selected yet
+                                            if (selectedAnswerId == null && quizState == QuizState.Active) {
+                                                quizViewModel.selectAnswer(answer.id)
+                                                
+                                                // Use the coroutine scope to delay before moving to next question
+                                                coroutineScope.launch {
+                                                    // Show feedback for 1.5 seconds
+                                                    delay(1500)
+                                                    quizViewModel.nextQuestion()
+                                                }
+                                            }
+                                        },
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = CardDefaults.elevatedCardColors(
+                                        containerColor = answerBackgroundColor,
+                                        disabledContainerColor = answerBackgroundColor
+                                    ),
+                                    elevation = CardDefaults.elevatedCardElevation(
+                                        defaultElevation = if (isSelected || (showFeedback && isCorrect)) 4.dp else 1.dp,
+                                        disabledElevation = if (isSelected || (showFeedback && isCorrect)) 4.dp else 1.dp
+                                    )
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(16.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = answer.text,
+                                            style = MaterialTheme.typography.bodyLarge.copy(
+                                                fontWeight = if (isSelected || (showFeedback && isCorrect)) 
+                                                    FontWeight.Bold else FontWeight.Normal
+                                            ),
+                                            color = textColor,
+                                            textAlign = TextAlign.Center
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
-                    
-                    // Show timeout message if no answer was selected
-                    if (showFeedback && selectedAnswerIndex == -2) {
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(
-                                containerColor = Color(0xFFFFEBEE) // Light red background
-                            ),
-                            border = BorderStroke(1.dp, answerIncorrectColor),
-                            shape = RoundedCornerShape(8.dp)
+                }
+            }
+            
+            // Overlay for time's up alert
+            if (showTimeExpirationAlert) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.7f))
+                        .clickable(enabled = false) { /* Prevent clicks passing through */ },
+                    contentAlignment = Alignment.Center
+                ) {
+                    ElevatedCard(
+                        modifier = Modifier
+                            .fillMaxWidth(0.85f)
+                            .padding(16.dp),
+                        colors = CardDefaults.elevatedCardColors(
+                            containerColor = Color.White
+                        ),
+                        elevation = CardDefaults.elevatedCardElevation(
+                            defaultElevation = 8.dp
+                        )
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .padding(24.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Column(
-                                modifier = Modifier.padding(16.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Time expired",
+                                tint = Color.Red,
+                                modifier = Modifier.size(64.dp)
+                            )
+                            
+                            Spacer(modifier = Modifier.height(16.dp))
+                            
+                            Text(
+                                text = "Time's Up!",
+                                style = MaterialTheme.typography.headlineMedium,
+                                fontWeight = FontWeight.Bold,
+                                textAlign = TextAlign.Center
+                            )
+                            
+                            Spacer(modifier = Modifier.height(8.dp))
+                            
+                            Text(
+                                text = "You didn't complete the quiz in time. This level is still locked. Please try again.",
+                                style = MaterialTheme.typography.bodyLarge,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.padding(bottom = 16.dp)
+                            )
+                            
+                            Button(
+                                onClick = {
+                                    navController.navigate(
+                                        NavDestinations.LEVEL_SELECTION_ROUTE
+                                            .replace("{categoryId}", categoryId)
+                                    )
+                                },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = primaryColor
+                                ),
+                                shape = RoundedCornerShape(8.dp),
+                                modifier = Modifier.fillMaxWidth()
                             ) {
-                                Text(
-                                    text = "Time's up!",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = answerIncorrectColor,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                
-                                Text(
-                                    text = "The correct answer was: ${questions[currentQuestionIndex].options[questions[currentQuestionIndex].correctAnswerIndex]}",
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = Color.Black,
-                                    textAlign = TextAlign.Center,
-                                    modifier = Modifier
-                                        .padding(top = 8.dp)
-                                        .semantics { 
-                                            contentDescription = "Time's up notification. The correct answer was: ${questions[currentQuestionIndex].options[questions[currentQuestionIndex].correctAnswerIndex]}"
-                                        }
-                                )
+                                Text("Return to Levels")
                             }
                         }
                     }
@@ -783,7 +831,7 @@ fun QuizScreen(
     }
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
 fun QuizScreenPreview() {
     ImperiumTheme {

@@ -8,6 +8,16 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     
+    <!-- App theme colors -->
+    <color name="primary">#FFD4AF37</color>
+    <color name="secondary">#FFC19A6B</color>
+    <color name="background">#FFEDE3D2</color>
+    <color name="text_primary">#FF333333</color>
+    <color name="text_secondary">#B3333333</color>
+    <color name="divider">#80333333</color>
+    <color name="navigation_background">#FF333333</color>
+    <color name="navigation_indicator">#22FFFFFF</color>
+    
     <!-- HomeScreen colors -->
     <color name="home_background">#FFEDE3D2</color>
     <color name="home_text_color">#FF333333</color>
