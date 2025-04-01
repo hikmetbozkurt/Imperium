@@ -315,16 +315,62 @@ fun QuizScreen(
     }
     
     // Get gradient colors based on category
-    val (gradientStart, gradientEnd) = remember<Pair<Color, Color>>(categoryId) {
-        when (categoryId) {
-            "ancient" -> Pair(AncientGradientStart, AncientGradientEnd)
-            "medieval" -> Pair(MedievalGradientStart, MedievalGradientStart.copy(alpha = 0.7f))
-            "renaissance" -> Pair(RenaissanceGradientStart, RenaissanceGradientStart.copy(alpha = 0.7f))
-            "modern" -> Pair(ModernGradientStart, ModernGradientStart.copy(alpha = 0.7f))
-            "world_wars" -> Pair(WorldWarsGradientStart, WorldWarsGradientStart.copy(alpha = 0.7f))
-            else -> Pair(AncientGradientStart, AncientGradientEnd)
-        }
+    val gradientStart = when (categoryId) {
+        "ancient" -> colorResource(R.color.ancient_gradient_start)
+        "medieval" -> colorResource(R.color.medieval_gradient_start)
+        "renaissance" -> colorResource(R.color.renaissance_gradient_start)
+        "modern" -> colorResource(R.color.modern_gradient_start)
+        "world_wars" -> colorResource(R.color.worldwars_gradient_start)
+        else -> colorResource(R.color.ancient_gradient_start)
     }
+    
+    val gradientEnd = when (categoryId) {
+        "ancient" -> colorResource(R.color.ancient_gradient_end)
+        "medieval" -> colorResource(R.color.medieval_gradient_end)
+        "renaissance" -> colorResource(R.color.renaissance_gradient_end)
+        "modern" -> colorResource(R.color.modern_gradient_end)
+        "world_wars" -> colorResource(R.color.worldwars_gradient_end)
+        else -> colorResource(R.color.ancient_gradient_end)
+    }
+    
+    // Use different style for ancient category
+    val isAncient = categoryId == "ancient"
+    val appBarColor = if (isAncient) colorResource(R.color.ancient_background_light) else gradientStart
+    val textColor = if (isAncient) colorResource(R.color.ancient_text_primary) else MaterialTheme.colorScheme.onPrimary
+    val iconTint = if (isAncient) colorResource(R.color.ancient_button) else MaterialTheme.colorScheme.onPrimary
+    val primaryColor = if (isAncient) colorResource(R.color.ancient_button) else gradientStart
+    
+    // Get color resources for quiz answers
+    val answerCorrectColor = if (isAncient) colorResource(R.color.ancient_button) else colorResource(R.color.answer_correct)
+    val answerIncorrectColor = colorResource(R.color.answer_incorrect)
+    val answerSelectedColor = if (isAncient) colorResource(R.color.ancient_button) else colorResource(R.color.answer_selected)
+    val answerUnselectedColor = colorResource(R.color.answer_unselected)
+    val answerTextLight = colorResource(R.color.answer_text_light)
+    val answerTextDark = colorResource(R.color.answer_text_dark)
+    val answerBorderLight = colorResource(R.color.answer_border_light)
+    val cardBackgroundLight = colorResource(R.color.ancient_background_light)
+    
+    // State for time expiration alert
+    var showTimeExpirationAlert by remember { mutableStateOf(false) }
+    
+    // Timer for UI display
+    val timerValue = rememberQuizTimer(
+        initialTimeMs = 40000L, // 40 seconds total per level
+        isStarted = quizState == QuizState.Active,
+        onTick = { remainingTimeMs ->
+            quizViewModel.updateTimer(remainingTimeMs)
+            // If time is running out, show a warning
+            if (remainingTimeMs <= 5000 && !showTimeExpirationAlert) {
+                // Time is almost up
+                println("TIME ALMOST UP: $remainingTimeMs")
+            }
+        },
+        onFinish = {
+            // When time expires, show the alert dialog
+            println("TIMER FINISHED - SHOWING ALERT")
+            showTimeExpirationAlert = true
+        }
+    )
     
     // Parse quiz type
     val quizTypeEnum = remember<QuizType>(quizType) {
@@ -363,44 +409,14 @@ fun QuizScreen(
         else -> currentQuestion?.let { "Question ${currentQuestionIndex + 1} of ${QuizViewModel.QUESTIONS_PER_QUIZ}: ${it.text}" } ?: "Loading quiz questions"
     }
     
-    // Use different style for ancient category
-    val isAncient = categoryId == "ancient"
-    val appBarColor = if (isAncient) Color.White else gradientStart
-    val textColor = if (isAncient) Color.Black else MaterialTheme.colorScheme.onPrimary
-    val iconTint = if (isAncient) colorResource(R.color.ancient_teal) else MaterialTheme.colorScheme.onPrimary
-    val primaryColor = if (isAncient) colorResource(R.color.ancient_teal) else gradientStart
-    
-    // Get color resources for quiz answers
-    val answerCorrectColor = colorResource(id = R.color.answer_correct)
-    val answerIncorrectColor = colorResource(id = R.color.answer_incorrect)
-    val answerSelectedColor = colorResource(id = R.color.answer_selected)
-    val answerUnselectedColor = colorResource(id = R.color.answer_unselected)
-    val answerTextLight = colorResource(id = R.color.answer_text_light)
-    val answerTextDark = colorResource(id = R.color.answer_text_dark)
-    val answerBorderLight = colorResource(id = R.color.answer_border_light)
-    val cardBackgroundLight = colorResource(id = R.color.ancient_background_light)
-    
-    // State for time expiration alert
-    var showTimeExpirationAlert by remember { mutableStateOf(false) }
-    
-    // Timer for UI display
-    val timerValue = rememberQuizTimer(
-        initialTimeMs = 40000L, // 40 seconds total per level
-        isStarted = quizState == QuizState.Active,
-        onTick = { remainingTimeMs ->
-            quizViewModel.updateTimer(remainingTimeMs)
-            // If time is running out, show a warning
-            if (remainingTimeMs <= 5000 && !showTimeExpirationAlert) {
-                // Time is almost up
-                println("TIME ALMOST UP: $remainingTimeMs")
-            }
-        },
-        onFinish = {
-            // When time expires, show the alert dialog
-            println("TIMER FINISHED - SHOWING ALERT")
-            showTimeExpirationAlert = true
-        }
-    )
+    // Timer color changes as time runs out
+    val timerColor = when {
+        isAncient -> colorResource(R.color.ancient_progress)
+        timerValue.value > 30000 -> primaryColor // Normal color for most of the time
+        timerValue.value > 20000 -> Color(0xFFFFA000) // Amber when under 30 seconds
+        timerValue.value > 10000 -> Color(0xFFFF6D00) // Orange when under 20 seconds
+        else -> Color(0xFFD32F2F) // Red when under 10 seconds
+    }
     
     Scaffold(
         topBar = {
@@ -659,14 +675,6 @@ fun QuizScreen(
                             ) {
                                 // Background
                                 val timerProgress = (timerValue.value.toFloat() / 40000f).coerceIn(0f, 1f)
-                                
-                                // Timer color changes as time runs out
-                                val timerColor = when {
-                                    timerValue.value > 30000 -> primaryColor // Normal color for most of the time
-                                    timerValue.value > 20000 -> Color(0xFFFFA000) // Amber when under 30 seconds
-                                    timerValue.value > 10000 -> Color(0xFFFF6D00) // Orange when under 20 seconds
-                                    else -> Color(0xFFD32F2F) // Red when under 10 seconds
-                                }
                                 
                                 LinearProgressIndicator(
                                     progress = timerProgress,

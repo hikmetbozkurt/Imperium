@@ -100,6 +100,7 @@ import com.hikmet.imperium.ui.viewmodel.DataState
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
+import androidx.compose.ui.res.colorResource
 
 /**
  * Extended category data with description and statistics
@@ -320,7 +321,7 @@ fun CategoryScreen(
                                 },
                             shape = RoundedCornerShape(16.dp),
                             colors = CardDefaults.cardColors(
-                                containerColor = Color(0xFFF0F9F8)  // Light teal background
+                                containerColor = colorResource(R.color.ancient_background_light)
                             ),
                             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                         ) {
@@ -336,12 +337,12 @@ fun CategoryScreen(
                                         verticalAlignment = Alignment.CenterVertically,
                                         modifier = Modifier.padding(bottom = 12.dp)
                                     ) {
-                                        // Teal circle with i icon
+                                        // Brown circle with i icon
                                         Box(
                                             modifier = Modifier
                                                 .size(40.dp)
                                                 .clip(CircleShape)
-                                                .background(Color(0xFF227C70)),
+                                                .background(colorResource(R.color.ancient_button)),
                                             contentAlignment = Alignment.Center
                                         ) {
                                             Text(
@@ -475,7 +476,7 @@ fun CategoryScreen(
                                     },
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = if (categoryId == "ancient") 
-                                        Color(0xFF227C70) 
+                                        colorResource(R.color.ancient_button)
                                     else 
                                         gradientColors.first()
                                 ),
@@ -483,15 +484,11 @@ fun CategoryScreen(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.PlayArrow,
-                                    contentDescription = "Start learning icon",
-                                    modifier = Modifier.size(24.dp)
+                                    contentDescription = null,
+                                    tint = Color.White
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    "Start Learning",
-                                    fontWeight = FontWeight.SemiBold,
-                                    style = MaterialTheme.typography.titleMedium
-                                )
+                                Text("Start Learning")
                             }
                             
                             // Only show "Take a quiz" button if there's at least one level unlocked
@@ -512,7 +509,7 @@ fun CategoryScreen(
                                     shape = RoundedCornerShape(8.dp),
                                     colors = if (categoryId == "ancient") {
                                         ButtonDefaults.outlinedButtonColors(
-                                            contentColor = Color(0xFF227C70)
+                                            contentColor = colorResource(R.color.ancient_button)
                                         )
                                     } else {
                                         ButtonDefaults.outlinedButtonColors(
@@ -521,16 +518,11 @@ fun CategoryScreen(
                                     }
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Filled.Help,
-                                        contentDescription = "Quiz icon",
-                                        modifier = Modifier.size(24.dp)
+                                        imageVector = Icons.Default.Help,
+                                        contentDescription = null
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text(
-                                        "Take a Quiz",
-                                        fontWeight = FontWeight.SemiBold,
-                                        style = MaterialTheme.typography.titleMedium
-                                    )
+                                    Text("Take a Quiz")
                                 }
                             }
                         }
@@ -562,70 +554,57 @@ fun CategoryScreen(
                                 
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(24.dp),
+                                    horizontalArrangement = Arrangement.SpaceEvenly,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    // Circle with number
+                                    // Progress stats
                                     Box(
-                                        modifier = Modifier.size(100.dp),
+                                        modifier = Modifier
+                                            .size(120.dp)
+                                            .padding(8.dp),
                                         contentAlignment = Alignment.Center
                                     ) {
                                         CircularProgressIndicator(
-                                            progress = categoryDetail.completion / 100f,
-                                            modifier = Modifier.size(100.dp),
-                                            strokeWidth = 8.dp,
-                                            color = Color(0xFF227C70),
-                                            trackColor = Color(0xFFE0E0E0)
+                                            progress = categoryDetail.completion.toFloat() / 100f,
+                                            modifier = Modifier.fillMaxSize(),
+                                            color = colorResource(R.color.ancient_button),
+                                            trackColor = colorResource(R.color.ancient_button).copy(alpha = 0.2f),
+                                            strokeWidth = 8.dp
                                         )
-                                        
-                                        Text(
-                                            text = categoryDetail.completedLevels.toString(),
-                                            style = MaterialTheme.typography.displayMedium,
-                                            fontWeight = FontWeight.Bold,
-                                            color = Color(0xFF227C70)
-                                        )
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally
+                                        ) {
+                                            Text(
+                                                text = "${categoryDetail.completion}%",
+                                                style = MaterialTheme.typography.titleLarge,
+                                                fontWeight = FontWeight.Bold,
+                                                color = colorResource(R.color.ancient_button)
+                                            )
+                                            Text(
+                                                text = "Complete",
+                                                style = MaterialTheme.typography.bodySmall
+                                            )
+                                        }
                                     }
                                     
-                                    // Stats columns
+                                    // Stats
                                     Column(
-                                        modifier = Modifier.weight(1f)
+                                        verticalArrangement = Arrangement.spacedBy(12.dp)
                                     ) {
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.SpaceBetween
-                                        ) {
-                                            Column(
-                                                horizontalAlignment = Alignment.CenterHorizontally
-                                            ) {
-                                                Text(
-                                                    text = categoryDetail.unlockedLevels.toString(),
-                                                    style = MaterialTheme.typography.headlineMedium,
-                                                    color = Color(0xFF227C70),
-                                                    fontWeight = FontWeight.Bold
-                                                )
-                                                Text(
-                                                    text = "Unlocked",
-                                                    style = MaterialTheme.typography.bodyMedium,
-                                                    color = Color.Gray
-                                                )
-                                            }
-                                            
-                                            Column(
-                                                horizontalAlignment = Alignment.CenterHorizontally
-                                            ) {
-                                                Text(
-                                                    text = categoryDetail.totalLevels.toString(),
-                                                    style = MaterialTheme.typography.headlineMedium,
-                                                    color = Color(0xFF227C70),
-                                                    fontWeight = FontWeight.Bold
-                                                )
-                                                Text(
-                                                    text = "Total",
-                                                    style = MaterialTheme.typography.bodyMedium,
-                                                    color = Color.Gray
-                                                )
-                                            }
-                                        }
+                                        StatRow(
+                                            icon = Icons.Default.Star,
+                                            iconTint = colorResource(R.color.ancient_button),
+                                            value = categoryDetail.completedLevels,
+                                            total = categoryDetail.totalLevels,
+                                            label = "Levels"
+                                        )
+                                        StatRow(
+                                            icon = Icons.Default.LockOpen,
+                                            iconTint = colorResource(R.color.ancient_button),
+                                            value = categoryDetail.unlockedLevels,
+                                            total = categoryDetail.totalLevels,
+                                            label = "Unlocked"
+                                        )
                                     }
                                 }
                             }
@@ -713,6 +692,40 @@ fun ProgressStat(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
+    }
+}
+
+@Composable
+private fun StatRow(
+    icon: ImageVector,
+    iconTint: Color,
+    value: Int,
+    total: Int,
+    label: String
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = iconTint,
+            modifier = Modifier.size(24.dp)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Column {
+            Text(
+                text = "$value/$total",
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
 

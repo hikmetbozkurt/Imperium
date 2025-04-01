@@ -9,9 +9,12 @@
     <color name="white">#FFFFFFFF</color>
     
     <!-- App theme colors -->
-    <color name="primary">#FFD4AF37</color>
-    <color name="secondary">#FFC19A6B</color>
-    <color name="background">#FFEDE3D2</color>
+    <color name="primary">#FF6200EE</color>
+    <color name="primary_dark">#FF3700B3</color>
+    <color name="accent">#FF03DAC5</color>
+    <color name="background">#FFFFFFFF</color>
+    <color name="surface">#FFFFFFFF</color>
+    <color name="error">#FFB00020</color>
     <color name="text_primary">#FF333333</color>
     <color name="text_secondary">#B3333333</color>
     <color name="divider">#80333333</color>
@@ -28,34 +31,44 @@
     
     <!-- Category Card Colors - Thematically appropriate for each historical period -->
     
-    <!-- Ancient Civilizations - Sand and gold tones representing pyramids, monuments and ancient wealth -->
-    <color name="ancient_gradient_start">#FFD4AF37</color> <!-- Rich gold color -->
-    <color name="ancient_gradient_end">#FFC19A6B</color> <!-- Desert sand color -->
+    <!-- Ancient Civilizations - Brown theme for consistency -->
+    <color name="ancient_gradient_start">#FF8B4513</color>
+    <color name="ancient_gradient_end">#FF654321</color>
+    <color name="ancient_teal">#FF8B4513</color>  <!-- Changed from teal to brown -->
+    <color name="ancient_background_light">#FFFFF8DC</color>
+    <color name="ancient_text_primary">#FF8B4513</color>
+    <color name="ancient_text_secondary">#FF654321</color>
+    <color name="ancient_button">#FF8B4513</color>  <!-- Added for buttons -->
+    <color name="ancient_progress">#FF8B4513</color>  <!-- Added for progress bars -->
     
     <!-- Medieval Period - Deep royal blue and purple representing monarchy and nobility -->
-    <color name="medieval_gradient_start">#FF4B0082</color> <!-- Indigo/deep purple -->
-    <color name="medieval_gradient_end">#FF26428B</color> <!-- Royal blue -->
+    <color name="medieval_gradient_start">#FF4A4A4A</color>
+    <color name="medieval_gradient_end">#FF2D2D2D</color>
     
     <!-- Renaissance - Vibrant colors inspired by Renaissance art and cultural rebirth -->
-    <color name="renaissance_gradient_start">#FF227C70</color> <!-- Rich teal/green -->
-    <color name="renaissance_gradient_end">#FF1E5631</color> <!-- Deep forest green -->
+    <color name="renaissance_gradient_start">#FFDAA520</color>
+    <color name="renaissance_gradient_end">#FFB8860B</color>
     
     <!-- Modern History - Industrial grays to bright modern colors representing progress -->
-    <color name="modern_gradient_start">#FF375E97</color> <!-- Modern blue -->
-    <color name="modern_gradient_end">#FF0A3442</color> <!-- Deep navy -->
+    <color name="modern_gradient_start">#FF4169E1</color>
+    <color name="modern_gradient_end">#FF1E90FF</color>
     
     <!-- World Wars - Somber dark red and gray tones representing conflict and gravity -->
-    <color name="worldwars_gradient_start">#FF8B0000</color> <!-- Dark blood red -->
-    <color name="worldwars_gradient_end">#FF3C3C3C</color> <!-- Dark charcoal gray -->
+    <color name="worldwars_gradient_start">#FF8B0000</color>
+    <color name="worldwars_gradient_end">#FFDC143C</color>
     
     <!-- Quiz Answer Colors -->
-    <color name="answer_correct">#FF4CAF50</color> <!-- Warm green for correct answers -->
-    <color name="answer_incorrect">#FFE53935</color> <!-- Bright red for incorrect answers -->
-    <color name="answer_selected">#FF227C70</color> <!-- Teal color for selected answers (before feedback) -->
-    <color name="answer_unselected">#FFFFFFFF</color> <!-- White background for unselected answers -->
-    <color name="answer_text_light">#FFFFFFFF</color> <!-- White text for selected/correct/incorrect answers -->
-    <color name="answer_text_dark">#FF000000</color> <!-- Black text for unselected answers -->
-    <color name="answer_border_light">#20000000</color> <!-- Light border for unselected answers (12% opacity) -->
-    <color name="ancient_teal">#FF227C70</color> <!-- Teal color for Ancient theme -->
-    <color name="ancient_background_light">#FFF0F9F8</color> <!-- Light teal background for cards -->
+    <color name="answer_correct">#FF4CAF50</color>
+    <color name="answer_incorrect">#FFE53935</color>
+    <color name="answer_selected">#FF2196F3</color>
+    <color name="answer_unselected">#FFE0E0E0</color>
+    <color name="answer_text_light">#FFFFFFFF</color>
+    <color name="answer_text_dark">#FF000000</color>
+    <color name="answer_border_light">#FFE0E0E0</color>
+    
+    <!-- Surface colors -->
+    <color name="surface_variant">#FFE0E0E0</color>
+    <color name="on_surface_variant">#FF757575</color>
+    <color name="primary_container">#FFE8DEF8</color>
+    <color name="on_primary_container">#FF21005D</color>
 </resources>
