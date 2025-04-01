@@ -8,6 +8,10 @@
     <string name="categories_title">Categories</string>
     <string name="explore_label">Explore</string>
     
+    <!-- Feature Highlight -->
+    <string name="feature_highlight_title">Journey Through History</string>
+    <string name="feature_highlight_desc">Explore five distinct historical eras and test your knowledge</string>
+    
     <!-- Bottom navigation -->
     <string name="nav_home">Home</string>
     <string name="nav_progress">Progress</string>
@@ -16,12 +20,21 @@
     <!-- Categories -->
     <string name="category_ancient_title">Ancient Civilizations</string>
     <string name="category_ancient_desc">Egypt, Greece, Rome and more</string>
+    <string name="category_ancient_detail">Embark on a journey to the cradle of human civilization. Explore the mighty empires of Egypt, Greece, and Rome, where the foundations of modern society were built. Discover the architectural wonders like the Pyramids and the Colosseum, unravel the mysteries of hieroglyphics, and learn about the birth of democracy, philosophy, and groundbreaking scientific ideas that still influence our world today. From Alexander the Great\'s conquests to Julius Caesar\'s rise and fall, ancient history is filled with epic tales of ambition, innovation, and human achievement.</string>
+    
     <string name="category_medieval_title">Medieval Period</string>
     <string name="category_medieval_desc">Castles, knights, and feudal systems</string>
+    <string name="category_medieval_detail">Step into the Middle Ages, a time of castles, knights, and feudal lords. After the fall of Rome, Europe was transformed into a complex patchwork of kingdoms where chivalry and honor existed alongside hardship and conflict. Explore the grandeur of Gothic cathedrals, the political intrigue of royal courts, and the daily life in medieval towns and villages. Learn about the Crusades, the Black Death pandemic that decimated populations, and the rise of universities and early scientific inquiry. The Medieval period was not just a "dark age" but a crucial bridge between ancient and modern times, laying groundwork for the Renaissance to come.</string>
+    
     <string name="category_renaissance_title">Renaissance</string>
     <string name="category_renaissance_desc">Art, science and cultural rebirth</string>
+    <string name="category_renaissance_detail">Experience the "rebirth" of European culture that transformed art, science, politics, and thought. Beginning in Italy and spreading throughout Europe, the Renaissance marked humanity\'s emergence from the Middle Ages into a world of exploration and innovation. Meet brilliant minds like Leonardo da Vinci and Michelangelo who created timeless masterpieces, and visionaries like Copernicus and Galileo who revolutionized our understanding of the universe. Witness the birth of humanism, the revival of classical learning, and the beginning of the age of exploration that would connect distant continents. The Renaissance wasn\'t just an artistic movement—it was a complete reimagining of human potential.</string>
+    
     <string name="category_modern_title">Modern History</string>
     <string name="category_modern_desc">Industrial revolution to present day</string>
+    <string name="category_modern_detail">Dive into the era that shaped our contemporary world, from the steam engine to smartphone. The Modern era witnessed unprecedented technological advancement, social upheaval, and global interconnection. Explore how the Industrial Revolution transformed economies and societies, how democratic revolutions challenged monarchies, and how colonialism and its aftermath reshaped continents. Learn about the birth of new ideologies, the struggle for human rights, and the astonishing pace of scientific discovery. From the telegraph to the internet, from horse-drawn carriages to space exploration, modern history tells the story of humanity\'s accelerating race toward innovation and the complex challenges this rapid change created.</string>
+    
     <string name="category_worldwars_title">World Wars</string>
     <string name="category_worldwars_desc">The two major global conflicts</string>
+    <string name="category_worldwars_detail">Examine the two devastating global conflicts that defined the 20th century and forever changed the course of human history. World War I (1914-1918) began as a regional European conflict but escalated into a global war with new and terrifying weapons, claiming over 16 million lives. Just two decades later, World War II (1939-1945) engulfed the planet in an even more catastrophic struggle against fascism and tyranny, resulting in some 75 million deaths, including the Holocaust—one of history\'s greatest atrocities. These conflicts accelerated technological development, redrew national boundaries, reshaped international relations, and led to the founding of the United Nations. Understanding these wars is essential to comprehending our modern world order and the enduring importance of peace.</string>
 </resources>
