@@ -123,6 +123,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.clickable
 import androidx.compose.ui.text.font.FontStyle
+import android.util.Log
 
 /**
  * Bottom navigation items
@@ -336,8 +337,13 @@ fun HomeScreen(navController: NavController = rememberNavController()) {
                     CategoryCard(
                         category = category,
                         onClick = {
-                            // Navigate to the correct category
-                            navController.navigate("category/${category.id}")
+                            try {
+                                // Navigate to the correct category with error handling
+                                navController.navigate("category/${category.id}")
+                            } catch (e: Exception) {
+                                // Log error and prevent crash
+                                Log.e("HomeScreen", "Error navigating to category ${category.id}: ${e.message}")
+                            }
                         }
                     )
                 }

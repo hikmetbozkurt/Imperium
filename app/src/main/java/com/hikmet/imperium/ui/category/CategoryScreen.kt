@@ -1,5 +1,6 @@
 package com.hikmet.imperium.ui.category
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Spring
@@ -32,6 +33,7 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.QuestionAnswer
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.Button
@@ -207,6 +209,7 @@ fun CategoryScreen(
     var userProgress by remember { mutableStateOf<UserProgressEntity?>(null) }
     var isLoading by remember { mutableStateOf(true) }
     var completionPercentage by remember { mutableStateOf(0) }
+    var levelId by remember { mutableStateOf("1") }
     
     // Selected category from ViewModel
     val selectedCategory by categoryViewModel.selectedCategory.collectAsState()
@@ -248,12 +251,12 @@ fun CategoryScreen(
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight = FontWeight.Bold
                         ),
-                        color = if (categoryId == "ancient") Color.Black else MaterialTheme.colorScheme.onPrimary
+                        color = if (categoryId == "ancient") Color.White else MaterialTheme.colorScheme.onPrimary
                     ) 
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = if (categoryId == "ancient") Color.White else gradientColors.first(),
-                    titleContentColor = if (categoryId == "ancient") Color.Black else MaterialTheme.colorScheme.onPrimary
+                    containerColor = if (categoryId == "ancient") colorResource(R.color.ancient_button) else gradientColors.first(),
+                    titleContentColor = if (categoryId == "ancient") Color.White else MaterialTheme.colorScheme.onPrimary
                 ),
                 navigationIcon = {
                     IconButton(
@@ -265,7 +268,7 @@ fun CategoryScreen(
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Back",
-                            tint = if (categoryId == "ancient") Color(0xFF227C70) else MaterialTheme.colorScheme.onPrimary
+                            tint = if (categoryId == "ancient") Color.White else MaterialTheme.colorScheme.onPrimary
                         )
                     }
                 }
@@ -380,6 +383,75 @@ fun CategoryScreen(
                                 )
                             }
                         }
+                    } else if (categoryId == "medieval") {
+                        // Special design for Medieval Period page
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .semantics { 
+                                    contentDescription = "About ${categoryDetail.title}" 
+                                },
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = colorResource(R.color.medieval_background_light)
+                            ),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                            ) {
+                                Column(
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier.padding(bottom = 12.dp)
+                                    ) {
+                                        // Purple circle with i icon
+                                        Box(
+                                            modifier = Modifier
+                                                .size(40.dp)
+                                                .clip(CircleShape)
+                                                .background(colorResource(R.color.medieval_button)),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text(
+                                                text = "i",
+                                                style = MaterialTheme.typography.titleMedium,
+                                                color = Color.White,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                        }
+                                        
+                                        Spacer(modifier = Modifier.width(12.dp))
+                                        
+                                        Text(
+                                            text = "About",
+                                            style = MaterialTheme.typography.titleLarge,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                    
+                                    Text(
+                                        text = categoryDetail.longDescription,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        modifier = Modifier.padding(end = 8.dp)
+                                    )
+                                }
+                                
+                                // Image of medieval castle and knights
+                                Image(
+                                    painter = painterResource(id = R.drawable.medieval_image),
+                                    contentDescription = "Medieval Period Illustration",
+                                    modifier = Modifier
+                                        .size(width = 160.dp, height = 160.dp)
+                                        .padding(start = 8.dp),
+                                    contentScale = ContentScale.Fit
+                                )
+                            }
+                        }
                     } else {
                         // Standard About card for other categories
                         Card(
@@ -460,76 +532,49 @@ fun CategoryScreen(
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
                             Text(
-                                text = "What would you like to do?",
+                                text = "Ready to Test Your Knowledge?",
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold
                             )
                             
                             // Start learning button - Updated for Ancient
                             Button(
-                                onClick = { navController.navigate(NavDestinations.LEVEL_SELECTION_ROUTE.replace("{categoryId}", categoryId)) },
+                                onClick = { 
+                                    try {
+                                        navController.navigate(NavDestinations.LEVEL_SELECTION_ROUTE.replace("{categoryId}", categoryId)) 
+                                    } catch (e: Exception) {
+                                        // Log error and prevent crash
+                                        Log.e("CategoryScreen", "Error navigating to level selection: ${e.message}")
+                                    }
+                                },
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(56.dp)
                                     .semantics { 
-                                        contentDescription = "Start learning levels in ${categoryDetail.title}" 
+                                        contentDescription = "Start quiz levels in ${categoryDetail.title}" 
                                     },
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = if (categoryId == "ancient") 
-                                        colorResource(R.color.ancient_button)
-                                    else 
-                                        gradientColors.first()
+                                    containerColor = when (categoryId) {
+                                        "ancient" -> colorResource(R.color.ancient_button)
+                                        "medieval" -> colorResource(R.color.medieval_button)
+                                        else -> gradientColors.first()
+                                    }
                                 ),
                                 shape = RoundedCornerShape(8.dp)
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.PlayArrow,
+                                    imageVector = Icons.Default.QuestionAnswer,
                                     contentDescription = null,
                                     tint = Color.White
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text("Start Learning")
-                            }
-                            
-                            // Only show "Take a quiz" button if there's at least one level unlocked
-                            if (categoryDetail.unlockedLevels > 0) {
-                                // Take a quiz button - Updated for Ancient
-                                OutlinedButton(
-                                    onClick = { navController.navigate(NavDestinations.QUIZ_ROUTE
-                                        .replace("{categoryId}", categoryId)
-                                        .replace("{levelId}", "1")
-                                        .replace("{quizType}", "STANDARD")) 
-                                    },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(56.dp)
-                                        .semantics { 
-                                            contentDescription = "Take a quiz on ${categoryDetail.title}" 
-                                        },
-                                    shape = RoundedCornerShape(8.dp),
-                                    colors = if (categoryId == "ancient") {
-                                        ButtonDefaults.outlinedButtonColors(
-                                            contentColor = colorResource(R.color.ancient_button)
-                                        )
-                                    } else {
-                                        ButtonDefaults.outlinedButtonColors(
-                                            contentColor = gradientColors.first()
-                                        )
-                                    }
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Help,
-                                        contentDescription = null
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text("Take a Quiz")
-                                }
+                                Text("Start the Quiz")
                             }
                         }
                     }
                     
                     // Your Progress Section - Updated for Ancient
-                    if (categoryId == "ancient") {
+                    if (categoryId == "ancient" || categoryId == "medieval") {
                         // Modern circular progress with stats
                         Card(
                             modifier = Modifier
@@ -567,8 +612,16 @@ fun CategoryScreen(
                                         CircularProgressIndicator(
                                             progress = categoryDetail.completion.toFloat() / 100f,
                                             modifier = Modifier.fillMaxSize(),
-                                            color = colorResource(R.color.ancient_button),
-                                            trackColor = colorResource(R.color.ancient_button).copy(alpha = 0.2f),
+                                            color = when (categoryId) {
+                                                "ancient" -> colorResource(R.color.ancient_button)
+                                                "medieval" -> colorResource(R.color.medieval_button)
+                                                else -> gradientColors.first()
+                                            },
+                                            trackColor = when (categoryId) {
+                                                "ancient" -> colorResource(R.color.ancient_button).copy(alpha = 0.2f)
+                                                "medieval" -> colorResource(R.color.medieval_button).copy(alpha = 0.2f)
+                                                else -> gradientColors.first().copy(alpha = 0.2f)
+                                            },
                                             strokeWidth = 8.dp
                                         )
                                         Column(
@@ -578,7 +631,11 @@ fun CategoryScreen(
                                                 text = "${categoryDetail.completion}%",
                                                 style = MaterialTheme.typography.titleLarge,
                                                 fontWeight = FontWeight.Bold,
-                                                color = colorResource(R.color.ancient_button)
+                                                color = when (categoryId) {
+                                                    "ancient" -> colorResource(R.color.ancient_button)
+                                                    "medieval" -> colorResource(R.color.medieval_button)
+                                                    else -> gradientColors.first()
+                                                }
                                             )
                                             Text(
                                                 text = "Complete",
@@ -593,14 +650,22 @@ fun CategoryScreen(
                                     ) {
                                         StatRow(
                                             icon = Icons.Default.Star,
-                                            iconTint = colorResource(R.color.ancient_button),
+                                            iconTint = when (categoryId) {
+                                                "ancient" -> colorResource(R.color.ancient_button)
+                                                "medieval" -> colorResource(R.color.medieval_button)
+                                                else -> gradientColors.first()
+                                            },
                                             value = categoryDetail.completedLevels,
                                             total = categoryDetail.totalLevels,
                                             label = "Levels"
                                         )
                                         StatRow(
                                             icon = Icons.Default.LockOpen,
-                                            iconTint = colorResource(R.color.ancient_button),
+                                            iconTint = when (categoryId) {
+                                                "ancient" -> colorResource(R.color.ancient_button)
+                                                "medieval" -> colorResource(R.color.medieval_button)
+                                                else -> gradientColors.first()
+                                            },
                                             value = categoryDetail.unlockedLevels,
                                             total = categoryDetail.totalLevels,
                                             label = "Unlocked"

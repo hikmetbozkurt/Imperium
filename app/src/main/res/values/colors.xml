@@ -41,9 +41,14 @@
     <color name="ancient_button">#FF8B4513</color>  <!-- Added for buttons -->
     <color name="ancient_progress">#FF8B4513</color>  <!-- Added for progress bars -->
     
-    <!-- Medieval Period - Deep royal blue and purple representing monarchy and nobility -->
-    <color name="medieval_gradient_start">#FF4A4A4A</color>
-    <color name="medieval_gradient_end">#FF2D2D2D</color>
+    <!-- Medieval Period - Deep royal purple and gold representing monarchy and nobility -->
+    <color name="medieval_gradient_start">#FF5D4D73</color>  <!-- Royal Purple -->
+    <color name="medieval_gradient_end">#FF3A2E4D</color>    <!-- Deep Purple -->
+    <color name="medieval_background_light">#FFF5F3FF</color> <!-- Light Purple Background -->
+    <color name="medieval_text_primary">#FF5D4D73</color>    <!-- Royal Purple Text -->
+    <color name="medieval_text_secondary">#FF3A2E4D</color>  <!-- Deep Purple Text -->
+    <color name="medieval_button">#FF5D4D73</color>         <!-- Royal Purple Button -->
+    <color name="medieval_progress">#FF5D4D73</color>       <!-- Royal Purple Progress -->
     
     <!-- Renaissance - Vibrant colors inspired by Renaissance art and cultural rebirth -->
     <color name="renaissance_gradient_start">#FFDAA520</color>

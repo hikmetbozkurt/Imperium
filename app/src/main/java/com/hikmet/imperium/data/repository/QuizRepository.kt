@@ -1,5 +1,6 @@
 package com.hikmet.imperium.data.repository
 
+import android.util.Log
 import com.hikmet.imperium.data.database.ImperiumDatabase
 import com.hikmet.imperium.data.entities.AnswerEntity
 import com.hikmet.imperium.data.entities.CategoryEntity
@@ -37,7 +38,46 @@ class QuizRepository(private val database: ImperiumDatabase) {
     }
     
     suspend fun unlockLevel(categoryId: String, levelNumber: Int) {
-        database.userProgressDao().unlockLevel(categoryId, levelNumber)
+        // Add debug logging to track what's happening
+        Log.d("UNLOCK_DEBUG", "Starting unlockLevel for $categoryId level $levelNumber")
+        
+        try {
+            // First get the current progress
+            val currentProgress = database.userProgressDao().getProgressForCategory(categoryId)
+            Log.d("UNLOCK_DEBUG", "Current progress: $currentProgress")
+            
+            // If no progress exists yet, create a new one
+            if (currentProgress == null) {
+                Log.d("UNLOCK_DEBUG", "No progress found, creating new entry with level $levelNumber unlocked")
+                val newProgress = UserProgressEntity(
+                    categoryId = categoryId,
+                    unlockedLevels = levelNumber,
+                    totalStarsEarned = 0,
+                    highestLevelCompleted = 0,
+                    lastPlayedTimestamp = System.currentTimeMillis()
+                )
+                database.userProgressDao().insertOrUpdateProgress(newProgress)
+                Log.d("UNLOCK_DEBUG", "Created new progress: $newProgress")
+            } 
+            // If progress exists but the requested level is higher than current unlocked levels
+            else if (levelNumber > currentProgress.unlockedLevels) {
+                Log.d("UNLOCK_DEBUG", "Updating existing progress to unlock level $levelNumber")
+                val updatedProgress = currentProgress.copy(
+                    unlockedLevels = levelNumber,
+                    lastPlayedTimestamp = System.currentTimeMillis()
+                )
+                database.userProgressDao().insertOrUpdateProgress(updatedProgress)
+                Log.d("UNLOCK_DEBUG", "Updated progress: $updatedProgress")
+            } else {
+                Log.d("UNLOCK_DEBUG", "Level $levelNumber is already unlocked (current: ${currentProgress.unlockedLevels})")
+            }
+            
+            // Double-check the result
+            val finalProgress = database.userProgressDao().getProgressForCategory(categoryId)
+            Log.d("UNLOCK_DEBUG", "Final progress after unlock: $finalProgress")
+        } catch (e: Exception) {
+            Log.e("UNLOCK_DEBUG", "Error unlocking level: ${e.message}", e)
+        }
     }
     
     suspend fun getTotalStars(): Int {
@@ -58,7 +98,17 @@ class QuizRepository(private val database: ImperiumDatabase) {
         return database.levelProgressDao().getLevelProgressForCategoryAsFlow(categoryId)
     }
     
-    suspend fun updateLevelProgress(categoryId: String, levelNumber: Int, score: Int, stars: Int, timeMs: Long?): Boolean {
+    /**
+     * Update level progress with new stars earned
+     */
+    suspend fun updateLevelProgress(categoryId: String, levelNumber: Int, score: Int, stars: Int, timeMs: Long? = null): Boolean {
+        // Special case for level 1 - ensure level 2 is unlocked if player earns stars
+        if (levelNumber == 1 && stars > 0) {
+            // Ensure level 2 is unlocked
+            database.userProgressDao().unlockLevel(categoryId, 2)
+        }
+        
+        // Call the original method
         return database.levelProgressDao().updateStarsForLevel(categoryId, levelNumber, stars, score, timeMs)
     }
     

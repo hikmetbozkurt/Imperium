@@ -233,6 +233,36 @@ class ImperiumApplication : Application() {
                 levelNumber = 4,
                 text = "In ancient Egyptian religion, what was the feather of Ma'at used for?",
                 difficulty = 2
+            ),
+            
+            // Level 5
+            QuestionEntity(
+                id = "ancient_5_1",
+                categoryId = "ancient",
+                levelNumber = 5,
+                text = "Which ancient civilization built the city of Machu Picchu?",
+                difficulty = 2
+            ),
+            QuestionEntity(
+                id = "ancient_5_2",
+                categoryId = "ancient",
+                levelNumber = 5,
+                text = "What was the main language of ancient Rome?",
+                difficulty = 2
+            ),
+            QuestionEntity(
+                id = "ancient_5_3",
+                categoryId = "ancient",
+                levelNumber = 5,
+                text = "Which ancient Greek philosopher was the teacher of Alexander the Great?",
+                difficulty = 2
+            ),
+            QuestionEntity(
+                id = "ancient_5_4",
+                categoryId = "ancient",
+                levelNumber = 5,
+                text = "What ancient civilization is credited with inventing the concept of zero?",
+                difficulty = 2
             )
         )
         
@@ -335,7 +365,31 @@ class ImperiumApplication : Application() {
             AnswerEntity(questionId = "ancient_4_4", text = "Weighing the heart of the deceased", isCorrect = true, sortOrder = 0),
             AnswerEntity(questionId = "ancient_4_4", text = "Crowning new pharaohs", isCorrect = false, sortOrder = 1),
             AnswerEntity(questionId = "ancient_4_4", text = "Decorating royal headdresses", isCorrect = false, sortOrder = 2),
-            AnswerEntity(questionId = "ancient_4_4", text = "Writing messages to the gods", isCorrect = false, sortOrder = 3)
+            AnswerEntity(questionId = "ancient_4_4", text = "Writing messages to the gods", isCorrect = false, sortOrder = 3),
+            
+            // Level 5, Question 1
+            AnswerEntity(questionId = "ancient_5_1", text = "Inca", isCorrect = true, sortOrder = 0),
+            AnswerEntity(questionId = "ancient_5_1", text = "Maya", isCorrect = false, sortOrder = 1),
+            AnswerEntity(questionId = "ancient_5_1", text = "Aztec", isCorrect = false, sortOrder = 2),
+            AnswerEntity(questionId = "ancient_5_1", text = "Olmec", isCorrect = false, sortOrder = 3),
+            
+            // Level 5, Question 2
+            AnswerEntity(questionId = "ancient_5_2", text = "Latin", isCorrect = true, sortOrder = 0),
+            AnswerEntity(questionId = "ancient_5_2", text = "Greek", isCorrect = false, sortOrder = 1),
+            AnswerEntity(questionId = "ancient_5_2", text = "Etruscan", isCorrect = false, sortOrder = 2),
+            AnswerEntity(questionId = "ancient_5_2", text = "Aramaic", isCorrect = false, sortOrder = 3),
+            
+            // Level 5, Question 3
+            AnswerEntity(questionId = "ancient_5_3", text = "Aristotle", isCorrect = true, sortOrder = 0),
+            AnswerEntity(questionId = "ancient_5_3", text = "Socrates", isCorrect = false, sortOrder = 1),
+            AnswerEntity(questionId = "ancient_5_3", text = "Plato", isCorrect = false, sortOrder = 2),
+            AnswerEntity(questionId = "ancient_5_3", text = "Pythagoras", isCorrect = false, sortOrder = 3),
+            
+            // Level 5, Question 4
+            AnswerEntity(questionId = "ancient_5_4", text = "Mayans", isCorrect = true, sortOrder = 0),
+            AnswerEntity(questionId = "ancient_5_4", text = "Egyptians", isCorrect = false, sortOrder = 1),
+            AnswerEntity(questionId = "ancient_5_4", text = "Chinese", isCorrect = false, sortOrder = 2),
+            AnswerEntity(questionId = "ancient_5_4", text = "Greeks", isCorrect = false, sortOrder = 3)
         )
         
         // Insert answers
