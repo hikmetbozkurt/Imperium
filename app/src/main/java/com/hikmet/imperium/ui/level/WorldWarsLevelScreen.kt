@@ -35,7 +35,10 @@ import kotlinx.coroutines.flow.collectLatest
 import android.util.Log
 import com.hikmet.imperium.ui.theme.WorldWarsGradientStart
 import com.hikmet.imperium.ui.theme.WorldWarsGradientEnd
+import com.hikmet.imperium.ui.theme.WorldWarsTheme
 import com.hikmet.imperium.ui.util.formatTime
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.hikmet.imperium.ui.components.LevelCard
 
 private const val WORLD_WARS_CATEGORY_ID = "world_wars"
 
@@ -43,173 +46,89 @@ private const val WORLD_WARS_CATEGORY_ID = "world_wars"
 @Composable
 fun WorldWarsLevelScreen(
     navController: NavHostController,
-    viewModel: LevelViewModel? = null
+    viewModel: LevelViewModel = hiltViewModel()
 ) {
-    // Get the application context to access the repository
-    val context = LocalContext.current
-    val application = context.applicationContext as ImperiumApplication
-    
-    // Use provided viewModel or create one
-    val levelViewModel = viewModel ?: viewModel(
-        factory = LevelViewModel.Factory(application.repository)
-    )
-    
-    // State variables
-    var levelProgressList by remember { mutableStateOf<List<LevelProgressEntity>>(emptyList()) }
-    var userProgress by remember { mutableStateOf<UserProgressEntity?>(null) }
-    var categoryStars by remember { mutableStateOf(0) }
-    
-    // Theme colors for World Wars
-    val worldWarsBackground = colorResource(id = R.color.background)
-    val worldWarsPrimary = WorldWarsGradientStart
-    val worldWarsTextPrimary = colorResource(id = R.color.text_primary)
-    val worldWarsGradientStart = WorldWarsGradientStart
-    val worldWarsGradientEnd = WorldWarsGradientEnd
-    
-    // Load level progress data
-    LaunchedEffect(key1 = WORLD_WARS_CATEGORY_ID) {
-        try {
-            // Fetch all level progress for this category
-            levelViewModel.getLevelProgressForCategory(WORLD_WARS_CATEGORY_ID).collectLatest { progress ->
-                levelProgressList = progress
-                
-                // Calculate total stars for the category
-                categoryStars = progress.sumOf { it.starsEarned }
-            }
-            
-            // Fetch user progress for unlocked levels
-            levelViewModel.repository.getUserProgressForCategory(WORLD_WARS_CATEGORY_ID).collectLatest { progress ->
-                userProgress = progress
-            }
-        } catch (e: Exception) {
-            // Log error and prevent crash
-            Log.e("WorldWarsLevelScreen", "Error loading progress: ${e.message}")
-        }
+    val categoryId = WORLD_WARS_CATEGORY_ID
+    val uiState by viewModel.levelsUiState.collectAsState()
+    LaunchedEffect(categoryId) {
+        viewModel.loadLevelsForCategory(categoryId)
     }
-    
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "World Wars",
-                            style = MaterialTheme.typography.titleLarge,
-                            color = worldWarsTextPrimary
-                        )
-                        Spacer(modifier = Modifier.weight(1f))
-                        Icon(
-                            imageVector = Icons.Default.Star,
-                            contentDescription = "Stars",
-                            tint = Color.Yellow,
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = "$categoryStars",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = worldWarsTextPrimary
-                        )
-                    }
-                },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back",
-                            tint = worldWarsPrimary
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = worldWarsBackground
-                )
-            )
-        },
-        containerColor = worldWarsBackground
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            // Map the WorldWarsLevels.levels to a list that can be displayed in a grid
-            val levels = WorldWarsLevels.levels.map { worldWarsLevel ->
-                val levelNumberInt = worldWarsLevel.id.toInt()
-                val levelProgress = levelProgressList.find { 
-                    it.categoryId == WORLD_WARS_CATEGORY_ID && 
-                    it.levelNumber == levelNumberInt 
-                }
-                
-                // Calculate if level is unlocked based on user progress
-                val isUnlocked = when {
-                    // First level is always unlocked
-                    levelNumberInt == 1 -> true
-                    
-                    // For all other levels, check:
-                    // 1. User progress "unlockedLevels" field from database
-                    // 2. Check if previous level is completed (starsEarned > 0)
-                    else -> {
-                        val unlockedLevels = userProgress?.unlockedLevels ?: 1
-                        val previousLevelCompleted = levelProgressList.any { 
-                            it.categoryId == WORLD_WARS_CATEGORY_ID && 
-                            it.levelNumber == levelNumberInt - 1 && 
-                            it.starsEarned > 0 
+
+    // Theme colors for World Wars
+    val background = colorResource(id = R.color.background)
+    val primary = WorldWarsGradientStart
+    val textPrimary = colorResource(id = R.color.text_primary)
+    val gradientStart = WorldWarsGradientStart
+    val gradientEnd = WorldWarsGradientEnd
+
+    WorldWarsTheme {
+        Scaffold(
+            containerColor = background,
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = "World Wars",
+                                style = MaterialTheme.typography.titleLarge,
+                                color = textPrimary
+                            )
+                            Spacer(modifier = Modifier.weight(1f))
+                            Icon(
+                                imageVector = Icons.Default.Star,
+                                contentDescription = null,
+                                tint = Color.Yellow,
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = uiState.userProgress?.totalStarsEarned?.toString() ?: "0",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = textPrimary
+                            )
                         }
-                        
-                        // Level is unlocked if either condition is met
-                        levelNumberInt <= unlockedLevels || previousLevelCompleted
-                    }
-                }
-                
-                // Create a map of level information for the grid
-                mapOf(
-                    "levelNumber" to worldWarsLevel.id,
-                    "title" to worldWarsLevel.title,
-                    "description" to worldWarsLevel.description,
-                    "isCompleted" to ((levelProgress?.starsEarned ?: 0) > 0),
-                    "stars" to (levelProgress?.starsEarned ?: 0),
-                    "requiredStars" to worldWarsLevel.requiredStars,
-                    "isUnlocked" to isUnlocked,
-                    "bestTimeMs" to levelProgress?.bestTimeMs
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(
+                                imageVector = Icons.Default.ArrowBack,
+                                contentDescription = "Back",
+                                tint = primary
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = background
+                    )
                 )
             }
-            
-            // Display levels in a grid view
+        ) { paddingValues ->
             LazyVerticalGrid(
-                columns = GridCells.Fixed(3),
+                columns = GridCells.Fixed(4),
                 contentPadding = PaddingValues(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.fillMaxSize()
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
             ) {
-                items(levels) { level ->
+                items(uiState.levels.filter { it.categoryId == categoryId }, key = { it.levelNumber }) { level ->
+                    val isUnlocked = uiState.userProgress?.let {
+                        level.levelNumber <= it.unlockedLevels || level.requiredStarsToUnlock <= it.totalStarsEarned
+                    } ?: (level.levelNumber == 1)
                     LevelCard(
-                        levelNumber = level["levelNumber"] as String,
-                        isCompleted = level["isCompleted"] as Boolean,
-                        stars = level["stars"] as Int,
-                        requiredStars = level["requiredStars"] as Int,
-                        isUnlocked = level["isUnlocked"] as Boolean,
-                        primaryColor = worldWarsPrimary,
-                        gradientStart = worldWarsGradientStart,
-                        gradientEnd = worldWarsGradientEnd,
-                        bestTimeMs = level["bestTimeMs"] as Long?,
+                        level = level,
+                        isUnlocked = isUnlocked,
+                        userStarsForLevel = uiState.userProgress?.let { viewModel.getStarsForLevel(it, categoryId, level.levelNumber) } ?: 0,
+                        colors = WorldWarsTheme.colors,
                         onClick = {
-                            try {
-                                if (level["isUnlocked"] as Boolean) {
-                                    // Navigate to quiz for this level
-                                    navController.navigate(
-                                        NavDestinations.QUIZ_ROUTE
-                                            .replace("{categoryId}", WORLD_WARS_CATEGORY_ID)
-                                            .replace("{levelId}", level["levelNumber"] as String)
-                                            .replace("{quizType}", "STANDARD")
-                                    )
-                                }
-                            } catch (e: Exception) {
-                                // Prevent crash, just log error
-                                Log.e("WorldWarsLevelScreen", "Error navigating to level: ${e.message}")
+                            if (isUnlocked) {
+                                navController.navigate(
+                                    NavDestinations.QUIZ_ROUTE
+                                        .replace("{categoryId}", categoryId)
+                                        .replace("{levelId}", level.levelNumber.toString())
+                                        .replace("{quizType}", "STANDARD")
+                                )
                             }
                         }
                     )

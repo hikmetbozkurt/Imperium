@@ -46,7 +46,7 @@ fun LevelCard(
     Card(
         onClick = onClick,
         modifier = Modifier
-            .size(width = 80.dp, height = 100.dp), // Fixed size, adjust as needed
+            .size(width = 88.dp, height = 110.dp), // Unified size across all level screens
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = cardBackgroundColor

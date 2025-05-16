@@ -117,6 +117,41 @@ object WorldWarsLevels {
             description = "Learn how the world wars are commemorated and their lessons for today.",
             imageResId = R.drawable.ic_wars,
             requiredStars = 28
+        ),
+        WorldWarsLevel(
+            id = "16",
+            title = "Post-WWII & Cold War",
+            description = "Understand the origins of the Cold War and post-war reconstruction.",
+            imageResId = R.drawable.ic_wars,
+            requiredStars = 30
+        ),
+        WorldWarsLevel(
+            id = "17",
+            title = "Decolonization",
+            description = "Explore the wave of independence movements after WWII.",
+            imageResId = R.drawable.ic_wars,
+            requiredStars = 32
+        ),
+        WorldWarsLevel(
+            id = "18",
+            title = "United Nations Formation",
+            description = "Study the creation and purpose of the UN.",
+            imageResId = R.drawable.ic_wars,
+            requiredStars = 34
+        ),
+        WorldWarsLevel(
+            id = "19",
+            title = "Cold War Conflicts",
+            description = "Learn about proxy wars and tensions between superpowers.",
+            imageResId = R.drawable.ic_wars,
+            requiredStars = 36
+        ),
+        WorldWarsLevel(
+            id = "20",
+            title = "Legacy of the Wars",
+            description = "Examine the long-term impacts and memories of the world wars.",
+            imageResId = R.drawable.ic_wars,
+            requiredStars = 38
         )
     )
 } 

@@ -27,6 +27,8 @@ import kotlinx.coroutines.launch
 import android.util.Log
 import com.hikmet.imperium.data.ModernHistoryQuizData
 import com.hikmet.imperium.data.ModernHistoryLevels
+import com.hikmet.imperium.data.WorldWarsQuizData
+import com.hikmet.imperium.data.WorldWarsLevels
 
 // Helper extension function (can be moved to a common utils file if preferred)
 fun String.toColorIntHelper(): Int {
@@ -46,7 +48,7 @@ fun String.toColorIntHelper(): Int {
         QuestionEntity::class,
         AnswerEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(MapIntIntConverter::class)
@@ -138,6 +140,16 @@ abstract class ImperiumDatabase : RoomDatabase() {
                     gradientStartColor = "#4682B4".toColorIntHelper(),
                     gradientEndColor = "#87CEEB".toColorIntHelper(),
                     iconResourceName = "ic_modern"
+                ),
+                CategoryEntity(
+                    id = "world_wars",
+                    title = "World Wars",
+                    description = "Learn about WWI & WWII",
+                    longDescription = "Explore the major events, battles, and global impacts of the First and Second World Wars.",
+                    totalLevels = 20,
+                    gradientStartColor = "#8C3D3D".toColorIntHelper(),
+                    gradientEndColor = "#5E2828".toColorIntHelper(),
+                    iconResourceName = "ic_wars"
                 )
             )
             database.categoryDao().insertCategories(categories)
@@ -228,6 +240,23 @@ abstract class ImperiumDatabase : RoomDatabase() {
             }
             database.levelDao().insertLevels(modernLevelEntities)
             insertModernHistoryQuestions(database)
+
+            // Create levels for World Wars
+            val worldWarsLevelsData = WorldWarsLevels.levels
+            val worldWarsLevelEntities = worldWarsLevelsData.map { worldLevel ->
+                LevelEntity(
+                    categoryId = "world_wars",
+                    levelNumber = worldLevel.id.toInt(),
+                    title = worldLevel.title,
+                    description = worldLevel.description,
+                    difficulty = when (worldLevel.id.toInt()) { in 1..5 -> 1; in 6..10 -> 2; else -> 3 },
+                    requiredStarsToUnlock = worldLevel.requiredStars
+                )
+            }
+            database.levelDao().insertLevels(worldWarsLevelEntities)
+
+            // Insert World Wars questions
+            insertWorldWarsQuestions(database)
         }
 
         private suspend fun insertAncientCivilizationsQuestions(database: ImperiumDatabase) {
@@ -434,6 +463,48 @@ abstract class ImperiumDatabase : RoomDatabase() {
                 Log.d("DB_PREPOPULATE", "Successfully inserted ${questions.size} Modern History questions and ${answers.size} answers")
             } catch (e: Exception) {
                 Log.e("DB_PREPOPULATE", "Failed to insert Modern History questions: ${e.message}", e)
+                throw e
+            }
+        }
+
+        private suspend fun insertWorldWarsQuestions(database: ImperiumDatabase) {
+            try {
+                val dataObject = WorldWarsQuizData
+                val questions = mutableListOf<QuestionEntity>()
+                val answers = mutableListOf<AnswerEntity>()
+                
+                // World Wars levels defined in WorldWarsLevels
+                for (level in 1..WorldWarsLevels.levels.size) {
+                    val levelQuestions = dataObject.getQuestionsByLevel(level.toString())
+                    Log.d("DB_PREPOPULATE", "Inserting ${levelQuestions.size} questions for World Wars level $level")
+                    levelQuestions.forEachIndexed { questionIndex, questionData ->
+                        val questionId = "world_wars_${level}_${questionIndex + 1}"
+                        questions.add(
+                            QuestionEntity(
+                                id = questionId,
+                                categoryId = "world_wars",
+                                levelNumber = level,
+                                text = questionData.text,
+                                difficulty = when (level) { in 1..5 -> 1; in 6..10 -> 2; else -> 3 }
+                            )
+                        )
+                        questionData.options.forEachIndexed { answerIndex, optionText ->
+                            answers.add(
+                                AnswerEntity(
+                                    questionId = questionId,
+                                    text = optionText,
+                                    isCorrect = answerIndex == questionData.correctAnswerIndex,
+                                    sortOrder = answerIndex
+                                )
+                            )
+                        }
+                    }
+                }
+                database.questionDao().insertQuestions(questions)
+                database.answerDao().insertAnswers(answers)
+                Log.d("DB_PREPOPULATE", "Successfully inserted ${questions.size} World Wars questions and ${answers.size} answers")
+            } catch (e: Exception) {
+                Log.e("DB_PREPOPULATE", "Failed to insert World Wars questions: ${e.message}", e)
                 throw e
             }
         }
