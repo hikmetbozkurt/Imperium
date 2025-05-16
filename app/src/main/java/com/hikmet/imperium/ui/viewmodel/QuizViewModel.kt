@@ -231,7 +231,7 @@ class QuizViewModel(private val repository: QuizRepository) : ViewModel() {
     
     companion object {
         const val QUESTIONS_PER_QUIZ = 4
-        const val DEFAULT_QUIZ_DURATION_MS = 40000L // 40 seconds total per level
+        const val DEFAULT_QUIZ_DURATION_MS = 30000L // 30 seconds total per level
     }
 }
 

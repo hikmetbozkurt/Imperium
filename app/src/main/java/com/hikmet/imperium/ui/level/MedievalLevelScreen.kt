@@ -33,6 +33,7 @@ import com.hikmet.imperium.ImperiumApplication
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.flow.collectLatest
 import android.util.Log
+import com.hikmet.imperium.ui.util.formatTime
 
 private const val MEDIEVAL_CATEGORY_ID = "medieval"
 
@@ -183,7 +184,8 @@ fun MedievalLevelScreen(
                     "isCompleted" to ((levelProgress?.starsEarned ?: 0) > 0),
                     "stars" to (levelProgress?.starsEarned ?: 0),
                     "requiredStars" to medievalLevel.requiredStars,
-                    "isUnlocked" to isUnlocked
+                    "isUnlocked" to isUnlocked,
+                    "bestTimeMs" to levelProgress?.bestTimeMs
                 )
             }
             
@@ -214,7 +216,8 @@ fun MedievalLevelScreen(
                                 // Prevent crash, just log error
                                 Log.e("MedievalLevelScreen", "Error navigating to level: ${e.message}")
                             }
-                        }
+                        },
+                        bestTimeMs = level["bestTimeMs"] as Long?
                     )
                 }
             }
@@ -233,7 +236,8 @@ fun LevelCard(
     primaryColor: Color,
     gradientStart: Color,
     gradientEnd: Color,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    bestTimeMs: Long? = null  // Add parameter for best time
 ) {
     Card(
         modifier = Modifier
@@ -283,12 +287,22 @@ fun LevelCard(
                         )
                     }
                     
-                    Text(
-                        text = "Completed",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.White,
-                        textAlign = TextAlign.Center
-                    )
+                    // For completed levels, show best time if available
+                    if (bestTimeMs != null) {
+                        Text(
+                            text = formatTime(bestTimeMs),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.White,
+                            textAlign = TextAlign.Center
+                        )
+                    } else {
+                        Text(
+                            text = "Completed",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.White,
+                            textAlign = TextAlign.Center
+                        )
+                    }
                     
                     Row(
                         modifier = Modifier.padding(top = 4.dp),

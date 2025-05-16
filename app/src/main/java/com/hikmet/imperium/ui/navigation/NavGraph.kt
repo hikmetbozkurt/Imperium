@@ -14,6 +14,9 @@ import com.hikmet.imperium.ui.category.CategoryScreen
 import com.hikmet.imperium.ui.home.HomeScreen
 import com.hikmet.imperium.ui.level.LevelScreen
 import com.hikmet.imperium.ui.level.MedievalLevelScreen
+import com.hikmet.imperium.ui.level.RenaissanceLevelScreen
+import com.hikmet.imperium.ui.level.ModernLevelScreen
+import com.hikmet.imperium.ui.level.WorldWarsLevelScreen
 import com.hikmet.imperium.ui.profile.ProfileScreen
 import com.hikmet.imperium.ui.progress.ProgressScreen
 import com.hikmet.imperium.ui.quiz.QuizScreen
@@ -47,6 +50,18 @@ object NavDestinations {
     // Ancient routes
     const val ANCIENT_QUIZ_ROUTE = "ancient_quiz/{levelId}"
     const val ANCIENT_RESULTS_ROUTE = "ancient_results/{levelId}/{score}/{stars}/{correctAnswers}/{totalQuestions}"
+    
+    // Renaissance routes
+    const val RENAISSANCE_QUIZ_ROUTE = "renaissance_quiz/{levelId}"
+    const val RENAISSANCE_RESULTS_ROUTE = "renaissance_results/{levelId}/{score}/{stars}/{correctAnswers}/{totalQuestions}"
+    
+    // Modern routes
+    const val MODERN_QUIZ_ROUTE = "modern_quiz/{levelId}"
+    const val MODERN_RESULTS_ROUTE = "modern_results/{levelId}/{score}/{stars}/{correctAnswers}/{totalQuestions}"
+    
+    // World Wars routes
+    const val WORLDWARS_QUIZ_ROUTE = "worldwars_quiz/{levelId}"
+    const val WORLDWARS_RESULTS_ROUTE = "worldwars_results/{levelId}/{score}/{stars}/{correctAnswers}/{totalQuestions}"
 
     fun getMedievalQuizRoute(levelId: String): String {
         return MEDIEVAL_QUIZ_ROUTE.replace("{levelId}", levelId)
@@ -79,6 +94,63 @@ object NavDestinations {
         totalQuestions: Int
     ): String {
         return ANCIENT_RESULTS_ROUTE
+            .replace("{levelId}", levelId)
+            .replace("{score}", score.toString())
+            .replace("{stars}", stars.toString())
+            .replace("{correctAnswers}", correctAnswers.toString())
+            .replace("{totalQuestions}", totalQuestions.toString())
+    }
+
+    fun getRenaissanceQuizRoute(levelId: String): String {
+        return RENAISSANCE_QUIZ_ROUTE.replace("{levelId}", levelId)
+    }
+
+    fun getRenaissanceResultsRoute(
+        levelId: String, 
+        score: Int, 
+        stars: Int, 
+        correctAnswers: Int, 
+        totalQuestions: Int
+    ): String {
+        return RENAISSANCE_RESULTS_ROUTE
+            .replace("{levelId}", levelId)
+            .replace("{score}", score.toString())
+            .replace("{stars}", stars.toString())
+            .replace("{correctAnswers}", correctAnswers.toString())
+            .replace("{totalQuestions}", totalQuestions.toString())
+    }
+    
+    fun getModernQuizRoute(levelId: String): String {
+        return MODERN_QUIZ_ROUTE.replace("{levelId}", levelId)
+    }
+
+    fun getModernResultsRoute(
+        levelId: String, 
+        score: Int, 
+        stars: Int, 
+        correctAnswers: Int, 
+        totalQuestions: Int
+    ): String {
+        return MODERN_RESULTS_ROUTE
+            .replace("{levelId}", levelId)
+            .replace("{score}", score.toString())
+            .replace("{stars}", stars.toString())
+            .replace("{correctAnswers}", correctAnswers.toString())
+            .replace("{totalQuestions}", totalQuestions.toString())
+    }
+    
+    fun getWorldWarsQuizRoute(levelId: String): String {
+        return WORLDWARS_QUIZ_ROUTE.replace("{levelId}", levelId)
+    }
+
+    fun getWorldWarsResultsRoute(
+        levelId: String, 
+        score: Int, 
+        stars: Int, 
+        correctAnswers: Int, 
+        totalQuestions: Int
+    ): String {
+        return WORLDWARS_RESULTS_ROUTE
             .replace("{levelId}", levelId)
             .replace("{score}", score.toString())
             .replace("{stars}", stars.toString())
@@ -147,6 +219,9 @@ fun ImperiumNavGraph(
             // Route to the appropriate level screen based on category
             when (categoryId) {
                 "medieval" -> MedievalLevelScreen(navController = navController)
+                "renaissance" -> RenaissanceLevelScreen(navController = navController)
+                "modern" -> ModernLevelScreen(navController = navController)
+                "world_wars" -> WorldWarsLevelScreen(navController = navController)
                 else -> LevelScreen(
                     navController = navController,
                     categoryId = categoryId
@@ -171,6 +246,9 @@ fun ImperiumNavGraph(
             when (categoryId) {
                 "ancient" -> AncientQuizScreen(navController, levelId)
                 "medieval" -> MedievalQuizScreen(navController, levelId)
+                "renaissance" -> QuizScreen(navController, categoryId, levelId, quizType)
+                "modern" -> QuizScreen(navController, categoryId, levelId, quizType)
+                "world_wars" -> QuizScreen(navController, categoryId, levelId, quizType)
                 else -> QuizScreen(navController, categoryId, levelId, quizType)
             }
         }
@@ -194,7 +272,7 @@ fun ImperiumNavGraph(
             val correct = backStackEntry.arguments?.getString("correct")?.toIntOrNull() ?: 0
             val total = backStackEntry.arguments?.getString("total")?.toIntOrNull() ?: 4
             
-            // Generic results screen for other categories
+            // Generic results screen for all categories
             ResultsScreen(
                 navController = navController,
                 categoryId = categoryId,
