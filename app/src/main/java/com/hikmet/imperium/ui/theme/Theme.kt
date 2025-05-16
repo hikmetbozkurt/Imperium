@@ -13,6 +13,7 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -65,6 +66,7 @@ import com.hikmet.imperium.ui.theme.DarkOnSurface
 import com.hikmet.imperium.ui.theme.DarkSurfaceVariant
 import com.hikmet.imperium.ui.theme.DarkOnSurfaceVariant
 import com.hikmet.imperium.ui.theme.DarkOutline
+import androidx.compose.material3.Typography
 
 /**
  * Haptic feedback utility class for tactile feedback in the app
@@ -178,6 +180,38 @@ private val DarkColorScheme = darkColorScheme(
     onSurfaceVariant = DarkOnSurfaceVariant,
     outline = DarkOutline
 )
+
+// MOVED FROM ModernHistoryTheme.kt - START
+data class ImperiumCategoryColors(
+    val primary: Color,
+    val primaryVariant: Color,
+    val secondary: Color,
+    val background: Color,
+    val surface: Color,
+    val onPrimary: Color,
+    val onSecondary: Color,
+    val onBackground: Color,
+    val onSurface: Color,
+    val titleColor: Color,
+    val subtitleColor: Color,
+    val iconColor: Color,
+    val progressIndicatorColor: Color,
+    val levelCardBackground: Color,
+    val levelCardUnlockedTextColor: Color,
+    val levelCardLockedTextColor: Color,
+    val levelCardUnlockedIconColor: Color,
+    val levelCardLockedIconColor: Color
+)
+
+@Composable
+fun ImperiumCategoryTheme(
+    colors: ImperiumCategoryColors,
+    typography: Typography, 
+    content: @Composable () -> Unit
+) {
+    content()
+}
+// MOVED FROM ModernHistoryTheme.kt - END
 
 @Composable
 fun ImperiumTheme(

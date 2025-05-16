@@ -15,7 +15,7 @@ import com.hikmet.imperium.ui.home.HomeScreen
 import com.hikmet.imperium.ui.level.LevelScreen
 import com.hikmet.imperium.ui.level.MedievalLevelScreen
 import com.hikmet.imperium.ui.level.RenaissanceLevelScreen
-import com.hikmet.imperium.ui.level.ModernLevelScreen
+import com.hikmet.imperium.ui.level.ModernHistoryLevelScreen
 import com.hikmet.imperium.ui.level.WorldWarsLevelScreen
 import com.hikmet.imperium.ui.profile.ProfileScreen
 import com.hikmet.imperium.ui.progress.ProgressScreen
@@ -205,7 +205,16 @@ fun ImperiumNavGraph(
             CategoryScreen(navController = navController, categoryId = categoryId)
         }
         
-        // Level selection screen
+        // Specific Level Screens using Screen object
+        composable(Screen.RenaissanceLevelScreen.route) { 
+            RenaissanceLevelScreen(navController = navController) 
+        }
+        composable(Screen.ModernHistoryLevelScreen.route) { 
+            ModernHistoryLevelScreen(navController = navController) 
+        }
+
+        // Generic Level selection screen - Review if this is still needed or how it integrates
+        // with the specific routes above. For now, keeping other categories as they were.
         composable(
             route = NavDestinations.LEVEL_SELECTION_ROUTE,
             arguments = listOf(
@@ -216,16 +225,23 @@ fun ImperiumNavGraph(
         ) { backStackEntry ->
             val categoryId = backStackEntry.arguments?.getString("categoryId") ?: ""
             
-            // Route to the appropriate level screen based on category
             when (categoryId) {
+                // Keep other categories if they don't have specific Screen.xxx.route yet
                 "medieval" -> MedievalLevelScreen(navController = navController)
-                "renaissance" -> RenaissanceLevelScreen(navController = navController)
-                "modern" -> ModernLevelScreen(navController = navController)
                 "world_wars" -> WorldWarsLevelScreen(navController = navController)
-                else -> LevelScreen(
-                    navController = navController,
-                    categoryId = categoryId
-                )
+                // "renaissance" and "modern" are handled by their specific routes above
+                // If categoryId is "renaissance" or "modern", this when block won't be hit
+                // if navigation is done correctly via Screen.RenaissanceLevelScreen.route etc.
+                // Consider how to handle default or error cases.
+                else -> {
+                    // Fallback or log error, or navigate to a generic screen
+                    // For now, using the old LevelScreen as a placeholder
+                    Log.d("NavGraph", "Navigating to generic LevelScreen for category: $categoryId")
+                    LevelScreen(
+                        navController = navController,
+                        categoryId = categoryId
+                    )
+                }
             }
         }
         
@@ -382,6 +398,16 @@ fun ImperiumNavGraph(
                 totalQuestions = totalQuestions,
                 categoryId = "ancient"
             )
+        }
+
+        // Renaissance level screen
+        composable(Screen.RenaissanceLevelScreen.route) {
+            RenaissanceLevelScreen(navController = navController)
+        }
+        
+        // Modern History level screen
+        composable(Screen.ModernHistoryLevelScreen.route) {
+            ModernHistoryLevelScreen(navController = navController)
         }
     }
 } 

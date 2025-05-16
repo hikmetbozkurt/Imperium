@@ -2,20 +2,25 @@ package com.hikmet.imperium.data.repository
 
 import android.util.Log
 import com.hikmet.imperium.data.database.ImperiumDatabase
+import com.hikmet.imperium.data.entities.LevelEntity
 import com.hikmet.imperium.data.entities.AnswerEntity
 import com.hikmet.imperium.data.entities.CategoryEntity
-import com.hikmet.imperium.data.entities.LevelEntity
 import com.hikmet.imperium.data.entities.LevelProgressEntity
 import com.hikmet.imperium.data.entities.QuestionEntity
 import com.hikmet.imperium.data.entities.UserProgressEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * Repository for accessing quiz data
  * Provides a clean API for the rest of the app
  */
-class QuizRepository(private val database: ImperiumDatabase) {
+@Singleton
+class QuizRepository @Inject constructor(
+    private val database: ImperiumDatabase
+) {
     
     // Categories
     val allCategories: Flow<List<CategoryEntity>> = database.categoryDao().getAllCategories()
@@ -38,15 +43,10 @@ class QuizRepository(private val database: ImperiumDatabase) {
     }
     
     suspend fun unlockLevel(categoryId: String, levelNumber: Int) {
-        // Add debug logging to track what's happening
         Log.d("UNLOCK_DEBUG", "Starting unlockLevel for $categoryId level $levelNumber")
-        
         try {
-            // First get the current progress
             val currentProgress = database.userProgressDao().getProgressForCategory(categoryId)
             Log.d("UNLOCK_DEBUG", "Current progress: $currentProgress")
-            
-            // If no progress exists yet, create a new one
             if (currentProgress == null) {
                 Log.d("UNLOCK_DEBUG", "No progress found, creating new entry with level $levelNumber unlocked")
                 val newProgress = UserProgressEntity(
@@ -54,13 +54,12 @@ class QuizRepository(private val database: ImperiumDatabase) {
                     unlockedLevels = levelNumber,
                     totalStarsEarned = 0,
                     highestLevelCompleted = 0,
-                    lastPlayedTimestamp = System.currentTimeMillis()
+                    lastPlayedTimestamp = System.currentTimeMillis(),
+                    levelStars = emptyMap()
                 )
                 database.userProgressDao().insertOrUpdateProgress(newProgress)
                 Log.d("UNLOCK_DEBUG", "Created new progress: $newProgress")
-            } 
-            // If progress exists but the requested level is higher than current unlocked levels
-            else if (levelNumber > currentProgress.unlockedLevels) {
+            } else if (levelNumber > currentProgress.unlockedLevels) {
                 Log.d("UNLOCK_DEBUG", "Updating existing progress to unlock level $levelNumber")
                 val updatedProgress = currentProgress.copy(
                     unlockedLevels = levelNumber,
@@ -71,8 +70,6 @@ class QuizRepository(private val database: ImperiumDatabase) {
             } else {
                 Log.d("UNLOCK_DEBUG", "Level $levelNumber is already unlocked (current: ${currentProgress.unlockedLevels})")
             }
-            
-            // Double-check the result
             val finalProgress = database.userProgressDao().getProgressForCategory(categoryId)
             Log.d("UNLOCK_DEBUG", "Final progress after unlock: $finalProgress")
         } catch (e: Exception) {
@@ -85,6 +82,10 @@ class QuizRepository(private val database: ImperiumDatabase) {
     }
     
     // Levels
+    suspend fun getLevelsByCategory(categoryId: String): List<LevelEntity> {
+        return database.levelDao().getLevelsForCategory(categoryId)
+    }
+
     fun getLevelsForCategory(categoryId: String): Flow<List<LevelEntity>> {
         return database.levelDao().getLevelsForCategoryAsFlow(categoryId)
     }
@@ -98,17 +99,17 @@ class QuizRepository(private val database: ImperiumDatabase) {
         return database.levelProgressDao().getLevelProgressForCategoryAsFlow(categoryId)
     }
     
-    /**
-     * Update level progress with new stars earned
-     */
     suspend fun updateLevelProgress(categoryId: String, levelNumber: Int, score: Int, stars: Int, timeMs: Long? = null): Boolean {
-        // Special case for level 1 - ensure level 2 is unlocked if player earns stars
         if (levelNumber == 1 && stars > 0) {
-            // Ensure level 2 is unlocked
-            database.userProgressDao().unlockLevel(categoryId, 2)
+            unlockLevel(categoryId, 2)
         }
-        
-        // Call the original method
+        val userProgress = database.userProgressDao().getProgressForCategory(categoryId)
+        userProgress?.let {
+            val updatedStarsMap = it.levelStars.toMutableMap()
+            updatedStarsMap[levelNumber] = stars
+            updateUserProgress(it.copy(levelStars = updatedStarsMap, totalStarsEarned = it.totalStarsEarned + stars))
+        }
+
         return database.levelProgressDao().updateStarsForLevel(categoryId, levelNumber, stars, score, timeMs)
     }
     
@@ -134,44 +135,30 @@ class QuizRepository(private val database: ImperiumDatabase) {
         database.answerDao().insertAnswers(answers)
     }
     
-    /**
-     * Get a complete quiz with questions and answers for a specific level
-     */
     suspend fun getQuizForLevel(categoryId: String, levelNumber: Int, questionCount: Int = 4): Map<QuestionEntity, List<AnswerEntity>> {
         val questions = getRandomQuestionsForLevel(categoryId, levelNumber, questionCount)
         val quizMap = mutableMapOf<QuestionEntity, List<AnswerEntity>>()
-        
         for (question in questions) {
             val answers = getAnswersForQuestion(question.id)
             quizMap[question] = answers
         }
-        
         return quizMap
     }
     
-    /**
-     * Calculate stars based on score percentage
-     */
     fun calculateStars(scorePercentage: Float): Int {
         return when {
-            scorePercentage >= 0.9f -> 3 // 90% or higher = 3 stars
-            scorePercentage >= 0.7f -> 2 // 70% or higher = 2 stars
-            scorePercentage >= 0.5f -> 1 // 50% or higher = 1 star
-            else -> 0 // Less than 50% = 0 stars
+            scorePercentage >= 0.9f -> 3
+            scorePercentage >= 0.7f -> 2
+            scorePercentage >= 0.5f -> 1
+            else -> 0
         }
     }
     
-    /**
-     * Check if a level is unlocked for a user
-     */
     suspend fun isLevelUnlocked(categoryId: String, levelNumber: Int): Boolean {
         val progress = database.userProgressDao().getProgressForCategory(categoryId)
         return progress != null && levelNumber <= progress.unlockedLevels
     }
     
-    /**
-     * Get completed level count for a category
-     */
     suspend fun getCompletedLevelCount(categoryId: String): Int {
         return database.levelProgressDao().getCompletedLevelCount(categoryId)
     }

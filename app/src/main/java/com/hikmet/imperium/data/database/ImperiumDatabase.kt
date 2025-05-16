@@ -6,6 +6,7 @@ import androidx.core.graphics.toColorInt
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.hikmet.imperium.data.RenaissanceQuizData
 import com.hikmet.imperium.data.dao.AnswerDao
@@ -24,6 +25,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import android.util.Log
+import com.hikmet.imperium.data.ModernHistoryQuizData
+import com.hikmet.imperium.data.ModernHistoryLevels
 
 // Helper extension function (can be moved to a common utils file if preferred)
 fun String.toColorIntHelper(): Int {
@@ -43,9 +46,10 @@ fun String.toColorIntHelper(): Int {
         QuestionEntity::class,
         AnswerEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
+@TypeConverters(MapIntIntConverter::class)
 abstract class ImperiumDatabase : RoomDatabase() {
     
     // DAOs
@@ -124,6 +128,16 @@ abstract class ImperiumDatabase : RoomDatabase() {
                     gradientStartColor = "#8B0000".toColorIntHelper(),
                     gradientEndColor = "#FF4500".toColorIntHelper(),
                     iconResourceName = "ic_renaissance"
+                ),
+                CategoryEntity(
+                    id = "modern",
+                    title = "Modern History",
+                    description = "Industrial age to future tech",
+                    longDescription = "From steam engines to AI - humanity's most transformative era. Explore the events and innovations that shaped our current world and glimpse into the future.",
+                    totalLevels = 20,
+                    gradientStartColor = "#4682B4".toColorIntHelper(),
+                    gradientEndColor = "#87CEEB".toColorIntHelper(),
+                    iconResourceName = "ic_modern"
                 )
             )
             database.categoryDao().insertCategories(categories)
@@ -141,6 +155,13 @@ abstract class ImperiumDatabase : RoomDatabase() {
                  UserProgressEntity(
                     categoryId = "renaissance",
                     unlockedLevels = 1, totalStarsEarned = 0, highestLevelCompleted = 0, lastPlayedTimestamp = System.currentTimeMillis()
+                ),
+                UserProgressEntity(
+                    categoryId = "modern",
+                    unlockedLevels = 1,
+                    totalStarsEarned = 0,
+                    highestLevelCompleted = 0,
+                    lastPlayedTimestamp = System.currentTimeMillis()
                 )
             )
             userProgressEntities.forEach { database.userProgressDao().insertOrUpdateProgress(it) }
@@ -188,6 +209,25 @@ abstract class ImperiumDatabase : RoomDatabase() {
             
             // Insert Renaissance questions
             insertRenaissanceQuestions(database)
+
+            // Create levels for Modern History
+            val modernLevelsData = ModernHistoryLevels.levels
+            val modernLevelEntities = modernLevelsData.map { modernLevel ->
+                LevelEntity(
+                    categoryId = "modern",
+                    levelNumber = modernLevel.id.toInt(),
+                    title = modernLevel.title,
+                    description = modernLevel.description,
+                    difficulty = when (modernLevel.id.toInt()) { 
+                        in 1..7 -> 1
+                        in 8..14 -> 2
+                        else -> 3 
+                    },
+                    requiredStarsToUnlock = modernLevel.requiredStars
+                )
+            }
+            database.levelDao().insertLevels(modernLevelEntities)
+            insertModernHistoryQuestions(database)
         }
 
         private suspend fun insertAncientCivilizationsQuestions(database: ImperiumDatabase) {
@@ -346,6 +386,54 @@ abstract class ImperiumDatabase : RoomDatabase() {
                 Log.d("DB_PREPOPULATE", "Successfully inserted ${questions.size} Renaissance questions and ${answers.size} answers")
             } catch (e: Exception) {
                 Log.e("DB_PREPOPULATE", "Failed to insert Renaissance questions: ${e.message}", e)
+                throw e
+            }
+        }
+
+        private suspend fun insertModernHistoryQuestions(database: ImperiumDatabase) {
+            try {
+                val modernQuizDataObject = ModernHistoryQuizData
+                val questions = mutableListOf<QuestionEntity>()
+                val answers = mutableListOf<AnswerEntity>()
+                
+                for (level in 1..20) {
+                    val levelQuestions = modernQuizDataObject.getQuestionsByLevel(level.toString())
+                    Log.d("DB_PREPOPULATE", "Modern History L$level: Found ${levelQuestions.size} questions")
+                    
+                    levelQuestions.forEachIndexed { questionIndex, questionData ->
+                        val questionId = "modern_${level}_${questionIndex + 1}"
+                        questions.add(
+                            QuestionEntity(
+                                id = questionId, 
+                                categoryId = "modern", 
+                                levelNumber = level, 
+                                text = questionData.text,
+                                difficulty = when (level) { 
+                                    in 1..7 -> 1
+                                    in 8..14 -> 2
+                                    else -> 3 
+                                }
+                            )
+                        )
+                        
+                        questionData.options.forEachIndexed { answerIndex, optionText ->
+                            answers.add(
+                                AnswerEntity(
+                                    questionId = questionId, 
+                                    text = optionText, 
+                                    isCorrect = answerIndex == questionData.correctAnswerIndex, 
+                                    sortOrder = answerIndex
+                                )
+                            )
+                        }
+                    }
+                }
+                
+                database.questionDao().insertQuestions(questions)
+                database.answerDao().insertAnswers(answers)
+                Log.d("DB_PREPOPULATE", "Successfully inserted ${questions.size} Modern History questions and ${answers.size} answers")
+            } catch (e: Exception) {
+                Log.e("DB_PREPOPULATE", "Failed to insert Modern History questions: ${e.message}", e)
                 throw e
             }
         }

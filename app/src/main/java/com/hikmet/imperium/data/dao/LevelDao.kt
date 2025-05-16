@@ -54,4 +54,13 @@ interface LevelDao {
      */
     @Update
     suspend fun updateLevel(level: LevelEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertLevel(level: LevelEntity)
+
+    @Query("DELETE FROM levels WHERE categoryId = :categoryId")
+    suspend fun deleteLevelsByCategory(categoryId: String)
+
+    @Query("DELETE FROM levels")
+    suspend fun deleteAllLevels()
 } 

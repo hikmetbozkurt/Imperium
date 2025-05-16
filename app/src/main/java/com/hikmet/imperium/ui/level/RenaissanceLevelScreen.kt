@@ -36,6 +36,7 @@ import android.util.Log
 import com.hikmet.imperium.ui.theme.RenaissanceGradientStart
 import com.hikmet.imperium.ui.theme.RenaissanceGradientEnd
 import com.hikmet.imperium.ui.util.formatTime
+import androidx.lifecycle.ViewModelProvider
 
 private const val RENAISSANCE_CATEGORY_ID = "renaissance"
 
@@ -45,13 +46,13 @@ fun RenaissanceLevelScreen(
     navController: NavHostController,
     viewModel: LevelViewModel? = null
 ) {
-    // Get the application context to access the repository
-    val context = LocalContext.current
-    val application = context.applicationContext as ImperiumApplication
+    // Get application context to access repository
+    val context = LocalContext.current.applicationContext
+    val repository = (context as ImperiumApplication).repository
     
-    // Use provided viewModel or create one
+    // Use provided ViewModel or create new one
     val levelViewModel = viewModel ?: viewModel(
-        factory = LevelViewModel.Factory(application.repository)
+        factory = LevelViewModel.Factory(repository)
     )
     
     // State variables

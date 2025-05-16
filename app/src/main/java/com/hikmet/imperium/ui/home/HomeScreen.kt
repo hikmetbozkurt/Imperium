@@ -124,6 +124,11 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.clickable
 import androidx.compose.ui.text.font.FontStyle
 import android.util.Log
+import com.hikmet.imperium.ui.theme.RenaissanceTheme
+import com.hikmet.imperium.ui.theme.ModernHistoryTheme
+import com.hikmet.imperium.ui.navigation.Screen
+import androidx.compose.material.icons.filled.Museum
+import androidx.compose.material.icons.filled.Factory
 
 /**
  * Bottom navigation items
@@ -338,10 +343,8 @@ fun HomeScreen(navController: NavController = rememberNavController()) {
                         category = category,
                         onClick = {
                             try {
-                                // Navigate directly to the level selection screen
                                 navController.navigate(NavDestinations.LEVEL_SELECTION_ROUTE.replace("{categoryId}", category.id))
                             } catch (e: Exception) {
-                                // Log error and prevent crash
                                 Log.e("HomeScreen", "Error navigating to level screen for ${category.id}: ${e.message}")
                             }
                         }
