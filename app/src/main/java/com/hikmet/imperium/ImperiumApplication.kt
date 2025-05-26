@@ -13,10 +13,12 @@ import com.hikmet.imperium.data.repository.QuizRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import dagger.hilt.android.HiltAndroidApp
 
 /**
  * Application class for Imperium that initializes the database and repository
  */
+@HiltAndroidApp
 class ImperiumApplication : Application() {
     // Lazy initialized database instance
     val database by lazy { ImperiumDatabase.getDatabase(this) }
