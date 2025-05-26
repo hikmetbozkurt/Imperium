@@ -27,5 +27,6 @@ data class UserProgressEntity(
     val unlockedLevels: Int = 1,  // Default is 1 (first level is unlocked)
     val totalStarsEarned: Int = 0,
     val highestLevelCompleted: Int = 0,
-    val lastPlayedTimestamp: Long = System.currentTimeMillis()
+    val lastPlayedTimestamp: Long = System.currentTimeMillis(),
+    val levelStars: Map<Int, Int> = emptyMap() // Stores stars earned for each level (levelNumber -> stars)
 ) 

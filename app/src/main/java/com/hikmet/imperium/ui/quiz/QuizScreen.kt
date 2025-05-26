@@ -385,7 +385,7 @@ fun QuizScreen(
     
     // Timer for UI display
     val timerValue = rememberQuizTimer(
-        initialTimeMs = 40000L, // 40 seconds total per level
+        initialTimeMs = 30000L, // 30 seconds per level as required
         isStarted = quizState == QuizState.Active,
         onTick = { remainingTimeMs ->
             quizViewModel.updateTimer(remainingTimeMs)
@@ -699,7 +699,7 @@ fun QuizScreen(
                                     .semantics { contentDescription = "Timer" }
                             ) {
                                 // Background
-                                val timerProgress = (timerValue.value.toFloat() / 40000f).coerceIn(0f, 1f)
+                                val timerProgress = (timerValue.value.toFloat() / 30000f).coerceIn(0f, 1f)
                                 
                                 LinearProgressIndicator(
                                     progress = timerProgress,

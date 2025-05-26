@@ -13,6 +13,7 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -42,6 +43,7 @@ import com.hikmet.imperium.ui.theme.OnSurface
 import com.hikmet.imperium.ui.theme.SurfaceVariant
 import com.hikmet.imperium.ui.theme.OnSurfaceVariant
 import com.hikmet.imperium.ui.theme.Outline
+// Add missing dark theme color imports
 import com.hikmet.imperium.ui.theme.DarkPrimary
 import com.hikmet.imperium.ui.theme.DarkOnPrimary
 import com.hikmet.imperium.ui.theme.DarkPrimaryContainer
@@ -65,6 +67,10 @@ import com.hikmet.imperium.ui.theme.DarkOnSurface
 import com.hikmet.imperium.ui.theme.DarkSurfaceVariant
 import com.hikmet.imperium.ui.theme.DarkOnSurfaceVariant
 import com.hikmet.imperium.ui.theme.DarkOutline
+// Add world wars gradient imports
+import com.hikmet.imperium.ui.theme.WorldWarsGradientStart
+import com.hikmet.imperium.ui.theme.WorldWarsGradientEnd
+import androidx.compose.material3.Typography
 
 /**
  * Haptic feedback utility class for tactile feedback in the app
@@ -179,6 +185,38 @@ private val DarkColorScheme = darkColorScheme(
     outline = DarkOutline
 )
 
+// MOVED FROM ModernHistoryTheme.kt - START
+data class ImperiumCategoryColors(
+    val primary: Color,
+    val primaryVariant: Color,
+    val secondary: Color,
+    val background: Color,
+    val surface: Color,
+    val onPrimary: Color,
+    val onSecondary: Color,
+    val onBackground: Color,
+    val onSurface: Color,
+    val titleColor: Color,
+    val subtitleColor: Color,
+    val iconColor: Color,
+    val progressIndicatorColor: Color,
+    val levelCardBackground: Color,
+    val levelCardUnlockedTextColor: Color,
+    val levelCardLockedTextColor: Color,
+    val levelCardUnlockedIconColor: Color,
+    val levelCardLockedIconColor: Color
+)
+
+@Composable
+fun ImperiumCategoryTheme(
+    colors: ImperiumCategoryColors,
+    typography: Typography, 
+    content: @Composable () -> Unit
+) {
+    content()
+}
+// MOVED FROM ModernHistoryTheme.kt - END
+
 @Composable
 fun ImperiumTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -208,4 +246,50 @@ fun ImperiumTheme(
         typography = Typography,
         content = content
     )
+}
+
+// Define the specific colors for the World Wars theme
+val WorldWarsPrimary = WorldWarsGradientStart
+val WorldWarsPrimaryVariant = WorldWarsGradientEnd
+val WorldWarsSecondary = Color(0xFFF9B339) // Example accent
+val WorldWarsBackground = Color(0xFFF4F6F8) // Light gray background
+val WorldWarsSurface = Color.White
+val WorldWarsOnPrimary = Color.White
+val WorldWarsOnSecondary = Color.Black
+val WorldWarsOnBackground = Color(0xFF222222)
+val WorldWarsOnSurface = Color(0xFF222222)
+
+val WorldWarsCategoryColorsObject = ImperiumCategoryColors(
+    primary = WorldWarsPrimary,
+    primaryVariant = WorldWarsPrimaryVariant,
+    secondary = WorldWarsSecondary,
+    background = WorldWarsBackground,
+    surface = WorldWarsSurface,
+    onPrimary = WorldWarsOnPrimary,
+    onSecondary = WorldWarsOnSecondary,
+    onBackground = WorldWarsOnBackground,
+    onSurface = WorldWarsOnSurface,
+    titleColor = WorldWarsOnPrimary,
+    subtitleColor = WorldWarsOnPrimary.copy(alpha = 0.8f),
+    iconColor = WorldWarsOnPrimary,
+    progressIndicatorColor = WorldWarsSecondary,
+    levelCardBackground = WorldWarsSurface,
+    levelCardUnlockedTextColor = WorldWarsOnSurface,
+    levelCardLockedTextColor = WorldWarsOnSurface.copy(alpha = 0.6f),
+    levelCardUnlockedIconColor = WorldWarsPrimary,
+    levelCardLockedIconColor = WorldWarsOnSurface.copy(alpha = 0.4f)
+)
+
+object WorldWarsTheme {
+    val colors: ImperiumCategoryColors @Composable get() = WorldWarsCategoryColorsObject
+    val typography: Typography @Composable get() = MaterialTheme.typography
+
+    @Composable
+    operator fun invoke(content: @Composable () -> Unit) {
+        ImperiumCategoryTheme(
+            colors = this.colors,
+            typography = this.typography,
+            content = content
+        )
+    }
 } 
