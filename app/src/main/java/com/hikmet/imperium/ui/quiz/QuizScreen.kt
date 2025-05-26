@@ -467,7 +467,12 @@ fun QuizScreen(
                 navigationIcon = {
                     IconButton(
                         onClick = { 
-                            navController.popBackStack() 
+                            navController.navigate(NavDestinations.LEVEL_SELECTION_ROUTE.replace("{categoryId}", categoryId)) {
+                                // Clear back stack up to the level selection screen
+                                popUpTo(NavDestinations.LEVEL_SELECTION_ROUTE.replace("{categoryId}", categoryId)) {
+                                    inclusive = false
+                                }
+                            }
                         },
                         modifier = Modifier.semantics { 
                             contentDescription = "Go back to levels"
@@ -572,7 +577,12 @@ fun QuizScreen(
                             Spacer(modifier = Modifier.height(24.dp))
                             Button(
                                 onClick = {
-                                    navController.popBackStack()
+                                    navController.navigate(NavDestinations.LEVEL_SELECTION_ROUTE.replace("{categoryId}", categoryId)) {
+                                        // Clear back stack up to the level selection screen
+                                        popUpTo(NavDestinations.LEVEL_SELECTION_ROUTE.replace("{categoryId}", categoryId)) {
+                                            inclusive = false
+                                        }
+                                    }
                                 },
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = primaryColor
@@ -617,7 +627,12 @@ fun QuizScreen(
                             }
                         } else {
                             // Something went wrong, just go back
-                            navController.popBackStack()
+                            navController.navigate(NavDestinations.LEVEL_SELECTION_ROUTE.replace("{categoryId}", categoryId)) {
+                                // Clear back stack up to the level selection screen
+                                popUpTo(NavDestinations.LEVEL_SELECTION_ROUTE.replace("{categoryId}", categoryId)) {
+                                    inclusive = false
+                                }
+                            }
                         }
                     }
                 }

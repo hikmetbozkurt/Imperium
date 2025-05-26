@@ -20,20 +20,25 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.hikmet.imperium.R
 import com.hikmet.imperium.data.RenaissanceQuizData
 import com.hikmet.imperium.data.Question
 import com.hikmet.imperium.ui.navigation.NavDestinations
 import com.hikmet.imperium.ui.util.formatTime
 import com.hikmet.imperium.ui.util.rememberQuizTimer
+import com.hikmet.imperium.ui.util.SoundManager
+import com.hikmet.imperium.ui.util.calculateStars
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RenaissanceQuizScreen(
     navController: NavHostController,
-    levelId: String
+    levelId: String,
+    soundManager: SoundManager = hiltViewModel<RenaissanceQuizViewModel>().soundManager
 ) {
     // Coroutine scope for handling delays
     val coroutineScope = rememberCoroutineScope()
@@ -74,7 +79,8 @@ fun RenaissanceQuizScreen(
             // When time expires, navigate to results
             showTimeExpirationAlert = true
             if (!isQuizComplete) {
-                // Time's up - navigate to results
+                // Time's up - play wrong answer sound and navigate to results
+                soundManager.playWrongAnswer()
                 navController.navigate(
                     NavDestinations.RENAISSANCE_RESULTS_ROUTE
                         .replace("{levelId}", levelId)
@@ -108,6 +114,9 @@ fun RenaissanceQuizScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = { 
+                        // Play button click sound
+                        soundManager.playButtonClick()
+                        
                         // Navigate directly to level selection screen instead of going back
                         navController.navigate(NavDestinations.LEVEL_SELECTION_ROUTE.replace("{categoryId}", "renaissance")) {
                             // Clear back stack up to the level selection screen
@@ -263,9 +272,14 @@ fun RenaissanceQuizScreen(
                         if (selectedAnswer == null) {
                             selectedAnswer = index
                             isAnswerCorrect = isCorrect
+                            
+                            // Play sound based on answer correctness
                             if (isCorrect) {
+                                soundManager.playCorrectAnswer()
                                 score += 25 // 25 points per correct answer
                                 correctAnswersCount++
+                            } else {
+                                soundManager.playWrongAnswer()
                             }
 
                             // Move to next question after delay
@@ -276,7 +290,8 @@ fun RenaissanceQuizScreen(
                                     selectedAnswer = null
                                     isAnswerCorrect = null
                                 } else {
-                                    // Quiz complete
+                                    // Quiz complete - play level complete sound
+                                    soundManager.playLevelComplete()
                                     isQuizComplete = true
                                     navController.navigate(
                                         NavDestinations.RENAISSANCE_RESULTS_ROUTE

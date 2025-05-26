@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.sp
 import com.hikmet.imperium.data.entities.LevelEntity
 import com.hikmet.imperium.ui.theme.ImperiumCategoryColors
 import com.hikmet.imperium.ui.util.formatTime
+import com.hikmet.imperium.ui.util.SoundManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,6 +38,7 @@ fun LevelCard(
     isUnlocked: Boolean,
     userStarsForLevel: Int,
     colors: ImperiumCategoryColors,
+    soundManager: SoundManager? = null,
     onClick: () -> Unit
 ) {
     val cardBackgroundColor = if (isUnlocked) colors.levelCardBackground else colors.levelCardBackground.copy(alpha = 0.6f)
@@ -44,7 +46,12 @@ fun LevelCard(
     val iconColor = if (isUnlocked) colors.levelCardUnlockedIconColor else colors.levelCardLockedIconColor
 
     Card(
-        onClick = onClick,
+        onClick = {
+            if (isUnlocked) {
+                soundManager?.playButtonClick()
+            }
+            onClick()
+        },
         modifier = Modifier
             .size(width = 88.dp, height = 110.dp), // Unified size across all level screens
         shape = RoundedCornerShape(12.dp),
@@ -122,6 +129,7 @@ fun LevelCard(
     gradientStart: Color,
     gradientEnd: Color,
     bestTimeMs: Long? = null,
+    soundManager: SoundManager? = null,
     onClick: () -> Unit
 ) {
     val cardBackgroundColor = if (isUnlocked) Color.White else Color.White.copy(alpha = 0.6f)
@@ -129,7 +137,12 @@ fun LevelCard(
     val iconColor = if (isUnlocked) primaryColor else Color.Gray.copy(alpha = 0.4f)
 
     Card(
-        onClick = onClick,
+        onClick = {
+            if (isUnlocked) {
+                soundManager?.playButtonClick()
+            }
+            onClick()
+        },
         modifier = Modifier
             .size(width = 88.dp, height = 110.dp),
         shape = RoundedCornerShape(12.dp),

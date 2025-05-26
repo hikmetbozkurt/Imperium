@@ -10,6 +10,7 @@ import com.hikmet.imperium.data.dao.AnswerDao
 import com.hikmet.imperium.data.dao.UserProgressDao
 import com.hikmet.imperium.data.dao.LevelProgressDao
 import com.hikmet.imperium.data.repository.QuizRepository
+import com.hikmet.imperium.ui.util.SoundManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -63,6 +64,14 @@ object AppModule {
     @Provides
     fun provideLevelProgressDao(database: ImperiumDatabase): LevelProgressDao {
         return database.levelProgressDao()
+    }
+
+    @Singleton
+    @Provides
+    fun provideSoundManager(
+        @ApplicationContext context: Context
+    ): SoundManager {
+        return SoundManager(context)
     }
 
     // QuizRepository is already annotated with @Singleton and @Inject constructor,

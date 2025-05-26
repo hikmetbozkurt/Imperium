@@ -102,6 +102,7 @@ import androidx.navigation.compose.rememberNavController
 import com.hikmet.imperium.R
 import com.hikmet.imperium.ui.navigation.NavDestinations
 import com.hikmet.imperium.ui.theme.*
+import com.hikmet.imperium.ui.util.SoundManager
 import kotlinx.coroutines.delay
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -123,6 +124,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.clickable
 import androidx.compose.ui.text.font.FontStyle
+import androidx.hilt.navigation.compose.hiltViewModel
 import android.util.Log
 
 /**
@@ -228,8 +230,21 @@ val sampleCategories = listOf(
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavController = rememberNavController()) {
+fun HomeScreen(
+    navController: NavController = rememberNavController(),
+    soundManager: SoundManager = hiltViewModel<HomeViewModel>().soundManager
+) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    
+    // Start background music when HomeScreen is displayed
+    DisposableEffect(Unit) {
+        soundManager.startBackgroundMusic()
+        
+        onDispose {
+            // Stop background music when leaving HomeScreen
+            soundManager.stopBackgroundMusic()
+        }
+    }
     
     Scaffold(
         modifier = Modifier
@@ -284,6 +299,7 @@ fun HomeScreen(navController: NavController = rememberNavController()) {
                         },
                         selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                         onClick = {
+                            soundManager.playButtonClick()
                             navController.navigate(screen.route) {
                                 popUpTo(navController.graph.findStartDestination().id) {
                                     saveState = true
@@ -337,6 +353,7 @@ fun HomeScreen(navController: NavController = rememberNavController()) {
                     CategoryCard(
                         category = category,
                         onClick = {
+                            soundManager.playButtonClick()
                             try {
                                 // Navigate directly to the level selection screen for the category
                                 navController.navigate(

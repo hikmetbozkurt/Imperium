@@ -115,10 +115,17 @@ fun MedievalLevelScreen(
                     }
                 },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(onClick = { 
+                        navController.navigate(NavDestinations.HOME_ROUTE) {
+                            // Clear back stack up to home
+                            popUpTo(NavDestinations.HOME_ROUTE) {
+                                inclusive = false
+                            }
+                        }
+                    }) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back",
+                            contentDescription = "Back to Home",
                             tint = medievalPrimary
                         )
                     }
