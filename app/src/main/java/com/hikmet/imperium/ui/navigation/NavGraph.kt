@@ -14,11 +14,17 @@ import com.hikmet.imperium.ui.category.CategoryScreen
 import com.hikmet.imperium.ui.home.HomeScreen
 import com.hikmet.imperium.ui.level.LevelScreen
 import com.hikmet.imperium.ui.level.MedievalLevelScreen
+import com.hikmet.imperium.ui.level.RenaissanceLevelScreen
+import com.hikmet.imperium.ui.level.ModernHistoryLevelScreen
+import com.hikmet.imperium.ui.level.WorldWarsLevelScreen
 import com.hikmet.imperium.ui.profile.ProfileScreen
 import com.hikmet.imperium.ui.progress.ProgressScreen
 import com.hikmet.imperium.ui.quiz.QuizScreen
 import com.hikmet.imperium.ui.quiz.MedievalQuizScreen
 import com.hikmet.imperium.ui.quiz.AncientQuizScreen
+import com.hikmet.imperium.ui.quiz.RenaissanceQuizScreen
+import com.hikmet.imperium.ui.quiz.WorldWarsQuizScreen
+import com.hikmet.imperium.ui.quiz.ModernHistoryQuizScreen
 import com.hikmet.imperium.ui.results.ResultsScreen
 import com.hikmet.imperium.ui.results.MedievalResultsScreen
 import com.hikmet.imperium.ui.splash.SplashScreen
@@ -47,6 +53,21 @@ object NavDestinations {
     // Ancient routes
     const val ANCIENT_QUIZ_ROUTE = "ancient_quiz/{levelId}"
     const val ANCIENT_RESULTS_ROUTE = "ancient_results/{levelId}/{score}/{stars}/{correctAnswers}/{totalQuestions}"
+
+    // Renaissance routes
+    const val RENAISSANCE_LEVEL_ROUTE = "renaissance_levels"
+    const val RENAISSANCE_QUIZ_ROUTE = "renaissance_quiz/{levelId}"
+    const val RENAISSANCE_RESULTS_ROUTE = "renaissance_results/{levelId}/{score}/{stars}/{correctAnswers}/{totalQuestions}"
+
+    // Modern History routes
+    const val MODERN_LEVEL_ROUTE = "modern_levels"
+    const val MODERN_QUIZ_ROUTE = "modern_quiz/{levelId}"
+    const val MODERN_RESULTS_ROUTE = "modern_results/{levelId}/{score}/{stars}/{correctAnswers}/{totalQuestions}"
+
+    // World Wars routes
+    const val WORLD_WARS_LEVEL_ROUTE = "world_wars_levels"
+    const val WORLD_WARS_QUIZ_ROUTE = "world_wars_quiz/{levelId}"
+    const val WORLD_WARS_RESULTS_ROUTE = "world_wars_results/{levelId}/{score}/{stars}/{correctAnswers}/{totalQuestions}"
 
     fun getMedievalQuizRoute(levelId: String): String {
         return MEDIEVAL_QUIZ_ROUTE.replace("{levelId}", levelId)
@@ -79,6 +100,63 @@ object NavDestinations {
         totalQuestions: Int
     ): String {
         return ANCIENT_RESULTS_ROUTE
+            .replace("{levelId}", levelId)
+            .replace("{score}", score.toString())
+            .replace("{stars}", stars.toString())
+            .replace("{correctAnswers}", correctAnswers.toString())
+            .replace("{totalQuestions}", totalQuestions.toString())
+    }
+
+    fun getRenaissanceQuizRoute(levelId: String): String {
+        return RENAISSANCE_QUIZ_ROUTE.replace("{levelId}", levelId)
+    }
+
+    fun getRenaissanceResultsRoute(
+        levelId: String,
+        score: Int,
+        stars: Int,
+        correctAnswers: Int,
+        totalQuestions: Int
+    ): String {
+        return RENAISSANCE_RESULTS_ROUTE
+            .replace("{levelId}", levelId)
+            .replace("{score}", score.toString())
+            .replace("{stars}", stars.toString())
+            .replace("{correctAnswers}", correctAnswers.toString())
+            .replace("{totalQuestions}", totalQuestions.toString())
+    }
+
+    fun getModernQuizRoute(levelId: String): String {
+        return MODERN_QUIZ_ROUTE.replace("{levelId}", levelId)
+    }
+
+    fun getModernResultsRoute(
+        levelId: String,
+        score: Int,
+        stars: Int,
+        correctAnswers: Int,
+        totalQuestions: Int
+    ): String {
+        return MODERN_RESULTS_ROUTE
+            .replace("{levelId}", levelId)
+            .replace("{score}", score.toString())
+            .replace("{stars}", stars.toString())
+            .replace("{correctAnswers}", correctAnswers.toString())
+            .replace("{totalQuestions}", totalQuestions.toString())
+    }
+
+    fun getWorldWarsQuizRoute(levelId: String): String {
+        return WORLD_WARS_QUIZ_ROUTE.replace("{levelId}", levelId)
+    }
+
+    fun getWorldWarsResultsRoute(
+        levelId: String,
+        score: Int,
+        stars: Int,
+        correctAnswers: Int,
+        totalQuestions: Int
+    ): String {
+        return WORLD_WARS_RESULTS_ROUTE
             .replace("{levelId}", levelId)
             .replace("{score}", score.toString())
             .replace("{stars}", stars.toString())
@@ -143,10 +221,12 @@ fun ImperiumNavGraph(
             )
         ) { backStackEntry ->
             val categoryId = backStackEntry.arguments?.getString("categoryId") ?: ""
-            
             // Route to the appropriate level screen based on category
             when (categoryId) {
                 "medieval" -> MedievalLevelScreen(navController = navController)
+                "renaissance" -> RenaissanceLevelScreen(navController = navController)
+                "modern" -> ModernHistoryLevelScreen(navController = navController)
+                "world_wars" -> WorldWarsLevelScreen(navController = navController)
                 else -> LevelScreen(
                     navController = navController,
                     categoryId = categoryId
@@ -259,6 +339,26 @@ fun ImperiumNavGraph(
                 totalQuestions = totalQuestions
             )
         }
+
+        // Medieval level screen
+        composable(NavDestinations.MEDIEVAL_LEVEL_ROUTE) {
+            MedievalLevelScreen(navController = navController)
+        }
+
+        // Renaissance level screen
+        composable(NavDestinations.RENAISSANCE_LEVEL_ROUTE) {
+            RenaissanceLevelScreen(navController = navController)
+        }
+
+        // Modern History level screen
+        composable(NavDestinations.MODERN_LEVEL_ROUTE) {
+            ModernHistoryLevelScreen(navController = navController)
+        }
+
+        // World Wars level screen
+        composable(NavDestinations.WORLD_WARS_LEVEL_ROUTE) {
+            WorldWarsLevelScreen(navController = navController)
+        }
         
         // Ancient-specific routes
         // Ancient quiz screen
@@ -303,6 +403,138 @@ fun ImperiumNavGraph(
                 correctAnswers = correctAnswers,
                 totalQuestions = totalQuestions,
                 categoryId = "ancient"
+            )
+        }
+
+        // Renaissance-specific routes
+        // Renaissance quiz screen
+        composable(
+            route = NavDestinations.RENAISSANCE_QUIZ_ROUTE,
+            arguments = listOf(
+                navArgument("levelId") {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val levelId = backStackEntry.arguments?.getString("levelId") ?: "1"
+            RenaissanceQuizScreen(
+                navController = navController,
+                levelId = levelId
+            )
+        }
+
+        // Renaissance results screen
+        composable(
+            route = NavDestinations.RENAISSANCE_RESULTS_ROUTE,
+            arguments = listOf(
+                navArgument("levelId") { type = NavType.StringType },
+                navArgument("score") { type = NavType.IntType },
+                navArgument("stars") { type = NavType.IntType },
+                navArgument("correctAnswers") { type = NavType.IntType },
+                navArgument("totalQuestions") { type = NavType.IntType }
+            )
+        ) { backStackEntry ->
+            val levelId = backStackEntry.arguments?.getString("levelId") ?: "1"
+            val score = backStackEntry.arguments?.getInt("score") ?: 0
+            val stars = backStackEntry.arguments?.getInt("stars") ?: 0
+            val correctAnswers = backStackEntry.arguments?.getInt("correctAnswers") ?: 0
+            val totalQuestions = backStackEntry.arguments?.getInt("totalQuestions") ?: 0
+
+            com.hikmet.imperium.ui.results.RenaissanceResultsScreen(
+                navController = navController,
+                levelId = levelId,
+                score = score,
+                stars = stars,
+                correctAnswers = correctAnswers,
+                totalQuestions = totalQuestions
+            )
+        }
+
+        // Modern History-specific routes
+        // Modern History quiz screen
+        composable(
+            route = NavDestinations.MODERN_QUIZ_ROUTE,
+            arguments = listOf(
+                navArgument("levelId") {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val levelId = backStackEntry.arguments?.getString("levelId") ?: "1"
+            ModernHistoryQuizScreen(
+                navController = navController,
+                levelId = levelId
+            )
+        }
+
+        // Modern History results screen
+        composable(
+            route = NavDestinations.MODERN_RESULTS_ROUTE,
+            arguments = listOf(
+                navArgument("levelId") { type = NavType.StringType },
+                navArgument("score") { type = NavType.IntType },
+                navArgument("stars") { type = NavType.IntType },
+                navArgument("correctAnswers") { type = NavType.IntType },
+                navArgument("totalQuestions") { type = NavType.IntType }
+            )
+        ) { backStackEntry ->
+            val levelId = backStackEntry.arguments?.getString("levelId") ?: "1"
+            val score = backStackEntry.arguments?.getInt("score") ?: 0
+            val stars = backStackEntry.arguments?.getInt("stars") ?: 0
+            val correctAnswers = backStackEntry.arguments?.getInt("correctAnswers") ?: 0
+            val totalQuestions = backStackEntry.arguments?.getInt("totalQuestions") ?: 0
+
+            com.hikmet.imperium.ui.results.ModernHistoryResultsScreen(
+                navController = navController,
+                levelId = levelId,
+                score = score,
+                stars = stars,
+                correctAnswers = correctAnswers,
+                totalQuestions = totalQuestions
+            )
+        }
+
+        // World Wars-specific routes
+        // World Wars quiz screen
+        composable(
+            route = NavDestinations.WORLD_WARS_QUIZ_ROUTE,
+            arguments = listOf(
+                navArgument("levelId") {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val levelId = backStackEntry.arguments?.getString("levelId") ?: "1"
+            WorldWarsQuizScreen(
+                navController = navController,
+                levelId = levelId
+            )
+        }
+
+        // World Wars results screen
+        composable(
+            route = NavDestinations.WORLD_WARS_RESULTS_ROUTE,
+            arguments = listOf(
+                navArgument("levelId") { type = NavType.StringType },
+                navArgument("score") { type = NavType.IntType },
+                navArgument("stars") { type = NavType.IntType },
+                navArgument("correctAnswers") { type = NavType.IntType },
+                navArgument("totalQuestions") { type = NavType.IntType }
+            )
+        ) { backStackEntry ->
+            val levelId = backStackEntry.arguments?.getString("levelId") ?: "1"
+            val score = backStackEntry.arguments?.getInt("score") ?: 0
+            val stars = backStackEntry.arguments?.getInt("stars") ?: 0
+            val correctAnswers = backStackEntry.arguments?.getInt("correctAnswers") ?: 0
+            val totalQuestions = backStackEntry.arguments?.getInt("totalQuestions") ?: 0
+
+            com.hikmet.imperium.ui.results.WorldWarsResultsScreen(
+                navController = navController,
+                levelId = levelId,
+                score = score,
+                stars = stars,
+                correctAnswers = correctAnswers,
+                totalQuestions = totalQuestions
             )
         }
     }

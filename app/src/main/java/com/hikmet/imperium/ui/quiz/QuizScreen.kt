@@ -333,22 +333,52 @@ fun QuizScreen(
         else -> colorResource(R.color.ancient_gradient_end)
     }
     
-    // Use different style for ancient category
-    val isAncient = categoryId == "ancient"
-    val appBarColor = if (isAncient) colorResource(R.color.ancient_background_light) else gradientStart
-    val textColor = if (isAncient) colorResource(R.color.ancient_text_primary) else MaterialTheme.colorScheme.onPrimary
-    val iconTint = if (isAncient) colorResource(R.color.ancient_button) else MaterialTheme.colorScheme.onPrimary
-    val primaryColor = if (isAncient) colorResource(R.color.ancient_button) else gradientStart
+    // Get theme colors based on category
+    val appBarColor = when (categoryId) {
+        "ancient" -> colorResource(R.color.ancient_background_light)
+        "medieval" -> colorResource(R.color.medieval_background_light)
+        "renaissance" -> colorResource(R.color.renaissance_background_light)
+        "modern" -> colorResource(R.color.modern_background_light)
+        "world_wars" -> colorResource(R.color.world_wars_background_light)
+        else -> colorResource(R.color.ancient_background_light)
+    }
+    
+    val textColor = when (categoryId) {
+        "ancient" -> colorResource(R.color.ancient_text_primary)
+        "medieval" -> colorResource(R.color.medieval_text_primary)
+        "renaissance" -> colorResource(R.color.renaissance_text_primary)
+        "modern" -> colorResource(R.color.modern_text_primary)
+        "world_wars" -> colorResource(R.color.world_wars_text_primary)
+        else -> colorResource(R.color.ancient_text_primary)
+    }
+    
+    val iconTint = when (categoryId) {
+        "ancient" -> colorResource(R.color.ancient_button)
+        "medieval" -> colorResource(R.color.medieval_button)
+        "renaissance" -> colorResource(R.color.renaissance_button)
+        "modern" -> colorResource(R.color.modern_button)
+        "world_wars" -> colorResource(R.color.world_wars_button)
+        else -> colorResource(R.color.ancient_button)
+    }
+    
+    val primaryColor = when (categoryId) {
+        "ancient" -> colorResource(R.color.ancient_button)
+        "medieval" -> colorResource(R.color.medieval_button)
+        "renaissance" -> colorResource(R.color.renaissance_button)
+        "modern" -> colorResource(R.color.modern_button)
+        "world_wars" -> colorResource(R.color.world_wars_button)
+        else -> colorResource(R.color.ancient_button)
+    }
     
     // Get color resources for quiz answers
-    val answerCorrectColor = if (isAncient) colorResource(R.color.ancient_button) else colorResource(R.color.answer_correct)
+    val answerCorrectColor = colorResource(R.color.answer_correct)
     val answerIncorrectColor = colorResource(R.color.answer_incorrect)
-    val answerSelectedColor = if (isAncient) colorResource(R.color.ancient_button) else colorResource(R.color.answer_selected)
+    val answerSelectedColor = primaryColor
     val answerUnselectedColor = colorResource(R.color.answer_unselected)
     val answerTextLight = colorResource(R.color.answer_text_light)
     val answerTextDark = colorResource(R.color.answer_text_dark)
     val answerBorderLight = colorResource(R.color.answer_border_light)
-    val cardBackgroundLight = colorResource(R.color.ancient_background_light)
+    val cardBackgroundLight = appBarColor
     
     // State for time expiration alert
     var showTimeExpirationAlert by remember { mutableStateOf(false) }
@@ -411,7 +441,7 @@ fun QuizScreen(
     
     // Timer color changes as time runs out
     val timerColor = when {
-        isAncient -> colorResource(R.color.ancient_progress)
+        currentQuestion == null -> Color.Transparent
         timerValue.value > 30000 -> primaryColor // Normal color for most of the time
         timerValue.value > 20000 -> Color(0xFFFFA000) // Amber when under 30 seconds
         timerValue.value > 10000 -> Color(0xFFFF6D00) // Orange when under 20 seconds
@@ -460,7 +490,7 @@ fun QuizScreen(
                                 }
                                 .padding(end = 8.dp)
                                 .clip(CircleShape)
-                                .background(if (isAncient) primaryColor else Color.Transparent)
+                                .background(primaryColor)
                                 .padding(horizontal = 12.dp, vertical = 4.dp)
                         ) {
                             Text(
@@ -468,12 +498,7 @@ fun QuizScreen(
                                 style = MaterialTheme.typography.bodyLarge.copy(
                                     fontWeight = FontWeight.Bold
                                 ),
-                                color = when {
-                                    isAncient -> answerTextLight
-                                    timerState.remainingTimeMs > 60000 -> MaterialTheme.colorScheme.onPrimary
-                                    timerState.remainingTimeMs > 30000 -> Color.Yellow
-                                    else -> Color.Red
-                                }
+                                color = answerTextLight
                             )
                         }
                     }
@@ -629,7 +654,7 @@ fun QuizScreen(
                                     defaultElevation = 4.dp
                                 ),
                                 colors = CardDefaults.elevatedCardColors(
-                                    containerColor = if (isAncient) cardBackgroundLight else MaterialTheme.colorScheme.surface
+                                    containerColor = cardBackgroundLight
                                 )
                             ) {
                                 Column(

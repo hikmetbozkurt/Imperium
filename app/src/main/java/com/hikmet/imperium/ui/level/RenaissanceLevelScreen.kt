@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.hikmet.imperium.R
-import com.hikmet.imperium.data.MedievalLevels
+import com.hikmet.imperium.data.RenaissanceLevels
 import com.hikmet.imperium.data.entities.LevelProgressEntity
 import com.hikmet.imperium.data.entities.UserProgressEntity
 import com.hikmet.imperium.ui.navigation.NavDestinations
@@ -34,55 +34,39 @@ import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.flow.collectLatest
 import android.util.Log
 
-private const val MEDIEVAL_CATEGORY_ID = "medieval"
+private const val RENAISSANCE_CATEGORY_ID = "renaissance"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MedievalLevelScreen(
+fun RenaissanceLevelScreen(
     navController: NavHostController,
     viewModel: LevelViewModel? = null
 ) {
-    // Get the application context to access the repository if viewModel is not provided
     val context = LocalContext.current
     val application = context.applicationContext as ImperiumApplication
-    
-    // Use provided viewModel or create a new one with repository
     val levelViewModel = viewModel ?: viewModel(
         factory = LevelViewModel.Factory(application.repository)
     )
-    
-    // Theme colors
-    val medievalPrimary = colorResource(R.color.medieval_button)
-    val medievalBackground = colorResource(R.color.medieval_background_light)
-    val medievalTextPrimary = colorResource(R.color.medieval_text_primary)
-    val medievalGradientStart = colorResource(R.color.medieval_gradient_start)
-    val medievalGradientEnd = colorResource(R.color.medieval_gradient_end)
 
-    // State for level progress
+    val renaissancePrimary = colorResource(R.color.renaissance_button)
+    val renaissanceBackground = colorResource(R.color.renaissance_background_light)
+    val renaissanceTextPrimary = colorResource(R.color.renaissance_text_primary)
+    val renaissanceGradientStart = colorResource(R.color.renaissance_gradient_start)
+    val renaissanceGradientEnd = colorResource(R.color.renaissance_gradient_end)
+
     var levelProgressList by remember { mutableStateOf<List<LevelProgressEntity>>(emptyList()) }
     var totalStars by remember { mutableStateOf(0) }
-    var categoryStars by remember { mutableStateOf(0) } // Category-specific stars
+    var categoryStars by remember { mutableStateOf(0) }
     var userProgress by remember { mutableStateOf<UserProgressEntity?>(null) }
-    
-    // Load level progress from repository
+
     LaunchedEffect(key1 = true) {
-        // Get level progress and total stars
-        levelViewModel.getLevelProgressForCategory(MEDIEVAL_CATEGORY_ID).collectLatest { progress ->
+        levelViewModel.getLevelProgressForCategory(RENAISSANCE_CATEGORY_ID).collectLatest { progress ->
             levelProgressList = progress
             totalStars = levelViewModel.getTotalStars()
-            
-            // Calculate stars for this specific category
             categoryStars = progress.sumOf { it.starsEarned }
-            
-            // Alternative way to get category stars if needed
-            // categoryStars = levelViewModel.getCategoryStars(MEDIEVAL_CATEGORY_ID)
-            
-            // Log to help debug
-            Log.d("MedievalLevelScreen", "Category stars: $categoryStars, Total stars: $totalStars")
+            Log.d("RenaissanceLevelScreen", "Category stars: $categoryStars, Total stars: $totalStars")
         }
-        
-        // Get user progress for unlocked levels
-        levelViewModel.repository.getUserProgressForCategory(MEDIEVAL_CATEGORY_ID).collectLatest { progress ->
+        levelViewModel.repository.getUserProgressForCategory(RENAISSANCE_CATEGORY_ID).collectLatest { progress ->
             userProgress = progress
         }
     }
@@ -95,9 +79,9 @@ fun MedievalLevelScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Medieval Period",
+                            text = "Renaissance",
                             style = MaterialTheme.typography.titleLarge,
-                            color = medievalTextPrimary
+                            color = renaissanceTextPrimary
                         )
                         Spacer(modifier = Modifier.weight(1f))
                         Icon(
@@ -110,7 +94,7 @@ fun MedievalLevelScreen(
                         Text(
                             text = "$categoryStars",
                             style = MaterialTheme.typography.titleMedium,
-                            color = medievalTextPrimary
+                            color = renaissanceTextPrimary
                         )
                     }
                 },
@@ -119,75 +103,57 @@ fun MedievalLevelScreen(
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Back",
-                            tint = medievalPrimary
+                            tint = renaissancePrimary
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = medievalBackground
+                    containerColor = renaissanceBackground
                 )
             )
         },
-        containerColor = medievalBackground
+        containerColor = renaissanceBackground
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Map the MedievalLevels.levels to a list that can be displayed in a grid
-            val levels = MedievalLevels.levels.map { medievalLevel ->
-                val levelNumberInt = medievalLevel.id.toInt()
-                val levelProgress = levelProgressList.find { 
-                    it.categoryId == MEDIEVAL_CATEGORY_ID && 
-                    it.levelNumber == levelNumberInt 
+            val levels = RenaissanceLevels.levels.map { renaissanceLevel ->
+                val levelNumberInt = renaissanceLevel.id.toInt()
+                val levelProgress = levelProgressList.find {
+                    it.categoryId == RENAISSANCE_CATEGORY_ID &&
+                    it.levelNumber == levelNumberInt
                 }
-                
-                // Calculate if level is unlocked based on user progress - improved logic
                 val isUnlocked = when {
-                    // First level is always unlocked
                     levelNumberInt == 1 -> true
-                    
-                    // For all other levels, check:
-                    // 1. User progress "unlockedLevels" field from database
-                    // 2. Check if previous level is completed (starsEarned > 0)
                     else -> {
                         val unlockedLevels = userProgress?.unlockedLevels ?: 1
-                        val previousLevelCompleted = levelProgressList.any { 
-                            it.categoryId == MEDIEVAL_CATEGORY_ID && 
-                            it.levelNumber == levelNumberInt - 1 && 
-                            it.starsEarned > 0 
+                        val previousLevelCompleted = levelProgressList.any {
+                            it.categoryId == RENAISSANCE_CATEGORY_ID &&
+                            it.levelNumber == levelNumberInt - 1 &&
+                            it.starsEarned > 0
                         }
-                        
-                        // Level is unlocked if either:
-                        // - It's marked as unlocked in user progress
-                        // - OR the previous level is completed with at least 1 star
                         levelNumberInt <= unlockedLevels || previousLevelCompleted
                     }
                 }
-                
-                // Debug log to see what's happening with each level
-                Log.d("MedievalLevelScreen", "Level $levelNumberInt: unlocked=$isUnlocked, " +
+                Log.d("RenaissanceLevelScreen", "Level $levelNumberInt: unlocked=$isUnlocked, " +
                      "userProgressUnlocked=${userProgress?.unlockedLevels ?: 1}, " +
                      "previousLevelCompleted=${levelProgressList.any { 
-                         it.categoryId == MEDIEVAL_CATEGORY_ID && 
+                         it.categoryId == RENAISSANCE_CATEGORY_ID && 
                          it.levelNumber == levelNumberInt - 1 && 
                          it.starsEarned > 0 
                      }}")
-                
-                // Create a map of level information for the grid
                 mapOf(
-                    "levelNumber" to medievalLevel.id,
-                    "title" to medievalLevel.title,
-                    "description" to medievalLevel.description,
+                    "levelNumber" to renaissanceLevel.id,
+                    "title" to renaissanceLevel.title,
+                    "description" to renaissanceLevel.description,
                     "isCompleted" to ((levelProgress?.starsEarned ?: 0) > 0),
                     "stars" to (levelProgress?.starsEarned ?: 0),
-                    "requiredStars" to medievalLevel.requiredStars,
+                    "requiredStars" to renaissanceLevel.requiredStars,
                     "isUnlocked" to isUnlocked
                 )
             }
-            
-            // Display levels in a grid view like AncientLevelGrid
             LazyVerticalGrid(
                 columns = GridCells.Fixed(3),
                 contentPadding = PaddingValues(16.dp),
@@ -202,17 +168,16 @@ fun MedievalLevelScreen(
                         stars = level["stars"] as Int,
                         requiredStars = level["requiredStars"] as Int,
                         isUnlocked = level["isUnlocked"] as Boolean,
-                        primaryColor = medievalPrimary,
-                        gradientStart = medievalGradientStart,
-                        gradientEnd = medievalGradientEnd,
+                        primaryColor = renaissancePrimary,
+                        gradientStart = renaissanceGradientStart,
+                        gradientEnd = renaissanceGradientEnd,
                         onClick = {
                             try {
                                 if (level["isUnlocked"] as Boolean) {
-                                    navController.navigate(NavDestinations.getMedievalQuizRoute(level["levelNumber"] as String))
+                                    navController.navigate(NavDestinations.getRenaissanceQuizRoute(level["levelNumber"] as String))
                                 }
                             } catch (e: Exception) {
-                                // Prevent crash, just log error
-                                Log.e("MedievalLevelScreen", "Error navigating to level: ${e.message}")
+                                Log.e("RenaissanceLevelScreen", "Error navigating to level: ${e.message}")
                             }
                         }
                     )

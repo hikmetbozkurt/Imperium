@@ -338,11 +338,13 @@ fun HomeScreen(navController: NavController = rememberNavController()) {
                         category = category,
                         onClick = {
                             try {
-                                // Navigate to the correct category with error handling
-                                navController.navigate("category/${category.id}")
+                                // Navigate directly to the level selection screen for the category
+                                navController.navigate(
+                                    NavDestinations.LEVEL_SELECTION_ROUTE.replace("{categoryId}", category.id)
+                                )
                             } catch (e: Exception) {
                                 // Log error and prevent crash
-                                Log.e("HomeScreen", "Error navigating to category ${category.id}: ${e.message}")
+                                Log.e("HomeScreen", "Error navigating to levels for category ${category.id}: ${e.message}")
                             }
                         }
                     )

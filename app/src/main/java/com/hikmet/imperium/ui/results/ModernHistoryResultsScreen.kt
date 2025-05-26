@@ -1,5 +1,6 @@
 package com.hikmet.imperium.ui.results
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
@@ -8,52 +9,16 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Replay
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material.icons.outlined.Star
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -63,47 +28,71 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
+import com.hikmet.imperium.ImperiumApplication
 import com.hikmet.imperium.R
+import com.hikmet.imperium.data.entities.UserProgressEntity
 import com.hikmet.imperium.ui.navigation.NavDestinations
-import com.hikmet.imperium.ui.theme.AncientGradientEnd
-import com.hikmet.imperium.ui.theme.AncientGradientStart
-import com.hikmet.imperium.ui.theme.ImperiumTheme
-import com.hikmet.imperium.ui.theme.MedievalGradientStart
-import com.hikmet.imperium.ui.theme.ModernGradientStart
-import com.hikmet.imperium.ui.theme.RenaissanceGradientStart
-import com.hikmet.imperium.ui.theme.WorldWarsGradientStart
-import com.hikmet.imperium.ui.util.formatTime
+import com.hikmet.imperium.ui.viewmodel.LevelViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 
-/**
- * Screen to display results of a completed quiz
- */
+private const val MODERN_CATEGORY_ID = "modern"
+private const val MAX_MODERN_LEVELS = 20
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ResultsScreen(
+fun ModernHistoryResultsScreen(
     navController: NavHostController,
-    categoryId: String,
     levelId: String,
     score: Int,
     stars: Int,
     correctAnswers: Int,
-    totalQuestions: Int
+    totalQuestions: Int,
+    categoryId: String = MODERN_CATEGORY_ID
 ) {
+    // Get the application context to access the repository
+    val context = LocalContext.current
+    val application = context.applicationContext as ImperiumApplication
+    
+    // Initialize ViewModel with repository
+    val levelViewModel: LevelViewModel = viewModel(
+        factory = LevelViewModel.Factory(application.repository)
+    )
+    
+    // Convert levelId to integer
+    val levelNumber = levelId.toIntOrNull() ?: 1
+    
+    // Next level information
+    val nextLevelNumber = if (levelNumber < MAX_MODERN_LEVELS) levelNumber + 1 else null
+    var isNextLevelUnlocked by remember { mutableStateOf(false) }
+    var requiredStarsForNextLevel by remember { mutableStateOf(0) }
+    var totalStars by remember { mutableStateOf(0) }
+    val coroutineScope = rememberCoroutineScope()
+    
+    // Result saved to database state
+    var resultSaved by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    
     // Animation states
     var showScore by remember { mutableStateOf(false) }
     var showStars by remember { mutableStateOf(false) }
     var showStats by remember { mutableStateOf(false) }
-    var showButtons by remember { mutableStateOf(false) }
+    var showButtons by remember { mutableStateOf(true) }
     
     // Animate score percentage
     val scorePercentage by animateFloatAsState(
@@ -112,13 +101,103 @@ fun ResultsScreen(
         label = "Score Animation"
     )
     
-    // Ancient Civilizations theme colors
-    val ancientTeal = Color(0xFF227C70)
-    val ancientLightTeal = Color(0xFF39AEA9)
+    // Modern History theme colors
+    val primaryColor = colorResource(R.color.modern_button)
+    val lightPrimaryColor = primaryColor.copy(alpha = 0.7f)
+    val backgroundColor = colorResource(R.color.modern_background_light)
+    val textPrimaryColor = colorResource(R.color.modern_text_primary)
     
-    // Safe defaults for navigation
-    val safeLevel = levelId.toIntOrNull() ?: 1
-    val nextLevel = safeLevel + 1
+    // Check if next level is unlocked and get requirements
+    LaunchedEffect(levelId) {
+        // Save result to database
+        coroutineScope.launch {
+            try {
+                // DEBUGGING: Check what's in the database BEFORE we try to do anything
+                val userProgressBefore = try {
+                    levelViewModel.repository.getUserProgressForCategory(categoryId).first()
+                } catch (e: Exception) {
+                    null
+                }
+                
+                Log.d("MODERN_RESULTS_DEBUG", "BEFORE: User progress for $categoryId: $userProgressBefore")
+                Log.d("MODERN_RESULTS_DEBUG", "BEFORE: Unlocked levels: ${userProgressBefore?.unlockedLevels ?: 0}")
+                
+                // Update progress for this level
+                val updateResult = levelViewModel.updateLevelProgress(
+                    categoryId = categoryId,
+                    levelNumber = levelNumber,
+                    score = score,
+                    stars = stars,
+                    timeMs = null
+                )
+                Log.d("MODERN_RESULTS_DEBUG", "Level progress update result: $updateResult")
+                
+                // IMPORTANT: Unlock the next level if stars were earned
+                if (stars > 0 && levelNumber < MAX_MODERN_LEVELS) {
+                    val nextLevel = levelNumber + 1
+                    
+                    try {
+                        // Directly unlock the next level
+                        levelViewModel.repository.unlockLevel(categoryId, nextLevel)
+                        Log.d("MODERN_RESULTS_DEBUG", "Unlocked next level: $nextLevel for category $categoryId")
+                        
+                        // Get user progress and make sure unlockedLevels is updated
+                        val userProgress = levelViewModel.repository.getUserProgressForCategory(categoryId).first()
+                        
+                        // If unlockedLevels is less than nextLevel, update it
+                        if (userProgress != null && userProgress.unlockedLevels < nextLevel) {
+                            val updatedProgress = userProgress.copy(
+                                unlockedLevels = maxOf(userProgress.unlockedLevels, nextLevel)
+                            )
+                            levelViewModel.repository.updateUserProgress(updatedProgress)
+                            Log.d("MODERN_RESULTS_DEBUG", "Updated unlockedLevels from ${userProgress.unlockedLevels} to $nextLevel")
+                        }
+                    } catch (e: Exception) {
+                        Log.e("MODERN_RESULTS_DEBUG", "Error unlocking next level: ${e.message}", e)
+                    }
+                }
+                
+                // DEBUGGING: Check what's in the database AFTER our changes
+                val userProgressAfter = try {
+                    levelViewModel.repository.getUserProgressForCategory(categoryId).first()
+                } catch (e: Exception) {
+                    null
+                }
+                
+                Log.d("MODERN_RESULTS_DEBUG", "AFTER: User progress for $categoryId: $userProgressAfter")
+                Log.d("MODERN_RESULTS_DEBUG", "AFTER: Unlocked levels: ${userProgressAfter?.unlockedLevels ?: 0}")
+                
+                resultSaved = true
+                
+                // Get total stars after update
+                totalStars = levelViewModel.getCategoryStars(categoryId)
+                
+                // Check if next level exists and its requirements
+                if (nextLevelNumber != null) {
+                    // Get required stars for next level - this would come from your level data
+                    // For now, we'll use a simple formula: 3 * levelNumber
+                    requiredStarsForNextLevel = 3 * nextLevelNumber
+                    
+                    // Set next level as unlocked if enough stars
+                    if (stars > 0) {
+                        isNextLevelUnlocked = true
+                    } else {
+                        // Check database if it's already unlocked
+                        isNextLevelUnlocked = levelViewModel.repository.isLevelUnlocked(
+                            categoryId = categoryId, 
+                            levelNumber = nextLevelNumber
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                snackbarHostState.showSnackbar(
+                    message = "Couldn't save progress: ${e.message}",
+                    duration = SnackbarDuration.Long,
+                    withDismissAction = true
+                )
+            }
+        }
+    }
     
     // Animation sequence
     LaunchedEffect(Unit) {
@@ -132,22 +211,11 @@ fun ResultsScreen(
         delay(500)
         showButtons = true
     }
-    
-    // Get category details safely
-    val categoryDetail = remember {
-        when (categoryId) {
-            "ancient" -> "Ancient Civilizations"
-            "medieval" -> "Medieval Period"
-            "renaissance" -> "Renaissance"
-            "modern" -> "Modern History"
-            "world_wars" -> "World Wars"
-            else -> "Ancient Civilizations"
-        }
-    }
-    
+
     // Results title
-    val resultsTitle = "$categoryDetail: Level ${safeLevel} Results"
-    
+    val categoryTitle = "Modern History"
+    val resultsTitle = "$categoryTitle: Level $levelId Results"
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -161,51 +229,42 @@ fun ResultsScreen(
                     ) 
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = ancientTeal
+                    containerColor = primaryColor
                 ),
                 navigationIcon = {
                     IconButton(
                         onClick = { 
-                            // Simplify navigation to avoid crashes
-                            try {
-                                navController.popBackStack()
-                            } catch (e: Exception) {
-                                // If pop fails, try explicit navigation
-                                try {
-                                    navController.navigate("home")
-                                } catch (e: Exception) {
-                                    // Last resort, do nothing and let user press back button
+                            navController.navigate(NavDestinations.MODERN_LEVEL_ROUTE) {
+                                popUpTo(NavDestinations.MODERN_LEVEL_ROUTE) {
+                                    inclusive = false
                                 }
                             }
-                        },
-                        modifier = Modifier.semantics { 
-                            contentDescription = "Back to levels"
                         }
                     ) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back to Levels",
+                            contentDescription = "Back to Modern History Levels",
                             tint = Color.White
                         )
                     }
                 }
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
+        
         // Main content
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Color.White)
+                .background(backgroundColor)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(24.dp)
-                    .semantics { 
-                        contentDescription = "Results screen content"
-                    },
+                    .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Score circle
@@ -221,7 +280,7 @@ fun ResultsScreen(
                     ) {
                         // Background circle (lighter color)
                         drawArc(
-                            color = ancientLightTeal.copy(alpha = 0.2f),
+                            color = lightPrimaryColor.copy(alpha = 0.2f),
                             startAngle = 0f,
                             sweepAngle = 360f,
                             useCenter = false,
@@ -230,7 +289,7 @@ fun ResultsScreen(
                         
                         // Foreground progress arc
                         drawArc(
-                            color = ancientTeal,
+                            color = primaryColor,
                             startAngle = -90f,
                             sweepAngle = 360f * scorePercentage,
                             useCenter = false,
@@ -250,7 +309,7 @@ fun ResultsScreen(
                                 text = "$score%",
                                 style = MaterialTheme.typography.displayMedium.copy(
                                     fontWeight = FontWeight.Bold,
-                                    color = ancientTeal
+                                    color = primaryColor
                                 )
                             )
                         }
@@ -278,8 +337,8 @@ fun ResultsScreen(
                         style = MaterialTheme.typography.headlineSmall.copy(
                             fontWeight = FontWeight.Bold,
                             color = when {
-                                score >= 90 -> ancientTeal // Use Ancient teal for consistency
-                                score >= 70 -> ancientLightTeal
+                                score >= 90 -> primaryColor
+                                score >= 70 -> lightPrimaryColor
                                 score >= 50 -> Color(0xFFFFC107) // Yellow
                                 else -> Color(0xFFFF5722) // Orange
                             }
@@ -297,7 +356,7 @@ fun ResultsScreen(
                             Icon(
                                 imageVector = if (index < stars) Icons.Filled.Star else Icons.Outlined.Star,
                                 contentDescription = if (index < stars) "Star earned" else "Star not earned",
-                                tint = if (index < stars) Color(0xFFFFD700) else Color.LightGray, // Gold color for earned stars
+                                tint = if (index < stars) Color(0xFFFFD700) else Color.LightGray,
                                 modifier = Modifier
                                     .size(48.dp)
                                     .padding(horizontal = 4.dp)
@@ -332,7 +391,7 @@ fun ResultsScreen(
                                 // Correct answers
                                 StatColumn(
                                     icon = Icons.Filled.CheckCircle,
-                                    iconTint = ancientTeal,
+                                    iconTint = primaryColor,
                                     value = correctAnswers,
                                     label = "Correct"
                                 )
@@ -368,30 +427,7 @@ fun ResultsScreen(
                         // Retry button
                         Button(
                             onClick = {
-                                // Navigate back to the quiz for this level using category-specific routes
-                                when (categoryId) {
-                                    "ancient" -> navController.navigate(
-                                        NavDestinations.ANCIENT_QUIZ_ROUTE.replace("{levelId}", levelId)
-                                    )
-                                    "medieval" -> navController.navigate(
-                                        NavDestinations.MEDIEVAL_QUIZ_ROUTE.replace("{levelId}", levelId)
-                                    )
-                                    "renaissance" -> navController.navigate(
-                                        NavDestinations.RENAISSANCE_QUIZ_ROUTE.replace("{levelId}", levelId)
-                                    )
-                                    "world_wars" -> navController.navigate(
-                                        NavDestinations.WORLD_WARS_QUIZ_ROUTE.replace("{levelId}", levelId)
-                                    )
-                                    "modern" -> navController.navigate(
-                                        NavDestinations.MODERN_QUIZ_ROUTE.replace("{levelId}", levelId)
-                                    )
-                                    else -> navController.navigate(
-                                        NavDestinations.QUIZ_ROUTE
-                                            .replace("{categoryId}", categoryId)
-                                            .replace("{levelId}", levelId)
-                                            .replace("{quizType}", "STANDARD")
-                                    )
-                                }
+                                navController.navigate(NavDestinations.getModernQuizRoute(levelId))
                             },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color.LightGray,
@@ -407,70 +443,30 @@ fun ResultsScreen(
                             Text("Retry")
                         }
                         
-                        // Next button - show only if enough stars were earned
-                        if (stars > 0) {
+                        // Next button or Home button
+                        if (stars > 0 && nextLevelNumber != null && nextLevelNumber <= MAX_MODERN_LEVELS) {
                             Button(
                                 onClick = {
-                                    if (stars > 0) {
-                                        // Navigate to the next level using category-specific routes
-                                        when (categoryId) {
-                                            "ancient" -> navController.navigate(
-                                                NavDestinations.ANCIENT_QUIZ_ROUTE.replace("{levelId}", nextLevel.toString())
-                                            )
-                                            "medieval" -> navController.navigate(
-                                                NavDestinations.MEDIEVAL_QUIZ_ROUTE.replace("{levelId}", nextLevel.toString())
-                                            )
-                                            "renaissance" -> navController.navigate(
-                                                NavDestinations.RENAISSANCE_QUIZ_ROUTE.replace("{levelId}", nextLevel.toString())
-                                            )
-                                            "world_wars" -> navController.navigate(
-                                                NavDestinations.WORLD_WARS_QUIZ_ROUTE.replace("{levelId}", nextLevel.toString())
-                                            )
-                                            "modern" -> navController.navigate(
-                                                NavDestinations.MODERN_QUIZ_ROUTE.replace("{levelId}", nextLevel.toString())
-                                            )
-                                            else -> navController.navigate(
-                                                NavDestinations.QUIZ_ROUTE
-                                                    .replace("{categoryId}", categoryId)
-                                                    .replace("{levelId}", nextLevel.toString())
-                                                    .replace("{quizType}", "STANDARD")
-                                            )
-                                        }
-                                    } else {
-                                        // Not enough stars, go back to level selection
-                                        navController.navigate(
-                                            NavDestinations.LEVEL_SELECTION_ROUTE
-                                                .replace("{categoryId}", categoryId)
-                                        ) {
-                                            popUpTo(NavDestinations.LEVEL_SELECTION_ROUTE) {
-                                                inclusive = true
-                                            }
-                                        }
-                                    }
+                                    navController.navigate(NavDestinations.getModernQuizRoute(nextLevelNumber.toString()))
                                 },
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = ancientTeal
+                                    containerColor = primaryColor
                                 ),
                                 shape = RoundedCornerShape(8.dp)
                             ) {
                                 Text("Next Level")
                             }
                         } else {
-                            // Home button if no stars were earned
                             Button(
                                 onClick = {
-                                    // Navigate to level selection
-                                    navController.navigate(
-                                        NavDestinations.LEVEL_SELECTION_ROUTE
-                                            .replace("{categoryId}", categoryId)
-                                    ) {
-                                        popUpTo(NavDestinations.LEVEL_SELECTION_ROUTE) {
-                                            inclusive = true
+                                    navController.navigate(NavDestinations.MODERN_LEVEL_ROUTE) {
+                                        popUpTo(NavDestinations.MODERN_LEVEL_ROUTE) {
+                                            inclusive = false
                                         }
                                     }
                                 },
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = ancientTeal
+                                    containerColor = primaryColor
                                 ),
                                 shape = RoundedCornerShape(8.dp)
                             ) {
@@ -486,54 +482,5 @@ fun ResultsScreen(
                 }
             }
         }
-    }
-}
-
-/**
- * Column with icon, value and label for statistics
- */
-@Composable
-fun StatColumn(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    iconTint: Color,
-    value: Int,
-    label: String
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = label,
-            tint = iconTint,
-            modifier = Modifier.size(32.dp)
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = value.toString(),
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = Color.Gray
-        )
-    }
-}
-
-@Preview
-@Composable
-fun ResultsScreenPreview() {
-    ImperiumTheme {
-        ResultsScreen(
-            navController = rememberNavController(),
-            categoryId = "ancient",
-            levelId = "1",
-            score = 75,
-            stars = 2,
-            correctAnswers = 3,
-            totalQuestions = 4
-        )
     }
 } 

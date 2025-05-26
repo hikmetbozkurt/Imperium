@@ -51,16 +51,25 @@
     <color name="medieval_progress">#FF5D4D73</color>       <!-- Royal Purple Progress -->
     
     <!-- Renaissance - Vibrant colors inspired by Renaissance art and cultural rebirth -->
-    <color name="renaissance_gradient_start">#FFDAA520</color>
-    <color name="renaissance_gradient_end">#FFB8860B</color>
-    
+    <color name="renaissance_button">#DAA520</color>
+    <color name="renaissance_background_light">#FFF8E1</color>
+    <color name="renaissance_text_primary">#6D4C00</color>
+    <color name="renaissance_gradient_start">#FFD700</color> <!-- Gold -->
+    <color name="renaissance_gradient_end">#FF8C00</color> <!-- Dark Orange -->
+
     <!-- Modern History - Industrial grays to bright modern colors representing progress -->
-    <color name="modern_gradient_start">#FF4169E1</color>
-    <color name="modern_gradient_end">#FF1E90FF</color>
-    
+    <color name="modern_button">#4169E1</color>
+    <color name="modern_background_light">#E3F2FD</color>
+    <color name="modern_text_primary">#0D47A1</color>
+    <color name="modern_gradient_start">#00BFFF</color> <!-- Deep Sky Blue -->
+    <color name="modern_gradient_end">#228B22</color> <!-- Forest Green -->
+
     <!-- World Wars - Somber dark red and gray tones representing conflict and gravity -->
-    <color name="worldwars_gradient_start">#FF8B0000</color>
-    <color name="worldwars_gradient_end">#FFDC143C</color>
+    <color name="world_wars_button">#8B0000</color>
+    <color name="world_wars_background_light">#FFEBEE</color>
+    <color name="world_wars_text_primary">#B71C1C</color>
+    <color name="worldwars_gradient_start">#708090</color> <!-- Slate Gray, for code compatibility -->
+    <color name="worldwars_gradient_end">#8B0000</color> <!-- Dark Red, for code compatibility -->
     
     <!-- Quiz Answer Colors -->
     <color name="answer_correct">#FF4CAF50</color>
@@ -76,4 +85,6 @@
     <color name="on_surface_variant">#FF757575</color>
     <color name="primary_container">#FFE8DEF8</color>
     <color name="on_primary_container">#FF21005D</color>
+
+    
 </resources>

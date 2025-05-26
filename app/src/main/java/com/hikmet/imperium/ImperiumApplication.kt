@@ -62,6 +62,36 @@ class ImperiumApplication : Application() {
                     gradientStartColor = "#4B0082".toColorInt(),
                     gradientEndColor = "#26428B".toColorInt(),
                     iconResourceName = "ic_medieval"
+                ),
+                CategoryEntity(
+                    id = "renaissance",
+                    title = "Renaissance",
+                    description = "Experience the rebirth of art, science, and culture in Europe",
+                    longDescription = "The Renaissance was a period of great cultural, artistic, and scientific advancement in Europe, marking the transition from the Middle Ages to modernity. Explore the works of da Vinci, Michelangelo, and the rise of humanism.",
+                    totalLevels = 10,
+                    gradientStartColor = "#DAA520".toColorInt(),
+                    gradientEndColor = "#B8860B".toColorInt(),
+                    iconResourceName = "ic_renaissance"
+                ),
+                CategoryEntity(
+                    id = "modern",
+                    title = "Modern History",
+                    description = "From the Industrial Revolution to the present day",
+                    longDescription = "Modern History covers the dramatic changes in society, technology, and politics from the 18th century to today. Explore revolutions, world wars, and the rise of the digital age.",
+                    totalLevels = 10,
+                    gradientStartColor = "#4169E1".toColorInt(),
+                    gradientEndColor = "#1E90FF".toColorInt(),
+                    iconResourceName = "ic_modern"
+                ),
+                CategoryEntity(
+                    id = "world_wars",
+                    title = "World Wars",
+                    description = "The two major global conflicts of the 20th century",
+                    longDescription = "Examine the causes, events, and consequences of World War I and World War II, and their impact on the modern world.",
+                    totalLevels = 10,
+                    gradientStartColor = "#8B0000".toColorInt(),
+                    gradientEndColor = "#DC143C".toColorInt(),
+                    iconResourceName = "ic_wars"
                 )
                 // More categories can be added here
             )
@@ -106,6 +136,93 @@ class ImperiumApplication : Application() {
             
             // Insert sample questions and answers for Ancient Civilizations
             insertAncientCivilizationsQuestions()
+
+            // Set up default user progress for Renaissance
+            database.userProgressDao().insertOrUpdateProgress(
+                UserProgressEntity(
+                    categoryId = "renaissance",
+                    unlockedLevels = 1,  // First level unlocked by default
+                    totalStarsEarned = 0,
+                    highestLevelCompleted = 0,
+                    lastPlayedTimestamp = System.currentTimeMillis()
+                )
+            )
+
+            // Create levels for Renaissance
+            val renaissanceLevels = (1..20).map { levelNumber ->
+                LevelEntity(
+                    categoryId = "renaissance",
+                    levelNumber = levelNumber,
+                    title = com.hikmet.imperium.data.RenaissanceLevels.levels[levelNumber - 1].title,
+                    description = com.hikmet.imperium.data.RenaissanceLevels.levels[levelNumber - 1].description,
+                    difficulty = when (levelNumber) {
+                        in 1..5 -> 1
+                        in 6..10 -> 2
+                        in 11..15 -> 3
+                        else -> 4
+                    },
+                    requiredStarsToUnlock = com.hikmet.imperium.data.RenaissanceLevels.levels[levelNumber - 1].requiredStars
+                )
+            }
+            database.levelDao().insertLevels(renaissanceLevels)
+
+            // Set up default user progress for Modern History
+            database.userProgressDao().insertOrUpdateProgress(
+                UserProgressEntity(
+                    categoryId = "modern",
+                    unlockedLevels = 1,  // First level unlocked by default
+                    totalStarsEarned = 0,
+                    highestLevelCompleted = 0,
+                    lastPlayedTimestamp = System.currentTimeMillis()
+                )
+            )
+
+            // Create levels for Modern History
+            val modernLevels = (1..20).map { levelNumber ->
+                LevelEntity(
+                    categoryId = "modern",
+                    levelNumber = levelNumber,
+                    title = com.hikmet.imperium.data.ModernHistoryLevels.levels[levelNumber - 1].title,
+                    description = com.hikmet.imperium.data.ModernHistoryLevels.levels[levelNumber - 1].description,
+                    difficulty = when (levelNumber) {
+                        in 1..5 -> 1
+                        in 6..10 -> 2
+                        in 11..15 -> 3
+                        else -> 4
+                    },
+                    requiredStarsToUnlock = com.hikmet.imperium.data.ModernHistoryLevels.levels[levelNumber - 1].requiredStars
+                )
+            }
+            database.levelDao().insertLevels(modernLevels)
+
+            // Set up default user progress for World Wars
+            database.userProgressDao().insertOrUpdateProgress(
+                UserProgressEntity(
+                    categoryId = "world_wars",
+                    unlockedLevels = 1,  // First level unlocked by default
+                    totalStarsEarned = 0,
+                    highestLevelCompleted = 0,
+                    lastPlayedTimestamp = System.currentTimeMillis()
+                )
+            )
+
+            // Create levels for World Wars
+            val worldWarsLevels = (1..20).map { levelNumber ->
+                LevelEntity(
+                    categoryId = "world_wars",
+                    levelNumber = levelNumber,
+                    title = com.hikmet.imperium.data.WorldWarsLevels.levels[levelNumber - 1].title,
+                    description = com.hikmet.imperium.data.WorldWarsLevels.levels[levelNumber - 1].description,
+                    difficulty = when (levelNumber) {
+                        in 1..5 -> 1
+                        in 6..10 -> 2
+                        in 11..15 -> 3
+                        else -> 4
+                    },
+                    requiredStarsToUnlock = com.hikmet.imperium.data.WorldWarsLevels.levels[levelNumber - 1].requiredStars
+                )
+            }
+            database.levelDao().insertLevels(worldWarsLevels)
         }
     }
     
