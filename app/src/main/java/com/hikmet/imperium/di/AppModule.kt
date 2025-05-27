@@ -12,6 +12,7 @@ import com.hikmet.imperium.data.dao.LevelProgressDao
 import com.hikmet.imperium.data.repository.QuizRepository
 import com.hikmet.imperium.ui.util.SoundManager
 import com.hikmet.imperium.retrofit.BadgeApiService
+import com.hikmet.imperium.backgroundservice.BadgeWorkManager
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -104,6 +105,14 @@ object AppModule {
     @Provides
     fun provideBadgeApiService(retrofit: Retrofit): BadgeApiService {
         return retrofit.create(BadgeApiService::class.java)
+    }
+    
+    @Singleton
+    @Provides
+    fun provideBadgeWorkManager(
+        @ApplicationContext context: Context
+    ): BadgeWorkManager {
+        return BadgeWorkManager(context)
     }
 
     // QuizRepository is already annotated with @Singleton and @Inject constructor,

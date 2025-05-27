@@ -289,6 +289,7 @@ fun UserInfoSection(userProfile: UserProfile) {
     }
 }
 
+
 /**
  * Enhanced sound settings section with SoundManager integration
  */

@@ -3,6 +3,10 @@ package com.hikmet.imperium
 import android.app.Application
 import android.graphics.Color
 import androidx.core.graphics.toColorInt
+import androidx.work.Configuration
+import androidx.work.WorkManager
+import com.hikmet.imperium.backgroundservice.BadgeWorkManager
+import com.hikmet.imperium.backgroundservice.ImperiumWorkerFactory
 import com.hikmet.imperium.data.database.ImperiumDatabase
 import com.hikmet.imperium.data.entities.AnswerEntity
 import com.hikmet.imperium.data.entities.CategoryEntity
@@ -14,12 +18,20 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import dagger.hilt.android.HiltAndroidApp
+import javax.inject.Inject
 
 /**
- * Application class for Imperium that initializes the database and repository
+ * Application class for Imperium that initializes the database, repository, and WorkManager
  */
 @HiltAndroidApp
-class ImperiumApplication : Application() {
+class ImperiumApplication : Application(), Configuration.Provider {
+    
+    @Inject
+    lateinit var workerFactory: ImperiumWorkerFactory
+    
+    @Inject
+    lateinit var badgeWorkManager: BadgeWorkManager
+    
     // Lazy initialized database instance
     val database by lazy { ImperiumDatabase.getDatabase(this) }
     
@@ -32,6 +44,30 @@ class ImperiumApplication : Application() {
         // Initialize database with sample data if needed
         CoroutineScope(Dispatchers.IO).launch {
             prepopulateDatabaseIfNeeded()
+        }
+        
+        // Initialize WorkManager after Hilt injection
+        CoroutineScope(Dispatchers.IO).launch {
+            initializeWorkManager()
+        }
+    }
+    
+    override fun getWorkManagerConfiguration(): Configuration {
+        return Configuration.Builder()
+            .setWorkerFactory(workerFactory)
+            .setMinimumLoggingLevel(android.util.Log.DEBUG)
+            .build()
+    }
+    
+    /**
+     * Initialize WorkManager for badge background tasks
+     */
+    private suspend fun initializeWorkManager() {
+        try {
+            badgeWorkManager.initializeBadgeWork()
+            android.util.Log.d("ImperiumApp", "✅ WorkManager initialized successfully")
+        } catch (e: Exception) {
+            android.util.Log.e("ImperiumApp", "❌ Failed to initialize WorkManager: ${e.message}", e)
         }
     }
     

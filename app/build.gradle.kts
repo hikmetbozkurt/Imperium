@@ -73,6 +73,7 @@ dependencies {
     // Runtime lifecycle
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation("androidx.compose.runtime:runtime-livedata:1.5.4")
     
     // Hilt Dependencies
     implementation(libs.hilt.android)
@@ -102,6 +103,8 @@ dependencies {
 
     // WorkManager for background tasks
     implementation("androidx.work:work-runtime-ktx:2.8.1")
+    implementation("androidx.hilt:hilt-work:1.0.0")
+    ksp("androidx.hilt:hilt-compiler:1.0.0")
 
     // MPAndroidChart for interactive charts and gestures
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
