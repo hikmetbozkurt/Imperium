@@ -103,6 +103,12 @@ dependencies {
     // WorkManager for background tasks
     implementation("androidx.work:work-runtime-ktx:2.8.1")
 
+    // MPAndroidChart for interactive charts and gestures
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    
+    // GestureDetector for touch handling
+    implementation("androidx.core:core-ktx:1.12.0")
+
     // Testing dependencies
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
