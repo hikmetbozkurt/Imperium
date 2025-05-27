@@ -11,29 +11,34 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.hikmet.imperium.R
 import com.hikmet.imperium.data.AncientQuizData
 import com.hikmet.imperium.data.Question
 import com.hikmet.imperium.ui.navigation.NavDestinations
-import com.hikmet.imperium.ui.theme.AncientGradientStart
-import com.hikmet.imperium.ui.theme.AncientGradientEnd
 import com.hikmet.imperium.ui.util.formatTime
 import com.hikmet.imperium.ui.util.rememberQuizTimer
+import com.hikmet.imperium.ui.util.SoundManager
+import com.hikmet.imperium.ui.util.calculateStars
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AncientQuizScreen(
     navController: NavHostController,
-    levelId: String
+    levelId: String,
+    soundManager: SoundManager = hiltViewModel<AncientQuizViewModel>().soundManager
 ) {
     // Coroutine scope for handling delays
     val coroutineScope = rememberCoroutineScope()
@@ -74,7 +79,8 @@ fun AncientQuizScreen(
             // When time expires, navigate to results
             showTimeExpirationAlert = true
             if (!isQuizComplete) {
-                // Time's up - navigate to results
+                // Time's up - play wrong answer sound and navigate to results
+                soundManager.playWrongAnswer()
                 navController.navigate(
                     NavDestinations.ANCIENT_RESULTS_ROUTE
                         .replace("{levelId}", levelId)
@@ -108,6 +114,9 @@ fun AncientQuizScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = { 
+                        // Play button click sound
+                        soundManager.playButtonClick()
+                        
                         // Navigate directly to level selection screen instead of going back
                         navController.navigate(NavDestinations.LEVEL_SELECTION_ROUTE.replace("{categoryId}", "ancient")) {
                             // Clear back stack up to the level selection screen
@@ -244,123 +253,141 @@ fun AncientQuizScreen(
                     }
                 }
                 
-                // Timer progress bar (updated)
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    contentAlignment = Alignment.Center
+                            // Timer progress bar (updated)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                // Timer progress bar
+                val timerProgress = (timerValue.value.toFloat() / 40000f).coerceIn(0f, 1f)
+                
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Timer progress bar
-                    val timerProgress = (timerValue.value.toFloat() / 40000f).coerceIn(0f, 1f)
-                    
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
+                    // Timer label with icon
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.padding(bottom = 8.dp)
                     ) {
-                        // Timer label with seconds
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(
-                                text = "Time Remaining: ${timeRemaining}s",
-                                style = MaterialTheme.typography.bodyLarge.copy(
-                                    fontWeight = FontWeight.Bold
-                                ),
-                                color = ancientTextPrimary
-                            )
-                        }
-                        
-                        Spacer(modifier = Modifier.height(4.dp))
-                        
-                        // Timer bar
-                        LinearProgressIndicator(
-                            progress = timerProgress,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(8.dp)
-                                .clip(RoundedCornerShape(4.dp)),
-                            color = timerColor,
-                            trackColor = timerColor.copy(alpha = 0.2f)
+                        Icon(
+                            imageVector = Icons.Default.Timer,
+                            contentDescription = "Timer",
+                            tint = timerColor,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = formatTime(timerValue.value),
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontWeight = FontWeight.Bold
+                            ),
+                            color = timerColor
                         )
                     }
-                }
-
-                // Answer Options
-                questions[currentQuestionIndex].options.forEachIndexed { index, option ->
-                    val isSelected = selectedAnswer == index
-                    val answerState = when {
-                        selectedAnswer == null -> AnswerState.UNSELECTED
-                        isSelected && isAnswerCorrect == true -> AnswerState.CORRECT
-                        isSelected && isAnswerCorrect == false -> AnswerState.INCORRECT
-                        else -> AnswerState.UNSELECTED
-                    }
-
-                    Button(
-                        onClick = {
-                            if (selectedAnswer == null) {
-                                selectedAnswer = index
-                                isAnswerCorrect = index == questions[currentQuestionIndex].correctAnswerIndex
-                                
-                                // Track correct answers properly
-                                if (isAnswerCorrect == true) {
-                                    correctAnswersCount++
-                                }
-                                
-                                // Calculate score as percentage of correct answers so far
-                                // This updates the score after each question
-                                score = if (currentQuestionIndex == 0 && isAnswerCorrect == false) {
-                                    // Special case for first question when incorrect
-                                    0
-                                } else {
-                                    // Calculate based on questions answered so far
-                                    val questionsAnswered = currentQuestionIndex + 1
-                                    val percentCorrect = (correctAnswersCount.toFloat() / questionsAnswered) * 100
-                                    percentCorrect.toInt()
-                                }
-
-                                // Auto-proceed to next question after delay
-                                coroutineScope.launch {
-                                    delay(1500)
-                                    if (currentQuestionIndex < questions.size - 1) {
-                                        currentQuestionIndex++
-                                        selectedAnswer = null
-                                        isAnswerCorrect = null
-                                    } else {
-                                        isQuizComplete = true
-                                        navController.navigate(
-                                            NavDestinations.ANCIENT_RESULTS_ROUTE
-                                                .replace("{levelId}", levelId)
-                                                .replace("{score}", score.toString())
-                                                .replace("{stars}", calculateStars(score).toString())
-                                                .replace("{correctAnswers}", correctAnswersCount.toString())
-                                                .replace("{totalQuestions}", questions.size.toString())
-                                        )
-                                    }
-                                }
-                            }
-                        },
+                    
+                    // Progress bar
+                    LinearProgressIndicator(
+                        progress = timerProgress,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = when (answerState) {
-                                AnswerState.CORRECT -> Color.Green
-                                AnswerState.INCORRECT -> Color.Red
-                                else -> ancientPrimary
+                            .height(8.dp)
+                            .clip(RoundedCornerShape(4.dp)),
+                        color = timerColor,
+                        trackColor = timerColor.copy(alpha = 0.2f)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+                            // Answer Options
+            questions[currentQuestionIndex].options.forEachIndexed { index, option ->
+                val isSelected = selectedAnswer == index
+                val isCorrect = index == questions[currentQuestionIndex].correctAnswerIndex
+                val showFeedback = selectedAnswer != null
+
+                // Determine colors based on state
+                val backgroundColor = when {
+                    showFeedback && isCorrect -> Color(0xFF4CAF50) // Green for correct
+                    showFeedback && isSelected && !isCorrect -> Color(0xFFE53935) // Red for wrong selection
+                    isSelected -> ancientPrimary // Theme color for selection
+                    else -> Color.White // Default white
+                }
+
+                val textColor = when {
+                    showFeedback && (isCorrect || (isSelected && !isCorrect)) -> Color.White
+                    isSelected -> Color.White
+                    else -> ancientTextPrimary
+                }
+
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = backgroundColor
+                    ),
+                    elevation = CardDefaults.cardElevation(
+                        defaultElevation = if (isSelected || (showFeedback && isCorrect)) 4.dp else 1.dp
+                    ),
+                    onClick = {
+                        if (selectedAnswer == null) {
+                            selectedAnswer = index
+                            isAnswerCorrect = isCorrect
+                            
+                            // Play sound based on answer correctness
+                            if (isCorrect) {
+                                soundManager.playCorrectAnswer()
+                                score += 25 // 25 points per correct answer
+                                correctAnswersCount++
+                            } else {
+                                soundManager.playWrongAnswer()
                             }
-                        ),
-                        shape = RoundedCornerShape(8.dp)
+
+                            // Move to next question after delay
+                            coroutineScope.launch {
+                                delay(1500) // Show feedback for 1.5 seconds
+                                if (currentQuestionIndex < questions.size - 1) {
+                                    currentQuestionIndex++
+                                    selectedAnswer = null
+                                    isAnswerCorrect = null
+                                } else {
+                                    // Quiz complete - play level complete sound
+                                    soundManager.playLevelComplete()
+                                    isQuizComplete = true
+                                    navController.navigate(
+                                        NavDestinations.ANCIENT_RESULTS_ROUTE
+                                            .replace("{levelId}", levelId)
+                                            .replace("{score}", score.toString())
+                                            .replace("{stars}", calculateStars(score).toString())
+                                            .replace("{correctAnswers}", correctAnswersCount.toString())
+                                            .replace("{totalQuestions}", questions.size.toString())
+                                    )
+                                }
+                            }
+                        }
+                    }
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = option,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = Color.White,
-                            modifier = Modifier.padding(8.dp)
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontWeight = if (isSelected || (showFeedback && isCorrect)) FontWeight.Bold else FontWeight.Normal
+                            ),
+                            color = textColor,
+                            textAlign = TextAlign.Center
                         )
                     }
                 }
+            }
             }
             
             // Overlay for time's up alert
@@ -414,6 +441,8 @@ fun AncientQuizScreen(
                             
                             Button(
                                 onClick = {
+                                    // Play button click sound
+                                    soundManager.playButtonClick()
                                     navController.navigate(
                                         NavDestinations.LEVEL_SELECTION_ROUTE.replace("{categoryId}", "ancient")
                                     )

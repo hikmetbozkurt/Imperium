@@ -38,19 +38,19 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-private const val MEDIEVAL_CATEGORY_ID = "medieval"
-private const val MAX_MEDIEVAL_LEVELS = 20
+private const val ANCIENT_CATEGORY_ID = "ancient"
+private const val MAX_ANCIENT_LEVELS = 20
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MedievalResultsScreen(
+fun AncientResultsScreen(
     navController: NavHostController,
     levelId: String,
     score: Int,
     stars: Int,
     correctAnswers: Int,
     totalQuestions: Int,
-    categoryId: String = MEDIEVAL_CATEGORY_ID
+    categoryId: String = ANCIENT_CATEGORY_ID
 ) {
     // Get the application context to access the repository
     val context = LocalContext.current
@@ -65,7 +65,7 @@ fun MedievalResultsScreen(
     val levelNumber = levelId.toIntOrNull() ?: 1
     
     // Next level information
-    val nextLevelNumber = if (levelNumber < MAX_MEDIEVAL_LEVELS) levelNumber + 1 else null
+    val nextLevelNumber = if (levelNumber < MAX_ANCIENT_LEVELS) levelNumber + 1 else null
     var isNextLevelUnlocked by remember { mutableStateOf(false) }
     var requiredStarsForNextLevel by remember { mutableStateOf(0) }
     var totalStars by remember { mutableStateOf(0) }
@@ -88,23 +88,11 @@ fun MedievalResultsScreen(
         label = "Score Animation"
     )
     
-    // Theme colors based on category
-    val primaryColor = when (categoryId) {
-        "ancient" -> colorResource(R.color.ancient_button)
-        else -> colorResource(R.color.medieval_button)
-    }
-    
+    // Ancient theme colors
+    val primaryColor = colorResource(R.color.ancient_button)
     val lightPrimaryColor = primaryColor.copy(alpha = 0.7f)
-    
-    val backgroundColor = when (categoryId) {
-        "ancient" -> colorResource(R.color.ancient_background_light)
-        else -> colorResource(R.color.medieval_background_light)
-    }
-    
-    val textPrimaryColor = when (categoryId) {
-        "ancient" -> colorResource(R.color.ancient_text_primary)
-        else -> colorResource(R.color.medieval_text_primary)
-    }
+    val backgroundColor = colorResource(R.color.ancient_background_light)
+    val textPrimaryColor = colorResource(R.color.ancient_text_primary)
     
     // Check if next level is unlocked and get requirements
     LaunchedEffect(levelId) {
@@ -118,8 +106,8 @@ fun MedievalResultsScreen(
                     null
                 }
                 
-                Log.d("RESULTS_DEBUG", "BEFORE: User progress for $categoryId: $userProgressBefore")
-                Log.d("RESULTS_DEBUG", "BEFORE: Unlocked levels: ${userProgressBefore?.unlockedLevels ?: 0}")
+                Log.d("ANCIENT_RESULTS_DEBUG", "BEFORE: User progress for $categoryId: $userProgressBefore")
+                Log.d("ANCIENT_RESULTS_DEBUG", "BEFORE: Unlocked levels: ${userProgressBefore?.unlockedLevels ?: 0}")
                 
                 // Update progress for this level
                 val updateResult = levelViewModel.updateLevelProgress(
@@ -129,16 +117,16 @@ fun MedievalResultsScreen(
                     stars = stars,
                     timeMs = null
                 )
-                Log.d("RESULTS_DEBUG", "Level progress update result: $updateResult")
+                Log.d("ANCIENT_RESULTS_DEBUG", "Level progress update result: $updateResult")
                 
                 // IMPORTANT: Unlock the next level if stars were earned
-                if (stars > 0 && levelNumber < MAX_MEDIEVAL_LEVELS) {
+                if (stars > 0 && levelNumber < MAX_ANCIENT_LEVELS) {
                     val nextLevel = levelNumber + 1
                     
                     try {
                         // Directly unlock the next level
                         levelViewModel.repository.unlockLevel(categoryId, nextLevel)
-                        Log.d("RESULTS_DEBUG", "Unlocked next level: $nextLevel for category $categoryId")
+                        Log.d("ANCIENT_RESULTS_DEBUG", "Unlocked next level: $nextLevel for category $categoryId")
                         
                         // Get user progress and make sure unlockedLevels is updated
                         val userProgress = levelViewModel.repository.getUserProgressForCategory(categoryId).first()
@@ -149,10 +137,10 @@ fun MedievalResultsScreen(
                                 unlockedLevels = maxOf(userProgress.unlockedLevels, nextLevel)
                             )
                             levelViewModel.repository.updateUserProgress(updatedProgress)
-                            Log.d("RESULTS_DEBUG", "Updated unlockedLevels from ${userProgress.unlockedLevels} to $nextLevel")
+                            Log.d("ANCIENT_RESULTS_DEBUG", "Updated unlockedLevels from ${userProgress.unlockedLevels} to $nextLevel")
                         }
                     } catch (e: Exception) {
-                        Log.e("RESULTS_DEBUG", "Error unlocking next level: ${e.message}", e)
+                        Log.e("ANCIENT_RESULTS_DEBUG", "Error unlocking next level: ${e.message}", e)
                     }
                 }
                 
@@ -163,8 +151,8 @@ fun MedievalResultsScreen(
                     null
                 }
                 
-                Log.d("RESULTS_DEBUG", "AFTER: User progress for $categoryId: $userProgressAfter")
-                Log.d("RESULTS_DEBUG", "AFTER: Unlocked levels: ${userProgressAfter?.unlockedLevels ?: 0}")
+                Log.d("ANCIENT_RESULTS_DEBUG", "AFTER: User progress for $categoryId: $userProgressAfter")
+                Log.d("ANCIENT_RESULTS_DEBUG", "AFTER: Unlocked levels: ${userProgressAfter?.unlockedLevels ?: 0}")
                 
                 resultSaved = true
                 
@@ -212,10 +200,7 @@ fun MedievalResultsScreen(
     }
 
     // Results title
-    val categoryTitle = when (categoryId) {
-        "ancient" -> "Ancient Civilizations"
-        else -> "Medieval Period"
-    }
+    val categoryTitle = "Ancient Civilizations"
     val resultsTitle = "$categoryTitle: Level $levelId Results"
 
     Scaffold(
@@ -236,24 +221,16 @@ fun MedievalResultsScreen(
                 navigationIcon = {
                     IconButton(
                         onClick = { 
-                            if (categoryId == "ancient") {
-                                navController.navigate(NavDestinations.LEVEL_SELECTION_ROUTE.replace("{categoryId}", "ancient")) {
-                                    popUpTo(NavDestinations.LEVEL_SELECTION_ROUTE.replace("{categoryId}", "ancient")) {
-                                        inclusive = false
-                                    }
-                                }
-                            } else {
-                                navController.navigate(NavDestinations.LEVEL_SELECTION_ROUTE.replace("{categoryId}", "medieval")) {
-                                    popUpTo(NavDestinations.LEVEL_SELECTION_ROUTE.replace("{categoryId}", "medieval")) {
-                                        inclusive = false
-                                    }
+                            navController.navigate(NavDestinations.LEVEL_SELECTION_ROUTE.replace("{categoryId}", "ancient")) {
+                                popUpTo(NavDestinations.LEVEL_SELECTION_ROUTE.replace("{categoryId}", "ancient")) {
+                                    inclusive = false
                                 }
                             }
                         }
                     ) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
-                            contentDescription = if (categoryId == "ancient") "Back to Ancient Levels" else "Back to Medieval Levels",
+                            contentDescription = "Back to Ancient Levels",
                             tint = Color.White
                         )
                     }
@@ -437,11 +414,7 @@ fun MedievalResultsScreen(
                         // Retry button
                         Button(
                             onClick = {
-                                if (categoryId == "ancient") {
-                                    navController.navigate(NavDestinations.getAncientQuizRoute(levelId))
-                                } else {
-                                    navController.navigate(NavDestinations.getMedievalQuizRoute(levelId))
-                                }
+                                navController.navigate(NavDestinations.getAncientQuizRoute(levelId))
                             },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color.LightGray,
@@ -458,14 +431,10 @@ fun MedievalResultsScreen(
                         }
                         
                         // Next button or Home button
-                        if (stars > 0 && nextLevelNumber != null && nextLevelNumber <= MAX_MEDIEVAL_LEVELS) {
+                        if (stars > 0 && nextLevelNumber != null && nextLevelNumber <= MAX_ANCIENT_LEVELS) {
                             Button(
                                 onClick = {
-                                    if (categoryId == "ancient") {
-                                        navController.navigate(NavDestinations.getAncientQuizRoute(nextLevelNumber.toString()))
-                                    } else {
-                                        navController.navigate(NavDestinations.getMedievalQuizRoute(nextLevelNumber.toString()))
-                                    }
+                                    navController.navigate(NavDestinations.getAncientQuizRoute(nextLevelNumber.toString()))
                                 },
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = primaryColor
@@ -477,17 +446,9 @@ fun MedievalResultsScreen(
                         } else {
                             Button(
                                 onClick = {
-                                    if (categoryId == "ancient") {
-                                        navController.navigate(NavDestinations.LEVEL_SELECTION_ROUTE.replace("{categoryId}", "ancient")) {
-                                            popUpTo(NavDestinations.LEVEL_SELECTION_ROUTE.replace("{categoryId}", "ancient")) {
-                                                inclusive = false
-                                            }
-                                        }
-                                    } else {
-                                        navController.navigate(NavDestinations.LEVEL_SELECTION_ROUTE.replace("{categoryId}", "medieval")) {
-                                            popUpTo(NavDestinations.LEVEL_SELECTION_ROUTE.replace("{categoryId}", "medieval")) {
-                                                inclusive = false
-                                            }
+                                    navController.navigate(NavDestinations.LEVEL_SELECTION_ROUTE.replace("{categoryId}", "ancient")) {
+                                        popUpTo(NavDestinations.LEVEL_SELECTION_ROUTE.replace("{categoryId}", "ancient")) {
+                                            inclusive = false
                                         }
                                     }
                                 },

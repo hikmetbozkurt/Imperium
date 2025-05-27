@@ -26,6 +26,7 @@ import com.hikmet.imperium.data.Question
 import com.hikmet.imperium.ui.navigation.NavDestinations
 import com.hikmet.imperium.ui.util.formatTime
 import com.hikmet.imperium.ui.util.rememberQuizTimer
+import com.hikmet.imperium.ui.util.calculateStars
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
