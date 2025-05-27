@@ -1,6 +1,7 @@
 package com.hikmet.imperium.ui.util
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.media.MediaPlayer
 import android.util.Log
 import androidx.annotation.RawRes
@@ -21,7 +22,15 @@ class SoundManager @Inject constructor(
         private const val TAG = "SoundManager"
         private const val MAX_VOLUME = 1.0f
         private const val DEFAULT_VOLUME = 0.7f
+        private const val PREFS_NAME = "imperium_sound_prefs"
+        private const val KEY_SOUND_ENABLED = "sound_enabled"
+        private const val KEY_MUSIC_ENABLED = "music_enabled"
+        private const val KEY_SOUND_VOLUME = "sound_volume"
+        private const val KEY_MUSIC_VOLUME = "music_volume"
     }
+    
+    // SharedPreferences for persistent settings
+    private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     
     // MediaPlayer instances for different sounds
     private var correctAnswerPlayer: MediaPlayer? = null
@@ -31,11 +40,11 @@ class SoundManager @Inject constructor(
     private var winJinglePlayer: MediaPlayer? = null
     private var backgroundMusicPlayer: MediaPlayer? = null // New background music player
     
-    // Volume control
-    private var soundEnabled = true
-    private var currentVolume = DEFAULT_VOLUME
-    private var musicEnabled = true // Separate control for background music
-    private var musicVolume = 0.3f // Lower volume for background music
+    // Volume control - load from SharedPreferences
+    private var soundEnabled = prefs.getBoolean(KEY_SOUND_ENABLED, true)
+    private var currentVolume = prefs.getFloat(KEY_SOUND_VOLUME, DEFAULT_VOLUME)
+    private var musicEnabled = prefs.getBoolean(KEY_MUSIC_ENABLED, true) // Separate control for background music
+    private var musicVolume = prefs.getFloat(KEY_MUSIC_VOLUME, 0.3f) // Lower volume for background music
     
     init {
         initializeSounds()
@@ -290,6 +299,8 @@ class SoundManager @Inject constructor(
      */
     fun setSoundEnabled(enabled: Boolean) {
         soundEnabled = enabled
+        // Save to SharedPreferences
+        prefs.edit().putBoolean(KEY_SOUND_ENABLED, enabled).apply()
         Log.d(TAG, "Sound ${if (enabled) "enabled" else "disabled"}")
     }
     
@@ -298,6 +309,8 @@ class SoundManager @Inject constructor(
      */
     fun setMusicEnabled(enabled: Boolean) {
         musicEnabled = enabled
+        // Save to SharedPreferences
+        prefs.edit().putBoolean(KEY_MUSIC_ENABLED, enabled).apply()
         if (!enabled) {
             stopBackgroundMusic()
         }
@@ -309,6 +322,8 @@ class SoundManager @Inject constructor(
      */
     fun setVolume(volume: Float) {
         currentVolume = volume.coerceIn(0.0f, MAX_VOLUME)
+        // Save to SharedPreferences
+        prefs.edit().putFloat(KEY_SOUND_VOLUME, currentVolume).apply()
         
         correctAnswerPlayer?.setVolume(currentVolume, currentVolume)
         wrongAnswerPlayer?.setVolume(currentVolume, currentVolume)
@@ -324,6 +339,8 @@ class SoundManager @Inject constructor(
      */
     fun setMusicVolume(volume: Float) {
         musicVolume = volume.coerceIn(0.0f, MAX_VOLUME)
+        // Save to SharedPreferences
+        prefs.edit().putFloat(KEY_MUSIC_VOLUME, musicVolume).apply()
         backgroundMusicPlayer?.setVolume(musicVolume, musicVolume)
         Log.d(TAG, "Music volume set to: $musicVolume")
     }

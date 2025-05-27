@@ -11,6 +11,11 @@ import com.hikmet.imperium.data.dao.UserProgressDao
 import com.hikmet.imperium.data.dao.LevelProgressDao
 import com.hikmet.imperium.data.repository.QuizRepository
 import com.hikmet.imperium.ui.util.SoundManager
+import com.hikmet.imperium.retrofit.BadgeApiService
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -72,6 +77,33 @@ object AppModule {
         @ApplicationContext context: Context
     ): SoundManager {
         return SoundManager(context)
+    }
+
+    @Singleton
+    @Provides
+    fun provideOkHttpClient(): OkHttpClient {
+        val logging = HttpLoggingInterceptor()
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY)
+        
+        return OkHttpClient.Builder()
+            .addInterceptor(logging)
+            .build()
+    }
+
+    @Singleton
+    @Provides
+    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl("https://www.jsonkeeper.com/")
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    @Singleton
+    @Provides
+    fun provideBadgeApiService(retrofit: Retrofit): BadgeApiService {
+        return retrofit.create(BadgeApiService::class.java)
     }
 
     // QuizRepository is already annotated with @Singleton and @Inject constructor,
