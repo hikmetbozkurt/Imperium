@@ -37,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.hikmet.imperium.ImperiumApplication
 import com.hikmet.imperium.R
@@ -63,7 +64,8 @@ fun ModernHistoryResultsScreen(
     stars: Int,
     correctAnswers: Int,
     totalQuestions: Int,
-    categoryId: String = MODERN_CATEGORY_ID
+    categoryId: String = MODERN_CATEGORY_ID,
+    resultsViewModel: ModernHistoryResultsViewModel = hiltViewModel()
 ) {
     // Get the application context to access the repository
     val context = LocalContext.current
@@ -234,6 +236,7 @@ fun ModernHistoryResultsScreen(
                 navigationIcon = {
                     IconButton(
                         onClick = { 
+                            resultsViewModel.soundManager.playButtonClick()
                             navController.navigate(NavDestinations.MODERN_LEVEL_ROUTE) {
                                 popUpTo(NavDestinations.MODERN_LEVEL_ROUTE) {
                                     inclusive = false
@@ -427,6 +430,7 @@ fun ModernHistoryResultsScreen(
                         // Retry button
                         Button(
                             onClick = {
+                                resultsViewModel.soundManager.playButtonClick()
                                 navController.navigate(NavDestinations.getModernQuizRoute(levelId))
                             },
                             colors = ButtonDefaults.buttonColors(
@@ -447,6 +451,7 @@ fun ModernHistoryResultsScreen(
                         if (stars > 0 && nextLevelNumber != null && nextLevelNumber <= MAX_MODERN_LEVELS) {
                             Button(
                                 onClick = {
+                                    resultsViewModel.soundManager.playButtonClick()
                                     navController.navigate(NavDestinations.getModernQuizRoute(nextLevelNumber.toString()))
                                 },
                                 colors = ButtonDefaults.buttonColors(
@@ -459,6 +464,7 @@ fun ModernHistoryResultsScreen(
                         } else {
                             Button(
                                 onClick = {
+                                    resultsViewModel.soundManager.playButtonClick()
                                     navController.navigate(NavDestinations.MODERN_LEVEL_ROUTE) {
                                         popUpTo(NavDestinations.MODERN_LEVEL_ROUTE) {
                                             inclusive = false

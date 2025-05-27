@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.hikmet.imperium.R
 import com.hikmet.imperium.data.WorldWarsQuizData
 import com.hikmet.imperium.data.Question
@@ -34,7 +35,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun WorldWarsQuizScreen(
     navController: NavHostController,
-    levelId: String
+    levelId: String,
+    viewModel: WorldWarsQuizViewModel = hiltViewModel()
 ) {
     // Coroutine scope for handling delays
     val coroutineScope = rememberCoroutineScope()
@@ -71,11 +73,12 @@ fun WorldWarsQuizScreen(
                 println("TIME ALMOST UP: $remainingTimeMs")
             }
         },
-        onFinish = {
+                        onFinish = {
             // When time expires, navigate to results
             showTimeExpirationAlert = true
             if (!isQuizComplete) {
-                // Time's up - navigate to results
+                // Time's up - play level completion sound and navigate to results
+                viewModel.soundManager.playLevelComplete()
                 navController.navigate(
                     NavDestinations.WORLD_WARS_RESULTS_ROUTE
                         .replace("{levelId}", levelId)
@@ -262,11 +265,18 @@ fun WorldWarsQuizScreen(
                     ),
                     onClick = {
                         if (selectedAnswer == null) {
+                            // Play button click sound
+                            viewModel.soundManager.playButtonClick()
                             selectedAnswer = index
                             isAnswerCorrect = isCorrect
+                            
+                            // Play sound based on answer correctness
                             if (isCorrect) {
                                 score += 25 // 25 points per correct answer
                                 correctAnswersCount++
+                                viewModel.soundManager.playCorrectAnswer()
+                            } else {
+                                viewModel.soundManager.playWrongAnswer()
                             }
 
                             // Move to next question after delay
@@ -277,7 +287,8 @@ fun WorldWarsQuizScreen(
                                     selectedAnswer = null
                                     isAnswerCorrect = null
                                 } else {
-                                    // Quiz complete
+                                    // Quiz complete - play level completion sound
+                                    viewModel.soundManager.playLevelComplete()
                                     isQuizComplete = true
                                     navController.navigate(
                                         NavDestinations.WORLD_WARS_RESULTS_ROUTE

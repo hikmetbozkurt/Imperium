@@ -37,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.hikmet.imperium.ImperiumApplication
 import com.hikmet.imperium.R
@@ -63,7 +64,8 @@ fun RenaissanceResultsScreen(
     stars: Int,
     correctAnswers: Int,
     totalQuestions: Int,
-    categoryId: String = RENAISSANCE_CATEGORY_ID
+    categoryId: String = RENAISSANCE_CATEGORY_ID,
+    resultsViewModel: RenaissanceResultsViewModel = hiltViewModel()
 ) {
     // Get the application context to access the repository
     val context = LocalContext.current
@@ -234,6 +236,7 @@ fun RenaissanceResultsScreen(
                 navigationIcon = {
                     IconButton(
                         onClick = { 
+                            resultsViewModel.soundManager.playButtonClick()
                             navController.navigate(NavDestinations.RENAISSANCE_LEVEL_ROUTE) {
                                 popUpTo(NavDestinations.RENAISSANCE_LEVEL_ROUTE) {
                                     inclusive = false
@@ -427,6 +430,7 @@ fun RenaissanceResultsScreen(
                         // Retry button
                         Button(
                             onClick = {
+                                resultsViewModel.soundManager.playButtonClick()
                                 navController.navigate(NavDestinations.getRenaissanceQuizRoute(levelId))
                             },
                             colors = ButtonDefaults.buttonColors(
@@ -447,6 +451,7 @@ fun RenaissanceResultsScreen(
                         if (stars > 0 && nextLevelNumber != null && nextLevelNumber <= MAX_RENAISSANCE_LEVELS) {
                             Button(
                                 onClick = {
+                                    resultsViewModel.soundManager.playButtonClick()
                                     navController.navigate(NavDestinations.getRenaissanceQuizRoute(nextLevelNumber.toString()))
                                 },
                                 colors = ButtonDefaults.buttonColors(
@@ -459,6 +464,7 @@ fun RenaissanceResultsScreen(
                         } else {
                             Button(
                                 onClick = {
+                                    resultsViewModel.soundManager.playButtonClick()
                                     navController.navigate(NavDestinations.RENAISSANCE_LEVEL_ROUTE) {
                                         popUpTo(NavDestinations.RENAISSANCE_LEVEL_ROUTE) {
                                             inclusive = false

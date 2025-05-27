@@ -37,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.hikmet.imperium.ImperiumApplication
 import com.hikmet.imperium.R
@@ -63,7 +64,8 @@ fun WorldWarsResultsScreen(
     stars: Int,
     correctAnswers: Int,
     totalQuestions: Int,
-    categoryId: String = WORLD_WARS_CATEGORY_ID
+    categoryId: String = WORLD_WARS_CATEGORY_ID,
+    resultsViewModel: WorldWarsResultsViewModel = hiltViewModel()
 ) {
     // Get the application context to access the repository
     val context = LocalContext.current
@@ -234,6 +236,7 @@ fun WorldWarsResultsScreen(
                 navigationIcon = {
                     IconButton(
                         onClick = { 
+                            resultsViewModel.soundManager.playButtonClick()
                             navController.navigate(NavDestinations.WORLD_WARS_LEVEL_ROUTE) {
                                 popUpTo(NavDestinations.WORLD_WARS_LEVEL_ROUTE) {
                                     inclusive = false
@@ -427,6 +430,7 @@ fun WorldWarsResultsScreen(
                         // Retry button
                         Button(
                             onClick = {
+                                resultsViewModel.soundManager.playButtonClick()
                                 navController.navigate(NavDestinations.getWorldWarsQuizRoute(levelId))
                             },
                             colors = ButtonDefaults.buttonColors(
@@ -447,6 +451,7 @@ fun WorldWarsResultsScreen(
                         if (stars > 0 && nextLevelNumber != null && nextLevelNumber <= MAX_WORLD_WARS_LEVELS) {
                             Button(
                                 onClick = {
+                                    resultsViewModel.soundManager.playButtonClick()
                                     navController.navigate(NavDestinations.getWorldWarsQuizRoute(nextLevelNumber.toString()))
                                 },
                                 colors = ButtonDefaults.buttonColors(
@@ -459,6 +464,7 @@ fun WorldWarsResultsScreen(
                         } else {
                             Button(
                                 onClick = {
+                                    resultsViewModel.soundManager.playButtonClick()
                                     navController.navigate(NavDestinations.WORLD_WARS_LEVEL_ROUTE) {
                                         popUpTo(NavDestinations.WORLD_WARS_LEVEL_ROUTE) {
                                             inclusive = false

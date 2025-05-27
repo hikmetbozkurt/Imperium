@@ -55,18 +55,18 @@ object RenaissanceQuizData {
         ),
         Question(
             text = "Which invention greatly increased the spread of knowledge in the Renaissance?",
-            options = listOf("Printing Press", "Steam Engine", "Telescope", "Compass"),
-            correctAnswerIndex = 0
+            options = listOf("Steam Engine", "Printing Press", "Telescope", "Compass"),
+            correctAnswerIndex = 1
         ),
         Question(
             text = "Which Renaissance writer authored 'The Prince'?",
-            options = listOf("Machiavelli", "Petrarch", "Erasmus", "More"),
-            correctAnswerIndex = 0
+            options = listOf("Petrarch", "Erasmus", "Machiavelli", "More"),
+            correctAnswerIndex = 2
         ),
         Question(
             text = "What was a key feature of Renaissance art?",
-            options = listOf("Perspective", "Abstract shapes", "Minimalism", "Cubism"),
-            correctAnswerIndex = 0
+            options = listOf("Abstract shapes", "Minimalism", "Cubism", "Perspective"),
+            correctAnswerIndex = 3
         )
     )
     val level4Questions = listOf(
@@ -77,18 +77,18 @@ object RenaissanceQuizData {
         ),
         Question(
             text = "Which city was a major center of the Northern Renaissance?",
-            options = listOf("Bruges", "Florence", "Venice", "Rome"),
-            correctAnswerIndex = 0
+            options = listOf("Florence", "Bruges", "Venice", "Rome"),
+            correctAnswerIndex = 1
         ),
         Question(
             text = "Who was a leading humanist scholar of the Renaissance?",
-            options = listOf("Erasmus", "Luther", "Calvin", "Zwingli"),
-            correctAnswerIndex = 0
+            options = listOf("Luther", "Calvin", "Erasmus", "Zwingli"),
+            correctAnswerIndex = 2
         ),
         Question(
             text = "Which family was a powerful patron of the arts in Florence?",
-            options = listOf("Medici", "Borgia", "Sforza", "Este"),
-            correctAnswerIndex = 0
+            options = listOf("Borgia", "Sforza", "Este", "Medici"),
+            correctAnswerIndex = 3
         )
     )
     val level5Questions = listOf(
@@ -99,18 +99,18 @@ object RenaissanceQuizData {
         ),
         Question(
             text = "Which Renaissance explorer reached India by sea, opening a new trade route?",
-            options = listOf("Vasco da Gama", "Christopher Columbus", "Ferdinand Magellan", "John Cabot"),
-            correctAnswerIndex = 0
+            options = listOf("Christopher Columbus", "Vasco da Gama", "Ferdinand Magellan", "John Cabot"),
+            correctAnswerIndex = 1
         ),
         Question(
             text = "What was the main language of Renaissance scholarship?",
-            options = listOf("Latin", "Italian", "French", "German"),
-            correctAnswerIndex = 0
+            options = listOf("Italian", "French", "Latin", "German"),
+            correctAnswerIndex = 2
         ),
         Question(
             text = "Who wrote 'Utopia', a work of political philosophy during the Renaissance?",
-            options = listOf("Thomas More", "Niccolò Machiavelli", "Desiderius Erasmus", "Francis Bacon"),
-            correctAnswerIndex = 0
+            options = listOf("Niccolò Machiavelli", "Desiderius Erasmus", "Francis Bacon", "Thomas More"),
+            correctAnswerIndex = 3
         )
     )
     val level6Questions = listOf(
@@ -121,18 +121,18 @@ object RenaissanceQuizData {
         ),
         Question(
             text = "Who was the leading architect of St. Peter's Basilica in Rome?",
-            options = listOf("Donato Bramante", "Filippo Brunelleschi", "Andrea Palladio", "Michelangelo"),
-            correctAnswerIndex = 0
+            options = listOf("Filippo Brunelleschi", "Donato Bramante", "Andrea Palladio", "Michelangelo"),
+            correctAnswerIndex = 1
         ),
         Question(
             text = "Which Renaissance scientist improved the telescope and supported heliocentrism?",
-            options = listOf("Galileo Galilei", "Tycho Brahe", "Johannes Kepler", "Copernicus"),
-            correctAnswerIndex = 0
+            options = listOf("Tycho Brahe", "Johannes Kepler", "Galileo Galilei", "Copernicus"),
+            correctAnswerIndex = 2
         ),
         Question(
             text = "Who was the author of 'The Book of the Courtier', describing ideal courtly behavior?",
-            options = listOf("Baldassare Castiglione", "Pico della Mirandola", "Ludovico Ariosto", "Petrarch"),
-            correctAnswerIndex = 0
+            options = listOf("Pico della Mirandola", "Ludovico Ariosto", "Petrarch", "Baldassare Castiglione"),
+            correctAnswerIndex = 3
         )
     )
     val level7Questions = listOf(
@@ -143,18 +143,18 @@ object RenaissanceQuizData {
         ),
         Question(
             text = "Which English playwright is considered one of the greatest writers of the Renaissance?",
-            options = listOf("William Shakespeare", "Christopher Marlowe", "Ben Jonson", "Thomas Kyd"),
-            correctAnswerIndex = 0
+            options = listOf("Christopher Marlowe", "William Shakespeare", "Ben Jonson", "Thomas Kyd"),
+            correctAnswerIndex = 1
         ),
         Question(
             text = "What was the main focus of Renaissance humanism?",
-            options = listOf("Study of classical texts", "Religious dogma", "Feudal loyalty", "Military conquest"),
-            correctAnswerIndex = 0
+            options = listOf("Religious dogma", "Feudal loyalty", "Study of classical texts", "Military conquest"),
+            correctAnswerIndex = 2
         ),
         Question(
             text = "Who painted the 'Arnolfini Portrait'?",
-            options = listOf("Jan van Eyck", "Albrecht Dürer", "Pieter Bruegel", "Hans Holbein"),
-            correctAnswerIndex = 0
+            options = listOf("Albrecht Dürer", "Pieter Bruegel", "Hans Holbein", "Jan van Eyck"),
+            correctAnswerIndex = 3
         )
     )
     val level8Questions = listOf(
@@ -165,18 +165,18 @@ object RenaissanceQuizData {
         ),
         Question(
             text = "Who was the most famous female artist of the Italian Renaissance?",
-            options = listOf("Sofonisba Anguissola", "Artemisia Gentileschi", "Plautilla Nelli", "Properzia de' Rossi"),
-            correctAnswerIndex = 0
+            options = listOf("Artemisia Gentileschi", "Sofonisba Anguissola", "Plautilla Nelli", "Properzia de' Rossi"),
+            correctAnswerIndex = 1
         ),
         Question(
             text = "Which invention helped spread Renaissance ideas throughout Europe?",
-            options = listOf("Printing press", "Steam engine", "Telegraph", "Radio"),
-            correctAnswerIndex = 0
+            options = listOf("Steam engine", "Telegraph", "Printing press", "Radio"),
+            correctAnswerIndex = 2
         ),
         Question(
             text = "Who wrote 'The Praise of Folly', a satirical work of the Renaissance?",
-            options = listOf("Desiderius Erasmus", "Thomas More", "Niccolò Machiavelli", "Petrarch"),
-            correctAnswerIndex = 0
+            options = listOf("Thomas More", "Niccolò Machiavelli", "Petrarch", "Desiderius Erasmus"),
+            correctAnswerIndex = 3
         )
     )
     val level9Questions = listOf(
@@ -187,263 +187,262 @@ object RenaissanceQuizData {
         ),
         Question(
             text = "Which council was convened by the Catholic Church in response to the Reformation?",
-            options = listOf("Council of Trent", "Council of Nicaea", "Lateran Council", "Council of Constance"),
-            correctAnswerIndex = 0
+            options = listOf("Council of Nicaea", "Council of Trent", "Lateran Council", "Council of Constance"),
+            correctAnswerIndex = 1
         ),
         Question(
             text = "Who was the founder of the Society of Jesus (Jesuits)?",
-            options = listOf("Ignatius of Loyola", "Francis Xavier", "Teresa of Ávila", "Philip Neri"),
-            correctAnswerIndex = 0
+            options = listOf("Francis Xavier", "Teresa of Ávila", "Ignatius of Loyola", "Philip Neri"),
+            correctAnswerIndex = 2
         ),
         Question(
             text = "Which English king broke away from the Catholic Church and established the Church of England?",
-            options = listOf("Henry VIII", "Edward VI", "James I", "Charles I"),
-            correctAnswerIndex = 0
+            options = listOf("Edward VI", "James I", "Charles I", "Henry VIII"),
+            correctAnswerIndex = 3
         )
     )
     val level10Questions = listOf(
         Question(
-            text = "Who was the Renaissance astronomer who proposed the heliocentric model?",
-            options = listOf("Nicolaus Copernicus", "Galileo Galilei", "Johannes Kepler", "Tycho Brahe"),
+            text = "Who painted 'The Last Supper'?",
+            options = listOf("Leonardo da Vinci", "Michelangelo", "Raphael", "Caravaggio"),
             correctAnswerIndex = 0
         ),
         Question(
-            text = "Which Renaissance artist is known for the frescoes in the Vatican's Raphael Rooms?",
-            options = listOf("Raphael", "Michelangelo", "Leonardo da Vinci", "Botticelli"),
-            correctAnswerIndex = 0
+            text = "Which Renaissance architect designed the dome of Florence Cathedral?",
+            options = listOf("Donato Bramante", "Filippo Brunelleschi", "Leon Battista Alberti", "Andrea Palladio"),
+            correctAnswerIndex = 1
         ),
         Question(
-            text = "Who wrote 'Orlando Furioso', an epic poem of the Italian Renaissance?",
-            options = listOf("Ludovico Ariosto", "Torquato Tasso", "Dante Alighieri", "Petrarch"),
-            correctAnswerIndex = 0
+            text = "Who wrote 'The Divine Comedy'?",
+            options = listOf("Petrarch", "Boccaccio", "Dante Alighieri", "Chaucer"),
+            correctAnswerIndex = 2
         ),
         Question(
-            text = "Which city was the birthplace of the Renaissance?",
-            options = listOf("Florence", "Venice", "Rome", "Milan"),
-            correctAnswerIndex = 0
+            text = "Which Renaissance scientist proposed the heliocentric model of the universe?",
+            options = listOf("Galileo Galilei", "Johannes Kepler", "Tycho Brahe", "Nicolaus Copernicus"),
+            correctAnswerIndex = 3
         )
     )
     val level11Questions = listOf(
         Question(
-            text = "Who was the Renaissance anatomist known for his detailed drawings of the human body?",
-            options = listOf("Andreas Vesalius", "Leonardo da Vinci", "Galen", "Ambroise Paré"),
+            text = "Who was known as the 'Merchant of Venice' in Shakespeare's play?",
+            options = listOf("Antonio", "Shylock", "Bassanio", "Portia"),
             correctAnswerIndex = 0
         ),
         Question(
-            text = "Which Renaissance scientist is credited with the discovery of blood circulation?",
-            options = listOf("William Harvey", "Andreas Vesalius", "Paracelsus", "Ambroise Paré"),
-            correctAnswerIndex = 0
+            text = "Which technique did Leonardo da Vinci use in painting to create soft edges?",
+            options = listOf("Chiaroscuro", "Sfumato", "Tenebrism", "Impasto"),
+            correctAnswerIndex = 1
         ),
         Question(
-            text = "Who invented the first practical thermometer?",
-            options = listOf("Galileo Galilei", "Evangelista Torricelli", "Anders Celsius", "Daniel Fahrenheit"),
-            correctAnswerIndex = 0
+            text = "Who was the leading patron of Michelangelo?",
+            options = listOf("Lorenzo de' Medici", "Pope Leo X", "Pope Julius II", "Cesare Borgia"),
+            correctAnswerIndex = 2
         ),
         Question(
-            text = "Which Renaissance figure is known for his notebooks filled with scientific observations and inventions?",
-            options = listOf("Leonardo da Vinci", "Niccolò Machiavelli", "Raphael", "Michelangelo"),
-            correctAnswerIndex = 0
+            text = "Which city-state was ruled by the Doge during the Renaissance?",
+            options = listOf("Florence", "Genoa", "Milan", "Venice"),
+            correctAnswerIndex = 3
         )
     )
     val level12Questions = listOf(
         Question(
-            text = "Who wrote the sonnet sequence 'Il Canzoniere'?",
-            options = listOf("Petrarch", "Dante Alighieri", "Boccaccio", "Ariosto"),
+            text = "Who painted 'The Creation of Adam'?",
+            options = listOf("Michelangelo", "Leonardo da Vinci", "Raphael", "Titian"),
             correctAnswerIndex = 0
         ),
         Question(
-            text = "Which English poet wrote 'The Faerie Queene'?",
-            options = listOf("Edmund Spenser", "William Shakespeare", "John Milton", "Christopher Marlowe"),
-            correctAnswerIndex = 0
+            text = "Which Renaissance philosopher wrote about the ideal state in 'The Republic'?",
+            options = listOf("Aristotle", "Plato", "Cicero", "Augustine"),
+            correctAnswerIndex = 1
         ),
         Question(
-            text = "Who is the author of 'Decameron', a collection of novellas?",
-            options = listOf("Giovanni Boccaccio", "Dante Alighieri", "Petrarch", "Ariosto"),
-            correctAnswerIndex = 0
+            text = "Who invented the first mechanical clock during the Renaissance?",
+            options = listOf("Leonardo da Vinci", "Galileo Galilei", "Giovanni Dondi", "Johannes Kepler"),
+            correctAnswerIndex = 2
         ),
         Question(
-            text = "Which Spanish author is considered the greatest writer in the Spanish language?",
-            options = listOf("Miguel de Cervantes", "Lope de Vega", "Luis de Góngora", "Francisco de Quevedo"),
-            correctAnswerIndex = 0
+            text = "Which Renaissance work is considered the first modern novel?",
+            options = listOf("The Decameron", "The Canterbury Tales", "Gargantua and Pantagruel", "Don Quixote"),
+            correctAnswerIndex = 3
         )
     )
     val level13Questions = listOf(
         Question(
-            text = "Who designed the dome of Florence Cathedral?",
-            options = listOf("Filippo Brunelleschi", "Leon Battista Alberti", "Michelangelo", "Donato Bramante"),
+            text = "Who was the most influential Renaissance political theorist?",
+            options = listOf("Niccolò Machiavelli", "Thomas More", "Jean Bodin", "Hugo Grotius"),
             correctAnswerIndex = 0
         ),
         Question(
-            text = "Which Venetian architect is known for his villas and influence on neoclassical architecture?",
-            options = listOf("Andrea Palladio", "Giorgio Vasari", "Donato Bramante", "Giulio Romano"),
-            correctAnswerIndex = 0
+            text = "Which Renaissance artist was known for his anatomical studies?",
+            options = listOf("Michelangelo", "Leonardo da Vinci", "Albrecht Dürer", "Andreas Vesalius"),
+            correctAnswerIndex = 1
         ),
         Question(
-            text = "Who was the chief architect of St. Peter's Basilica after Bramante?",
-            options = listOf("Michelangelo", "Raphael", "Giacomo della Porta", "Carlo Maderno"),
-            correctAnswerIndex = 0
+            text = "Who established the first modern university during the Renaissance?",
+            options = listOf("Paris", "Oxford", "Bologna", "Cambridge"),
+            correctAnswerIndex = 2
         ),
         Question(
-            text = "Which Renaissance palace is located in Florence and was home to the Medici family?",
-            options = listOf("Palazzo Pitti", "Palazzo Vecchio", "Palazzo Farnese", "Palazzo Ducale"),
-            correctAnswerIndex = 0
+            text = "Which Renaissance composer is known for madrigals?",
+            options = listOf("Josquin des Prez", "Orlando di Lasso", "Thomas Tallis", "Giovanni Palestrina"),
+            correctAnswerIndex = 3
         )
     )
     val level14Questions = listOf(
         Question(
-            text = "Who was the first European to reach Brazil during the Age of Exploration?",
-            options = listOf("Pedro Álvares Cabral", "Vasco da Gama", "Christopher Columbus", "Ferdinand Magellan"),
+            text = "Who was the first woman to receive a university degree during the Renaissance?",
+            options = listOf("Elena Cornaro Piscopia", "Christine de Pizan", "Isotta Nogarola", "Cassandra Fedele"),
             correctAnswerIndex = 0
         ),
         Question(
-            text = "Which explorer led the first expedition to circumnavigate the globe?",
-            options = listOf("Ferdinand Magellan", "Vasco da Gama", "John Cabot", "Amerigo Vespucci"),
-            correctAnswerIndex = 0
+            text = "Which Renaissance explorer circumnavigated the globe?",
+            options = listOf("Vasco da Gama", "Ferdinand Magellan", "Christopher Columbus", "Amerigo Vespucci"),
+            correctAnswerIndex = 1
         ),
         Question(
-            text = "Who discovered the sea route to India around the Cape of Good Hope?",
-            options = listOf("Vasco da Gama", "Bartolomeu Dias", "Christopher Columbus", "Ferdinand Magellan"),
-            correctAnswerIndex = 0
+            text = "Who painted 'The Wedding Feast at Cana'?",
+            options = listOf("Titian", "Tintoretto", "Paolo Veronese", "Giorgione"),
+            correctAnswerIndex = 2
         ),
         Question(
-            text = "Which Italian explorer sailed under the Spanish flag and reached the Americas in 1492?",
-            options = listOf("Christopher Columbus", "Amerigo Vespucci", "John Cabot", "Ferdinand Magellan"),
-            correctAnswerIndex = 0
+            text = "Which Renaissance scientist laid the foundation for modern anatomy?",
+            options = listOf("William Harvey", "Gabriele Falloppio", "Bartolomeo Eustachi", "Andreas Vesalius"),
+            correctAnswerIndex = 3
         )
     )
     val level15Questions = listOf(
         Question(
-            text = "Who was the powerful ruler of Florence during the height of the Renaissance?",
-            options = listOf("Lorenzo de' Medici", "Cosimo de' Medici", "Piero de' Medici", "Giovanni de' Medici"),
+            text = "Who wrote 'Essays', considered a new literary form?",
+            options = listOf("Michel de Montaigne", "François Rabelais", "Pierre de Ronsard", "Joachim du Bellay"),
             correctAnswerIndex = 0
         ),
         Question(
-            text = "Which Renaissance political philosopher wrote 'The Prince'?",
-            options = listOf("Niccolò Machiavelli", "Thomas More", "Erasmus", "Baldassare Castiglione"),
-            correctAnswerIndex = 0
+            text = "Which Renaissance artist painted 'The Garden of Earthly Delights'?",
+            options = listOf("Pieter Bruegel the Elder", "Hieronymus Bosch", "Jan van Eyck", "Rogier van der Weyden"),
+            correctAnswerIndex = 1
         ),
         Question(
-            text = "Who was the Holy Roman Emperor during the Protestant Reformation?",
-            options = listOf("Charles V", "Maximilian I", "Ferdinand I", "Sigismund"),
-            correctAnswerIndex = 0
+            text = "Who was the leading Venetian Renaissance painter?",
+            options = listOf("Tintoretto", "Paolo Veronese", "Titian", "Giorgione"),
+            correctAnswerIndex = 2
         ),
         Question(
-            text = "Which treaty ended the Italian Wars and shifted power in Europe?",
-            options = listOf("Treaty of Cateau-Cambrésis", "Treaty of Tordesillas", "Peace of Augsburg", "Treaty of Westphalia"),
-            correctAnswerIndex = 0
+            text = "Which Renaissance banker family financed many artistic projects?",
+            options = listOf("Fugger", "Pazzi", "Strozzi", "Medici"),
+            correctAnswerIndex = 3
         )
     )
     val level16Questions = listOf(
         Question(
-            text = "Who wrote 'Oration on the Dignity of Man', a key Renaissance philosophical work?",
-            options = listOf("Giovanni Pico della Mirandola", "Marsilio Ficino", "Niccolò Machiavelli", "Desiderius Erasmus"),
+            text = "Who painted 'Primavera'?",
+            options = listOf("Sandro Botticelli", "Leonardo da Vinci", "Raphael", "Piero della Francesca"),
             correctAnswerIndex = 0
         ),
         Question(
-            text = "Which Renaissance philosopher translated and promoted Plato's works in Florence?",
-            options = listOf("Marsilio Ficino", "Pico della Mirandola", "Leon Battista Alberti", "Niccolò Machiavelli"),
-            correctAnswerIndex = 0
+            text = "Which Renaissance architect wrote 'The Four Books of Architecture'?",
+            options = listOf("Leon Battista Alberti", "Andrea Palladio", "Filippo Brunelleschi", "Donato Bramante"),
+            correctAnswerIndex = 1
         ),
         Question(
-            text = "Who is known for the concept of 'universal man' or 'Renaissance man'?",
-            options = listOf("Leonardo da Vinci", "Michelangelo", "Raphael", "Donatello"),
-            correctAnswerIndex = 0
+            text = "Who was the leading Northern Renaissance humanist?",
+            options = listOf("Thomas More", "John Colet", "Desiderius Erasmus", "Jacques Lefèvre d'Étaples"),
+            correctAnswerIndex = 2
         ),
         Question(
-            text = "Which Renaissance thinker is associated with the development of modern skepticism?",
-            options = listOf("Michel de Montaigne", "Francis Bacon", "Niccolò Machiavelli", "Desiderius Erasmus"),
-            correctAnswerIndex = 0
+            text = "Which Renaissance scientist discovered the moons of Jupiter?",
+            options = listOf("Johannes Kepler", "Tycho Brahe", "Giovanni Cassini", "Galileo Galilei"),
+            correctAnswerIndex = 3
         )
     )
     val level17Questions = listOf(
         Question(
-            text = "Who composed the 'Missa Papae Marcelli', a famous Renaissance mass?",
-            options = listOf("Giovanni Pierluigi da Palestrina", "Josquin des Prez", "Orlando di Lasso", "William Byrd"),
+            text = "Who sculpted 'Perseus with the Head of Medusa'?",
+            options = listOf("Benvenuto Cellini", "Donatello", "Michelangelo", "Giambologna"),
             correctAnswerIndex = 0
         ),
         Question(
-            text = "Which English composer is known for his madrigals and sacred music?",
-            options = listOf("William Byrd", "Thomas Tallis", "John Dowland", "Orlando Gibbons"),
-            correctAnswerIndex = 0
+            text = "Which Renaissance city was known for its glass-making industry?",
+            options = listOf("Florence", "Venice", "Milan", "Genoa"),
+            correctAnswerIndex = 1
         ),
         Question(
-            text = "Who was a leading composer of the Franco-Flemish school during the Renaissance?",
-            options = listOf("Josquin des Prez", "Guillaume Dufay", "Orlando di Lasso", "Heinrich Isaac"),
-            correctAnswerIndex = 0
+            text = "Who painted 'The Ambassadors'?",
+            options = listOf("Albrecht Dürer", "Lucas Cranach", "Hans Holbein the Younger", "Hans Memling"),
+            correctAnswerIndex = 2
         ),
         Question(
-            text = "Which instrument became popular in Renaissance music for its expressive range?",
-            options = listOf("Lute", "Harpsichord", "Violin", "Piano"),
-            correctAnswerIndex = 0
+            text = "Which Renaissance pope was a great patron of the arts?",
+            options = listOf("Pope Leo X", "Pope Clement VII", "Pope Paul III", "Pope Julius II"),
+            correctAnswerIndex = 3
         )
     )
     val level18Questions = listOf(
         Question(
-            text = "What was a common food in the diet of Renaissance Italians?",
-            options = listOf("Bread", "Potatoes", "Tomatoes", "Chocolate"),
+            text = "Who painted 'The Night Watch'?",
+            options = listOf("Rembrandt van Rijn", "Johannes Vermeer", "Frans Hals", "Jan Steen"),
             correctAnswerIndex = 0
         ),
         Question(
-            text = "Which social class gained influence during the Renaissance due to trade and banking?",
-            options = listOf("Merchant class", "Nobility", "Peasantry", "Clergy"),
-            correctAnswerIndex = 0
+            text = "Which Renaissance mathematician developed algebra?",
+            options = listOf("Gerolamo Cardano", "François Viète", "Niccolò Tartaglia", "Rafael Bombelli"),
+            correctAnswerIndex = 1
         ),
         Question(
-            text = "What was a popular form of entertainment in Renaissance Italy?",
-            options = listOf("Commedia dell'arte", "Opera", "Ballet", "Symphony"),
-            correctAnswerIndex = 0
+            text = "Who was the leading composer of the Flemish school?",
+            options = listOf("Guillaume Dufay", "Johannes Ockeghem", "Josquin des Prez", "Jacob Obrecht"),
+            correctAnswerIndex = 2
         ),
         Question(
-            text = "Which city was famous for its glassmaking industry during the Renaissance?",
-            options = listOf("Venice", "Florence", "Rome", "Naples"),
-            correctAnswerIndex = 0
+            text = "Which Renaissance work influenced modern political thought?",
+            options = listOf("Utopia", "The Republic", "Leviathan", "The Prince"),
+            correctAnswerIndex = 3
         )
     )
     val level19Questions = listOf(
         Question(
-            text = "Which invention from the Renaissance era had the greatest impact on the spread of knowledge?",
-            options = listOf("Printing press", "Compass", "Gunpowder", "Astrolabe"),
+            text = "Who painted 'Venus of Urbino'?",
+            options = listOf("Titian", "Giorgione", "Paolo Veronese", "Tintoretto"),
             correctAnswerIndex = 0
         ),
         Question(
-            text = "Who is considered the quintessential 'Renaissance Man'?",
-            options = listOf("Leonardo da Vinci", "Michelangelo", "Raphael", "Galileo Galilei"),
-            correctAnswerIndex = 0
+            text = "Which Renaissance scientist formulated the laws of planetary motion?",
+            options = listOf("Galileo Galilei", "Johannes Kepler", "Tycho Brahe", "Nicolaus Copernicus"),
+            correctAnswerIndex = 1
         ),
         Question(
-            text = "Which Renaissance artist's notebooks contained studies of anatomy, flight, and engineering?",
-            options = listOf("Leonardo da Vinci", "Michelangelo", "Raphael", "Donatello"),
-            correctAnswerIndex = 0
+            text = "Who wrote 'The Courtier'?",
+            options = listOf("Pico della Mirandola", "Pietro Bembo", "Baldassare Castiglione", "Ludovico Ariosto"),
+            correctAnswerIndex = 2
         ),
         Question(
-            text = "What was the long-term impact of the Renaissance on Europe?",
-            options = listOf("Revival of learning and arts", "Decline of cities", "End of trade", "Rise of feudalism"),
-            correctAnswerIndex = 0
+            text = "Which Renaissance invention revolutionized navigation?",
+            options = listOf("Astrolabe", "Quadrant", "Sextant", "Compass"),
+            correctAnswerIndex = 3
         )
     )
     val level20Questions = listOf(
         Question(
-            text = "Which event is often considered the end of the Renaissance period?",
-            options = listOf("Sack of Rome (1527)", "Discovery of America (1492)", "Fall of Constantinople (1453)", "Start of the Thirty Years' War (1618)"),
+            text = "Who was the last great Renaissance artist?",
+            options = listOf("Caravaggio", "Annibale Carracci", "Guido Reni", "Nicolas Poussin"),
             correctAnswerIndex = 0
         ),
         Question(
-            text = "Who was the last great artist of the Italian High Renaissance?",
-            options = listOf("Titian", "Caravaggio", "El Greco", "Tintoretto"),
-            correctAnswerIndex = 0
+            text = "Which Renaissance festival is still celebrated today?",
+            options = listOf("Palio", "Carnival", "Regata Storica", "Calcio Storico"),
+            correctAnswerIndex = 1
         ),
         Question(
-            text = "Which Renaissance scientist is known for his work on planetary motion?",
-            options = listOf("Johannes Kepler", "Galileo Galilei", "Nicolaus Copernicus", "Tycho Brahe"),
-            correctAnswerIndex = 0
+            text = "Who established the first public library during the Renaissance?",
+            options = listOf("Francesco Sforza", "Federico da Montefeltro", "Cosimo de' Medici", "Sigismondo Malatesta"),
+            correctAnswerIndex = 2
         ),
         Question(
-            text = "What is the legacy of the Renaissance in modern times?",
-            options = listOf("Foundation for modern science and art", "Decline of education", "End of exploration", "Suppression of creativity"),
-            correctAnswerIndex = 0
+            text = "Which Renaissance work marks the transition to the Baroque period?",
+            options = listOf("The Ecstasy of St. Teresa", "The School of Athens", "The Last Judgment", "The Calling of St. Matthew"),
+            correctAnswerIndex = 3
         )
     )
-    // Add more levels as needed, following the same structure
 
     fun getQuestionsByLevel(levelId: String): List<Question> {
         return when (levelId) {
