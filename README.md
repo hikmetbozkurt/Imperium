@@ -1,136 +1,88 @@
-# Imperium 🏛️
+# Imperium
 
-![Imperium Logo](app/src/main/ic_launcher_icon-playstore.png)
+Imperium is an offline-first Android history quiz. It covers Ancient History, the Medieval Era,
+the Renaissance, Modern History, and the World Wars through a level-based game loop with scoring,
+stars, unlocks, attempt history, and progress analytics.
 
----
+![Imperium logo](app/src/main/ic_launcher_icon-playstore.png)
 
-## 📚 Introduction
+## Highlights
 
-**Imperium** is a modern, interactive history quiz app designed to make learning about world history fun and engaging. Explore ancient civilizations, the medieval era, the Renaissance, modern history, and the world wars through beautifully crafted quizzes, progress tracking, and a gamified experience. 
+- One reusable levels, quiz, and result flow for every history category.
+- A deterministic quiz state machine with a ViewModel-owned timer.
+- Transactional Room persistence for attempts, personal bests, stars, and unlocks.
+- Progress analytics derived from recorded attempts rather than generated sample data.
+- Material 3, edge-to-edge layouts, dynamic color, and Compose-native charts.
+- Hilt-managed application, repository, ViewModel, and WorkManager dependencies.
+- Debug-only HTTP logging and unique periodic badge synchronization.
 
-> _"The more you know about the past, the better prepared you are for the future."_  
-> — Theodore Roosevelt
+## Technology
 
----
+- Kotlin 2.4 and Java 17
+- Jetpack Compose with Material 3
+- Room with exported schemas and explicit migrations
+- Hilt and Hilt WorkManager
+- Navigation Compose
+- Kotlin Coroutines and Flow
+- Retrofit 3 and OkHttp 5
+- Gradle 9.7 and Android Gradle Plugin 9.3
 
-## ✨ Features
+All dependency versions are defined in `gradle/libs.versions.toml`.
 
-- 🏆 **Multiple Historical Eras**: Ancient, Medieval, Renaissance, Modern, and World Wars
-- 🎨 **Material Design 3 UI**: Smooth, modern, and responsive interface
-- 📊 **Interactive Progress Charts**: Pinch-to-zoom, swipe gestures, and animated statistics (powered by MPAndroidChart)
-- 🧠 **Challenging Quizzes**: Hundreds of questions across categories and levels
-- 🗂️ **Level & Category Progression**: Unlock new levels and track your mastery
-- 🥇 **Achievements & Badges**: Earn badges as you progress
-- 👤 **Profile & Stats**: View your achievements, stars, and quiz history
-- 🔊 **Sound & Music**: Immersive background music and sound effects
-- 🌙 **Dark/Light Theme Ready**: Consistent experience in any lighting
-- 🚀 **Offline Support**: Play quizzes anytime, anywhere
+## Architecture
 
----
+```text
+Compose screen -> ViewModel -> domain repository contract <- data implementation
+                              |                         |
+                              +-- game rules           +-- Room / local catalog / network
+```
 
-## 🖼️ Screenshots
+Immutable packaged quiz content has one catalog owner. Room is the source of truth for mutable user
+progress and attempt history. The UI consumes immutable state and sends events; it does not access
+DAOs, network DTOs, or the application object.
 
-| Home | Levels | Ancient Quiz | Medieval Quiz |
-|:---:|:---:|:---:|:---:|
-| ![Home 1](docs/screenshots/home-1.png) | ![Levels](docs/screenshots/levels.png) | ![Ancient Quiz](docs/screenshots/ancient-quiz.png) | ![Medieval Quiz](docs/screenshots/medieval-quiz.png) |
-| ![Home 2](docs/screenshots/home-2.png) |   |   |   |
+Detailed decisions and extension points are documented in
+[`docs/architecture/ARCHITECTURE.md`](docs/architecture/ARCHITECTURE.md). The original findings and
+the completed migration are recorded in
+[`docs/architecture/REFACTOR_PLAN.md`](docs/architecture/REFACTOR_PLAN.md) and
+[`docs/architecture/REFACTOR_REPORT.md`](docs/architecture/REFACTOR_REPORT.md).
 
-| Renaissance | Modern History | World Wars | Progress |
-|:---:|:---:|:---:|:---:|
-| ![Renaissance](docs/screenshots/renaissance-1.png) | ![Modern History](docs/screenshots/modernhistory-quiz.png) | ![World Wars](docs/screenshots/worldwars-quiz.png) | ![Progress](docs/screenshots/progress-1.png) |
+## Build
 
-| Profile | About |
-|:---:|:---:|
-| ![Profile](docs/screenshots/profile-1.png) | ![About](docs/screenshots/about.png) |
+Requirements:
 
-**Captions:**
-- Home: Main dashboard with navigation and categories
-- Levels: Level selection for a category
-- Ancient/Medieval/Renaissance/Modern/World Wars: Quiz screens for each era
-- Progress: Interactive progress and statistics
-- Profile: User profile and achievements
-- About: App information and credits
+- Android Studio with JDK 17
+- Android SDK 37
 
----
+```bash
+git clone https://github.com/hikmetbozkurt/Imperium.git
+cd Imperium
+./gradlew testDebugUnitTest compileDebugAndroidTestKotlin lintDebug assembleDebug
+```
 
-## 🛠️ Tech Stack
+Build the optimized release artifact with:
 
-- **Kotlin** & **Jetpack Compose** (UI)
-- **Room** (local database)
-- **Hilt** (dependency injection)
-- **Retrofit** (network/API)
-- **MPAndroidChart** (interactive charts)
-- **WorkManager** (background tasks)
-- **Material Design 3**
+```bash
+./gradlew assembleRelease
+```
 
----
+Generated APKs are written under `app/build/outputs/apk/`.
 
-## 🏗️ Architecture
+## Tests and quality gates
 
-- **MVVM** (Model-View-ViewModel) pattern
-- **Repository** pattern for data management
-- **Composable UI**: Reusable, modular components
-- **Room Database**: For quiz data, user progress, and achievements
-- **Navigation**: Bottom navigation bar for Home, Progress, and Profile
-- **Background Services**: For badge/achievement updates
+The project includes deterministic unit tests for scoring, stars, session transitions, the content
+catalog, and analytics. The Room instrumentation suite verifies atomic attempt recording and guards
+against replay-based star inflation.
 
----
+Every pull request runs unit tests, Android test compilation, Android lint, and the release build in
+GitHub Actions.
 
-## 🚦 Getting Started
+## Adding game content
 
-### Prerequisites
-- Android Studio Hedgehog or newer
-- Android SDK 33+
+Add or update the packaged question data, then register its category/level metadata in
+`LocalHistoryContentRepository`. A new category does not require another levels screen, quiz screen,
+result screen, ViewModel, or navigation route.
 
-### Build & Run
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/yourusername/imperium.git
-   cd imperium
-   ```
-2. **Open in Android Studio**
-3. **Build the project** (Gradle will auto-download dependencies)
-4. **Run on emulator or device**
+## License
 
----
-
-## 📦 Dependencies
-
-- [Jetpack Compose](https://developer.android.com/jetpack/compose)
-- [Room](https://developer.android.com/jetpack/androidx/releases/room)
-- [Hilt](https://dagger.dev/hilt/)
-- [Retrofit](https://square.github.io/retrofit/)
-- [MPAndroidChart](https://github.com/PhilJay/MPAndroidChart)
-- [WorkManager](https://developer.android.com/topic/libraries/architecture/workmanager)
-
----
-
-## 🤝 Contributing
-
-Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
-
-1. Fork the repo
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
----
-
-## 👤 Author
-
-**Hikmet Bozkurt Aydoğan**  
-[LinkedIn](https://www.linkedin.com/in/hikmetbozkurt/)  
-[Email](mailto:hkmtbzkrt06@gmail.com)
-
----
-
-## 🙏 Credits & License
-
-- App icon and some illustrations by [Freepik](https://www.freepik.com/) and [Flaticon](https://www.flaticon.com/)
-- Quiz content and historical data: [Wikipedia](https://wikipedia.org/), [History.com](https://history.com/)
-- This project is licensed under the MIT License.
-
----
-
-> Made by Hikmet Bozkurt Aydoğan
+Copyright Hikmet Bozkurt Aydoğan. Distributed under the terms in [`LICENSE`](LICENSE).

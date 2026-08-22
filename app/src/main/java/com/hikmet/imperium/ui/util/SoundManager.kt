@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.media.MediaPlayer
 import android.util.Log
-import androidx.annotation.RawRes
+import androidx.core.content.edit
 import com.hikmet.imperium.R
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -300,7 +300,7 @@ class SoundManager @Inject constructor(
     fun setSoundEnabled(enabled: Boolean) {
         soundEnabled = enabled
         // Save to SharedPreferences
-        prefs.edit().putBoolean(KEY_SOUND_ENABLED, enabled).apply()
+        prefs.edit { putBoolean(KEY_SOUND_ENABLED, enabled) }
         Log.d(TAG, "Sound ${if (enabled) "enabled" else "disabled"}")
     }
     
@@ -310,7 +310,7 @@ class SoundManager @Inject constructor(
     fun setMusicEnabled(enabled: Boolean) {
         musicEnabled = enabled
         // Save to SharedPreferences
-        prefs.edit().putBoolean(KEY_MUSIC_ENABLED, enabled).apply()
+        prefs.edit { putBoolean(KEY_MUSIC_ENABLED, enabled) }
         if (!enabled) {
             stopBackgroundMusic()
         }
@@ -323,7 +323,7 @@ class SoundManager @Inject constructor(
     fun setVolume(volume: Float) {
         currentVolume = volume.coerceIn(0.0f, MAX_VOLUME)
         // Save to SharedPreferences
-        prefs.edit().putFloat(KEY_SOUND_VOLUME, currentVolume).apply()
+        prefs.edit { putFloat(KEY_SOUND_VOLUME, currentVolume) }
         
         correctAnswerPlayer?.setVolume(currentVolume, currentVolume)
         wrongAnswerPlayer?.setVolume(currentVolume, currentVolume)
@@ -340,7 +340,7 @@ class SoundManager @Inject constructor(
     fun setMusicVolume(volume: Float) {
         musicVolume = volume.coerceIn(0.0f, MAX_VOLUME)
         // Save to SharedPreferences
-        prefs.edit().putFloat(KEY_MUSIC_VOLUME, musicVolume).apply()
+        prefs.edit { putFloat(KEY_MUSIC_VOLUME, musicVolume) }
         backgroundMusicPlayer?.setVolume(musicVolume, musicVolume)
         Log.d(TAG, "Music volume set to: $musicVolume")
     }
@@ -410,4 +410,4 @@ class SoundManager @Inject constructor(
         release()
         initializeSounds()
     }
-} 
+}

@@ -2,14 +2,16 @@ package com.hikmet.imperium.backgroundservice
 
 import android.content.Context
 import android.util.Log
+import androidx.core.content.edit
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
-import com.hikmet.imperium.retrofit.BadgeApiService
+import com.hikmet.imperium.retrofit.BadgeRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.delay
+import retrofit2.HttpException
+import java.io.IOException
 
 /**
  * Background worker for refreshing badge data using WorkManager and CoroutineWorker
@@ -19,7 +21,7 @@ import kotlinx.coroutines.delay
 class ProfileBadgeWorker @AssistedInject constructor(
     @Assisted context: Context,
     @Assisted workerParams: WorkerParameters,
-    private val badgeApiService: BadgeApiService
+    private val badgeRepository: BadgeRepository,
 ) : CoroutineWorker(context, workerParams) {
 
     companion object {
@@ -36,35 +38,17 @@ class ProfileBadgeWorker @AssistedInject constructor(
         return try {
             val startTime = System.currentTimeMillis()
             
-            // Simulate background processing delay
-            delay(2000)
-            
-            // Fetch fresh badge data from API
             Log.d(TAG, "📡 Fetching badge data from API...")
-            val response = badgeApiService.getBadges()
-            
-            if (response.isSuccessful && response.body() != null) {
-                val badges = response.body()!!.badgeSystem
-                val badgeCount = badges.size
-                val executionTime = System.currentTimeMillis() - startTime
-                
-                Log.d(TAG, "✅ Badge refresh completed successfully!")
-                Log.d(TAG, "📊 Found $badgeCount badges in ${executionTime}ms")
-                
-                // Store results for UI update
-                val outputData = workDataOf(
-                    KEY_BADGE_COUNT to badgeCount,
+            val badges = badgeRepository.fetchBadges()
+            val executionTime = System.currentTimeMillis() - startTime
+            cacheBadgeData(badges)
+            Result.success(
+                workDataOf(
+                    KEY_BADGE_COUNT to badges.size,
                     KEY_EXECUTION_TIME to executionTime,
-                    KEY_SUCCESS to true
-                )
-                
-                // Cache the fresh badge data
-                cacheBadgeData(badges)
-                
-                Result.success(outputData)
-            } else {
-                throw Exception("API call failed: ${response.message()}")
-            }
+                    KEY_SUCCESS to true,
+                ),
+            )
             
         } catch (exception: Exception) {
             Log.e(TAG, "❌ Badge refresh failed: ${exception.message}", exception)
@@ -74,8 +58,9 @@ class ProfileBadgeWorker @AssistedInject constructor(
                 KEY_EXECUTION_TIME to 0L
             )
             
-            // Retry on failure
-            if (runAttemptCount < 3) {
+            val isTransient = exception is IOException ||
+                (exception is HttpException && exception.code() >= 500)
+            if (isTransient && runAttemptCount < 3) {
                 Log.d(TAG, "🔄 Retrying badge refresh (attempt ${runAttemptCount + 1}/3)")
                 Result.retry()
             } else {
@@ -88,25 +73,20 @@ class ProfileBadgeWorker @AssistedInject constructor(
     /**
      * Cache badge data locally for faster UI updates
      */
-    private suspend fun cacheBadgeData(badges: List<com.hikmet.imperium.retrofit.Badge>) {
+    private fun cacheBadgeData(badges: List<com.hikmet.imperium.retrofit.Badge>) {
         try {
             Log.d(TAG, "💾 Caching ${badges.size} badges locally...")
             
             // Store in shared preferences or database for quick access
             val sharedPrefs = applicationContext.getSharedPreferences("badge_cache", Context.MODE_PRIVATE)
-            val editor = sharedPrefs.edit()
-            
-            // Cache badge count and last update time
-            editor.putInt("cached_badge_count", badges.size)
-            editor.putLong("last_cache_update", System.currentTimeMillis())
-            editor.putBoolean("cache_valid", true)
-            
-            // Cache first few badge titles for quick preview
-            badges.take(5).forEachIndexed { index, badge ->
-                editor.putString("badge_title_$index", badge.title)
+            sharedPrefs.edit {
+                putInt("cached_badge_count", badges.size)
+                putLong("last_cache_update", System.currentTimeMillis())
+                putBoolean("cache_valid", true)
+                badges.take(5).forEachIndexed { index, badge ->
+                    putString("badge_title_$index", badge.title)
+                }
             }
-            
-            editor.apply()
             Log.d(TAG, "✅ Badge data cached successfully")
             
         } catch (e: Exception) {
@@ -135,4 +115,4 @@ data class CachedBadgeInfo(
     val badgeCount: Int,
     val lastUpdateTime: Long,
     val isValid: Boolean
-) 
+)

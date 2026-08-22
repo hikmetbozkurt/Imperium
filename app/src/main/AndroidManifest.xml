@@ -14,10 +14,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_icon_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Imperium"
-        tools:targetApi="31">
-        
-        <!-- Disable automatic WorkManager initialization -->
+        android:theme="@style/Theme.Imperium">
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
@@ -28,10 +25,10 @@
                 android:value="androidx.startup"
                 tools:node="remove" />
         </provider>
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.Imperium">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
