@@ -28,11 +28,11 @@ val ErrorContainer = Color(0xFFF9DEDC) // Light Red
 val OnErrorContainer = Color(0xFF410E0B) // Dark Red
 
 // Light Theme Colors - Background
-val Background = Color(0xFFFDF7EF) // Warm Off-White
+val Background = Color(0xFFF6EEDF) // Warm Parchment
 val OnBackground = Color(0xFF251500) // Deep Brown
-val Surface = Color(0xFFFDF7EF) // Warm Off-White
+val Surface = Color(0xFFFCF7EE) // Warm Ivory
 val OnSurface = Color(0xFF251500) // Deep Brown
-val SurfaceVariant = Color(0xFFEDDFCC) // Light Tan
+val SurfaceVariant = Color(0xFFE9DAC5) // Light Tan
 val OnSurfaceVariant = Color(0xFF4F4436) // Dark Gray Brown
 val Outline = Color(0xFF817567) // Medium Brown
 

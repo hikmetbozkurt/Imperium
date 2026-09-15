@@ -1,13 +1,5 @@
 package com.hikmet.imperium.ui.category
 
-import android.util.Log
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.MutableTransitionState
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -20,785 +12,261 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Help
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.LockOpen
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.QuestionAnswer
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.hikmet.imperium.ImperiumApplication
 import com.hikmet.imperium.R
-import com.hikmet.imperium.data.entities.CategoryEntity
-import com.hikmet.imperium.data.entities.UserProgressEntity
+import com.hikmet.imperium.domain.model.HistoryCategory
+import com.hikmet.imperium.domain.game.GameRules
+import com.hikmet.imperium.feature.levels.LevelsViewModel
+import com.hikmet.imperium.ui.components.CategoryVisualAssets
+import com.hikmet.imperium.ui.components.categoryIcon
+import com.hikmet.imperium.ui.components.visualAssets
+import com.hikmet.imperium.ui.components.ImperiumBackdrop
 import com.hikmet.imperium.ui.navigation.NavDestinations
-import com.hikmet.imperium.ui.theme.AncientGradientEnd
-import com.hikmet.imperium.ui.theme.AncientGradientStart
-import com.hikmet.imperium.ui.theme.MedievalGradientEnd
-import com.hikmet.imperium.ui.theme.MedievalGradientStart
-import com.hikmet.imperium.ui.theme.ModernGradientEnd
-import com.hikmet.imperium.ui.theme.ModernGradientStart
-import com.hikmet.imperium.ui.theme.RenaissanceGradientEnd
-import com.hikmet.imperium.ui.theme.RenaissanceGradientStart
-import com.hikmet.imperium.ui.theme.WorldWarsGradientEnd
-import com.hikmet.imperium.ui.theme.WorldWarsGradientStart
-import com.hikmet.imperium.ui.viewmodel.CategoryViewModel
-import com.hikmet.imperium.ui.viewmodel.DataState
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.launch
-import kotlin.math.roundToInt
-import androidx.compose.ui.res.colorResource
 
-/**
- * Extended category data with description and statistics
- */
-data class CategoryDetail(
-    val id: String,
-    val title: String,
-    val description: String,
-    val longDescription: String,
-    val imageResId: Int,
-    val completion: Int, // percentage of completion
-    val totalLevels: Int,
-    val completedLevels: Int,
-    val unlockedLevels: Int,
-    val gradientStart: Color,
-    val gradientEnd: Color
-)
-
-// Extension properties for compatibility with dependent files
-val CategoryDetail.gradientColors: List<Color> get() = listOf(gradientStart, gradientEnd)
-val CategoryDetail.imageRes: Int get() = imageResId
-
-// Function to convert CategoryEntity to CategoryDetail
-fun CategoryEntity.toCategoryDetail(
-    completion: Int,
-    completedLevels: Int,
-    unlockedLevels: Int
-): CategoryDetail {
-    // Determine gradient colors based on category ID
-    val (gradientStart, gradientEnd) = when (id) {
-        "ancient" -> Pair(AncientGradientStart, AncientGradientEnd)
-        "medieval" -> Pair(MedievalGradientStart, MedievalGradientEnd)
-        "renaissance" -> Pair(RenaissanceGradientStart, RenaissanceGradientEnd)
-        "modern" -> Pair(ModernGradientStart, ModernGradientEnd)
-        "world_wars" -> Pair(WorldWarsGradientStart, WorldWarsGradientEnd)
-        else -> Pair(AncientGradientStart, AncientGradientEnd)
-    }
-    
-    // Determine drawable resource ID based on iconResourceName
-    val imageResId = when (iconResourceName) {
-        "ic_ancient" -> R.drawable.ic_ancient
-        "ic_medieval" -> R.drawable.ic_medieval
-        "ic_renaissance" -> R.drawable.ic_renaissance
-        "ic_modern" -> R.drawable.ic_modern
-        "ic_wars" -> R.drawable.ic_wars
-        else -> R.drawable.ic_ancient
-    }
-    
-    return CategoryDetail(
-        id = id,
-        title = title,
-        description = description,
-        longDescription = longDescription,
-        imageResId = imageResId,
-        completion = completion,
-        totalLevels = totalLevels,
-        completedLevels = completedLevels,
-        unlockedLevels = unlockedLevels,
-        gradientStart = gradientStart,
-        gradientEnd = gradientEnd
-    )
-}
-
-/**
- * Default category for fallback
- */
-val defaultCategoryDetail = CategoryDetail(
-    id = "ancient",
-    title = "Ancient Civilizations",
-    description = "Egypt, Greece, Rome and more",
-    longDescription = "Explore the fascinating world of ancient civilizations that laid the foundation for modern society.",
-    imageResId = R.drawable.ic_ancient,
-    completion = 0,
-    totalLevels = 0,
-    completedLevels = 0,
-    unlockedLevels = 0,
-    gradientStart = AncientGradientStart,
-    gradientEnd = AncientGradientEnd
-)
-
-/**
- * Category detail screen
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryScreen(
     navController: NavHostController,
-    categoryId: String
+    categoryId: String,
+    viewModel: LevelsViewModel = hiltViewModel(),
 ) {
-    // Get the repository from the application
-    val context = LocalContext.current
-    val repository = (context.applicationContext as ImperiumApplication).repository
-    
-    // Initialize ViewModel
-    val categoryViewModel: CategoryViewModel = viewModel(
-        factory = CategoryViewModel.Factory(repository)
-    )
-    
-    // Coroutine scope for async operations
-    val coroutineScope = rememberCoroutineScope()
-    
-    // States
-    var categoryDetail by remember { mutableStateOf(defaultCategoryDetail) }
-    var userProgress by remember { mutableStateOf<UserProgressEntity?>(null) }
-    var isLoading by remember { mutableStateOf(true) }
-    var completionPercentage by remember { mutableStateOf(0) }
-    var levelId by remember { mutableStateOf("1") }
-    
-    // Selected category from ViewModel
-    val selectedCategory by categoryViewModel.selectedCategory.collectAsState()
-    
-    // Load category data
-    LaunchedEffect(categoryId) {
-        isLoading = true
-        categoryViewModel.selectCategory(categoryId)
-        
-        // Get completion percentage
-        completionPercentage = (categoryViewModel.getCategoryCompletionPercentage(categoryId) * 100).roundToInt()
-        
-        // Get user progress 
-        userProgress = categoryViewModel.getUserProgressForCategory(categoryId).firstOrNull()
-        
-        // Create category detail from database entity
-        selectedCategory?.let { category ->
-            val completedLevels = (completionPercentage * category.totalLevels / 100)
-            val unlockedLevels = userProgress?.unlockedLevels ?: 1
-            
-            categoryDetail = category.toCategoryDetail(
-                completion = completionPercentage,
-                completedLevels = completedLevels,
-                unlockedLevels = unlockedLevels
-            )
-        }
-        
-        isLoading = false
-    }
-    
-    val gradientColors = categoryDetail.gradientColors
-    
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { 
-                    Text(
-                        categoryDetail.title,
-                        style = MaterialTheme.typography.titleLarge.copy(
-                            fontWeight = FontWeight.Bold
-                        ),
-                        color = if (categoryId == "ancient") Color.White else MaterialTheme.colorScheme.onPrimary
-                    ) 
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = if (categoryId == "ancient") colorResource(R.color.ancient_button) else gradientColors.first(),
-                    titleContentColor = if (categoryId == "ancient") Color.White else MaterialTheme.colorScheme.onPrimary
-                ),
-                navigationIcon = {
-                    IconButton(
-                        onClick = { navController.popBackStack() },
-                        modifier = Modifier.semantics { 
-                            contentDescription = "Navigate back to home" 
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back",
-                            tint = if (categoryId == "ancient") Color.White else MaterialTheme.colorScheme.onPrimary
-                        )
-                    }
-                }
-            )
-        }
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(Color.White)
-        ) {
-            if (isLoading) {
-                // Loading state
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
-                        modifier = Modifier.semantics { 
-                            contentDescription = "Loading category information" 
-                        }
-                    ) {
-                        CircularProgressIndicator(
-                            color = gradientColors.first()
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = "Loading ${categoryDetail.title}...",
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    }
-                }
-            } else {
-                // Content
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp)
-                        .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(24.dp)
-                ) {
-                    // About section with illustration for Ancient Civilizations
-                    if (categoryId == "ancient") {
-                        // Special design for Ancient Civilizations page
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .semantics { 
-                                    contentDescription = "About ${categoryDetail.title}" 
-                                },
-                            shape = RoundedCornerShape(16.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = colorResource(R.color.ancient_background_light)
-                            ),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp)
-                            ) {
-                                Column(
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        modifier = Modifier.padding(bottom = 12.dp)
-                                    ) {
-                                        // Brown circle with i icon
-                                        Box(
-                                            modifier = Modifier
-                                                .size(40.dp)
-                                                .clip(CircleShape)
-                                                .background(colorResource(R.color.ancient_button)),
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            Text(
-                                                text = "i",
-                                                style = MaterialTheme.typography.titleMedium,
-                                                color = Color.White,
-                                                fontWeight = FontWeight.Bold
-                                            )
-                                        }
-                                        
-                                        Spacer(modifier = Modifier.width(12.dp))
-                                        
-                                        Text(
-                                            text = "About",
-                                            style = MaterialTheme.typography.titleLarge,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                    }
-                                    
-                                    Text(
-                                        text = categoryDetail.longDescription,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        modifier = Modifier.padding(end = 8.dp)
-                                    )
-                                }
-                                
-                                // Image of pyramids and temple
-                                Image(
-                                    painter = painterResource(id = if (categoryId == "ancient") R.drawable.ancient_page_image else categoryDetail.imageResId),
-                                    contentDescription = "Ancient Civilizations Illustration",
-                                    modifier = Modifier
-                                        .size(width = 160.dp, height = 160.dp)
-                                        .padding(start = 8.dp),
-                                    contentScale = ContentScale.Fit
-                                )
-                            }
-                        }
-                    } else if (categoryId == "medieval") {
-                        // Special design for Medieval Period page
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .semantics { 
-                                    contentDescription = "About ${categoryDetail.title}" 
-                                },
-                            shape = RoundedCornerShape(16.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = colorResource(R.color.medieval_background_light)
-                            ),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp)
-                            ) {
-                                Column(
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        modifier = Modifier.padding(bottom = 12.dp)
-                                    ) {
-                                        // Purple circle with i icon
-                                        Box(
-                                            modifier = Modifier
-                                                .size(40.dp)
-                                                .clip(CircleShape)
-                                                .background(colorResource(R.color.medieval_button)),
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            Text(
-                                                text = "i",
-                                                style = MaterialTheme.typography.titleMedium,
-                                                color = Color.White,
-                                                fontWeight = FontWeight.Bold
-                                            )
-                                        }
-                                        
-                                        Spacer(modifier = Modifier.width(12.dp))
-                                        
-                                        Text(
-                                            text = "About",
-                                            style = MaterialTheme.typography.titleLarge,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                    }
-                                    
-                                    Text(
-                                        text = categoryDetail.longDescription,
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        modifier = Modifier.padding(end = 8.dp)
-                                    )
-                                }
-                                
-                                // Image of medieval castle and knights
-                                Image(
-                                    painter = painterResource(id = R.drawable.medieval_image),
-                                    contentDescription = "Medieval Period Illustration",
-                                    modifier = Modifier
-                                        .size(width = 160.dp, height = 160.dp)
-                                        .padding(start = 8.dp),
-                                    contentScale = ContentScale.Fit
-                                )
-                            }
-                        }
-                    } else {
-                        // Standard About card for other categories
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .semantics { 
-                                    contentDescription = "About ${categoryDetail.title}" 
-                                },
-                            shape = RoundedCornerShape(16.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surface
-                            ),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp)
-                            ) {
-                                Column(
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        modifier = Modifier.padding(bottom = 12.dp)
-                                    ) {
-                                        // Circular icon
-                                        Box(
-                                            modifier = Modifier
-                                                .size(32.dp)
-                                                .clip(CircleShape)
-                                                .background(gradientColors.first()),
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Default.Info,
-                                                contentDescription = "Information about this category",
-                                                tint = Color.White,
-                                                modifier = Modifier.size(18.dp)
-                                            )
-                                        }
-                                        
-                                        Spacer(modifier = Modifier.width(12.dp))
-                                        
-                                        Text(
-                                            text = "About",
-                                            style = MaterialTheme.typography.titleMedium,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                    }
-                                    
-                                    Text(
-                                        text = categoryDetail.longDescription,
-                                        style = MaterialTheme.typography.bodyMedium
-                                    )
-                                }
-                            }
-                        }
-                    }
-                    
-                    // What would you like to do section
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .semantics { 
-                                contentDescription = "Category actions for ${categoryDetail.title}" 
-                            },
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface
-                        ),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-                            Text(
-                                text = "Ready to Test Your Knowledge?",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val category = state.category
+
+    ImperiumBackdrop(Modifier.fillMaxSize()) {
+        Scaffold(
+            containerColor = Color.Transparent,
+            topBar = {
+                TopAppBar(
+                    title = { Text(category?.title ?: stringResource(R.string.category_fallback_title)) },
+                    navigationIcon = {
+                        IconButton(onClick = navController::navigateUp) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.common_back),
                             )
-                            
-                            // Start learning button - Updated for Ancient
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
+                )
+            },
+        ) { padding ->
+            when {
+            state.error != null -> Box(
+                Modifier.fillMaxSize().padding(padding),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(state.error.orEmpty(), color = MaterialTheme.colorScheme.error)
+            }
+            category == null -> Box(
+                Modifier.fillMaxSize().padding(padding),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator()
+            }
+            else -> {
+                val visualAssets = category.visualAssets()
+                Box(Modifier.fillMaxSize().padding(padding)) {
+                    Column(
+                        modifier = Modifier
+                            .widthIn(max = 900.dp)
+                            .fillMaxSize()
+                            .align(Alignment.TopCenter)
+                            .verticalScroll(rememberScrollState()),
+                    ) {
+                        CategoryHero(category)
+                        Column(
+                            modifier = Modifier.padding(20.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                        ) {
+                            CategoryAboutCard(category, visualAssets)
+                            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                StatisticCard(
+                                    modifier = Modifier.weight(1f),
+                                    icon = { Icon(Icons.Default.CheckCircle, contentDescription = null) },
+                                    value = "${category.levels.size}",
+                                    label = stringResource(R.string.category_levels),
+                                )
+                                StatisticCard(
+                                    modifier = Modifier.weight(1f),
+                                    icon = { Icon(Icons.Default.Star, contentDescription = null) },
+                                    value = "${state.progress?.totalStars ?: 0}",
+                                    label = stringResource(R.string.category_stars),
+                                )
+                                StatisticCard(
+                                    modifier = Modifier.weight(1f),
+                                    icon = { Icon(Icons.Default.Timer, contentDescription = null) },
+                                    value = stringResource(
+                                        R.string.quiz_seconds,
+                                        GameRules.QUESTION_DURATION_MS / 1_000,
+                                    ),
+                                    label = stringResource(R.string.category_per_question),
+                                )
+                            }
                             Button(
-                                onClick = { 
-                                    try {
-                                        navController.navigate(NavDestinations.LEVEL_SELECTION_ROUTE.replace("{categoryId}", categoryId)) 
-                                    } catch (e: Exception) {
-                                        // Log error and prevent crash
-                                        Log.e("CategoryScreen", "Error navigating to level selection: ${e.message}")
-                                    }
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(56.dp)
-                                    .semantics { 
-                                        contentDescription = "Start quiz levels in ${categoryDetail.title}" 
-                                    },
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = when (categoryId) {
-                                        "ancient" -> colorResource(R.color.ancient_button)
-                                        "medieval" -> colorResource(R.color.medieval_button)
-                                        else -> gradientColors.first()
-                                    }
-                                ),
-                                shape = RoundedCornerShape(8.dp)
+                                onClick = { navController.navigate(NavDestinations.levels(categoryId)) },
+                                modifier = Modifier.fillMaxWidth().height(54.dp),
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.QuestionAnswer,
-                                    contentDescription = null,
-                                    tint = Color.White
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text("Start the Quiz")
-                            }
-                        }
-                    }
-                    
-                    // Your Progress Section - Updated for Ancient
-                    if (categoryId == "ancient" || categoryId == "medieval") {
-                        // Modern circular progress with stats
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            shape = RoundedCornerShape(16.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surface
-                            ),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                verticalArrangement = Arrangement.spacedBy(16.dp)
-                            ) {
-                                Text(
-                                    text = "Your Progress",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceEvenly,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    // Progress stats
-                                    Box(
-                                        modifier = Modifier
-                                            .size(120.dp)
-                                            .padding(8.dp),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        CircularProgressIndicator(
-                                            progress = categoryDetail.completion.toFloat() / 100f,
-                                            modifier = Modifier.fillMaxSize(),
-                                            color = when (categoryId) {
-                                                "ancient" -> colorResource(R.color.ancient_button)
-                                                "medieval" -> colorResource(R.color.medieval_button)
-                                                else -> gradientColors.first()
-                                            },
-                                            trackColor = when (categoryId) {
-                                                "ancient" -> colorResource(R.color.ancient_button).copy(alpha = 0.2f)
-                                                "medieval" -> colorResource(R.color.medieval_button).copy(alpha = 0.2f)
-                                                else -> gradientColors.first().copy(alpha = 0.2f)
-                                            },
-                                            strokeWidth = 8.dp
-                                        )
-                                        Column(
-                                            horizontalAlignment = Alignment.CenterHorizontally
-                                        ) {
-                                            Text(
-                                                text = "${categoryDetail.completion}%",
-                                                style = MaterialTheme.typography.titleLarge,
-                                                fontWeight = FontWeight.Bold,
-                                                color = when (categoryId) {
-                                                    "ancient" -> colorResource(R.color.ancient_button)
-                                                    "medieval" -> colorResource(R.color.medieval_button)
-                                                    else -> gradientColors.first()
-                                                }
-                                            )
-                                            Text(
-                                                text = "Complete",
-                                                style = MaterialTheme.typography.bodySmall
-                                            )
-                                        }
-                                    }
-                                    
-                                    // Stats
-                                    Column(
-                                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                                    ) {
-                                        StatRow(
-                                            icon = Icons.Default.Star,
-                                            iconTint = when (categoryId) {
-                                                "ancient" -> colorResource(R.color.ancient_button)
-                                                "medieval" -> colorResource(R.color.medieval_button)
-                                                else -> gradientColors.first()
-                                            },
-                                            value = categoryDetail.completedLevels,
-                                            total = categoryDetail.totalLevels,
-                                            label = "Levels"
-                                        )
-                                        StatRow(
-                                            icon = Icons.Default.LockOpen,
-                                            iconTint = when (categoryId) {
-                                                "ancient" -> colorResource(R.color.ancient_button)
-                                                "medieval" -> colorResource(R.color.medieval_button)
-                                                else -> gradientColors.first()
-                                            },
-                                            value = categoryDetail.unlockedLevels,
-                                            total = categoryDetail.totalLevels,
-                                            label = "Unlocked"
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        // Standard progress display for other categories
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .semantics { 
-                                    contentDescription = "Your progress in ${categoryDetail.title}" 
-                                },
-                            shape = RoundedCornerShape(16.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surface
-                            ),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp)
-                            ) {
-                                Text(
-                                    text = "Your Progress",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                
-                                Spacer(modifier = Modifier.height(12.dp))
-                                
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    ProgressStat(
-                                        value = "${categoryDetail.completedLevels}",
-                                        label = "Levels completed",
-                                        color = gradientColors.first()
-                                    )
-                                    
-                                    ProgressStat(
-                                        value = "${categoryDetail.unlockedLevels}",
-                                        label = "Unlocked",
-                                        color = gradientColors.first()
-                                    )
-                                    
-                                    ProgressStat(
-                                        value = "${categoryDetail.totalLevels}",
-                                        label = "Total",
-                                        color = gradientColors.first()
-                                    )
-                                }
+                                Text(stringResource(R.string.category_explore_levels))
                             }
                         }
                     }
                 }
+            }
             }
         }
     }
 }
 
 @Composable
-fun ProgressStat(
-    value: String,
-    label: String,
-    color: Color
+private fun CategoryHero(
+    category: HistoryCategory,
 ) {
     Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                Brush.verticalGradient(
+                    listOf(Color(category.gradientStartColor), Color(category.gradientEndColor)),
+                ),
+            )
+            .padding(horizontal = 24.dp, vertical = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.semantics { 
-            contentDescription = "$value $label" 
-        }
     ) {
+        Surface(
+            modifier = Modifier.size(76.dp),
+            shape = RoundedCornerShape(24.dp),
+            color = Color.White.copy(alpha = 0.16f),
+        ) {
+            Icon(
+                imageVector = category.id.categoryIcon(),
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.padding(17.dp),
+            )
+        }
+        Spacer(Modifier.height(16.dp))
         Text(
-            text = value,
-            style = MaterialTheme.typography.headlineSmall,
-            color = color,
-            fontWeight = FontWeight.Bold
+            category.title,
+            color = Color.White,
+            style = MaterialTheme.typography.headlineLarge,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
         )
-        
+        Spacer(Modifier.height(10.dp))
         Text(
-            text = label,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
+            category.description,
+            color = Color.White.copy(alpha = 0.9f),
+            textAlign = TextAlign.Center,
         )
     }
 }
 
 @Composable
-private fun StatRow(
-    icon: ImageVector,
-    iconTint: Color,
-    value: Int,
-    total: Int,
-    label: String
+private fun CategoryAboutCard(
+    category: HistoryCategory,
+    visualAssets: CategoryVisualAssets,
 ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth()
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = iconTint,
-            modifier = Modifier.size(24.dp)
-        )
-        Spacer(modifier = Modifier.width(8.dp))
         Column {
-            Text(
-                text = "$value/$total",
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = label,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            visualAssets.illustrationResId?.let { illustrationResId ->
+                Image(
+                    painter = painterResource(illustrationResId),
+                    contentDescription = stringResource(
+                        R.string.category_illustration_content_description,
+                        category.title,
+                    ),
+                    modifier = Modifier.fillMaxWidth().height(176.dp),
+                    contentScale = ContentScale.Crop,
+                )
+            }
+            Column(modifier = Modifier.padding(20.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Surface(
+                        modifier = Modifier.size(42.dp),
+                        shape = RoundedCornerShape(13.dp),
+                        color = Color(category.gradientStartColor).copy(alpha = 0.14f),
+                    ) {
+                        Icon(
+                            imageVector = category.id.categoryIcon(),
+                            contentDescription = null,
+                            tint = Color(category.gradientStartColor),
+                            modifier = Modifier.padding(9.dp),
+                        )
+                    }
+                    Text(
+                        text = stringResource(R.string.category_about),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(start = 12.dp),
+                    )
+                }
+                Spacer(Modifier.height(14.dp))
+                Text(category.longDescription, style = MaterialTheme.typography.bodyLarge)
+            }
         }
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun CategoryScreenPreview() {
-    CategoryScreen(
-        navController = rememberNavController(),
-        categoryId = "ancient"
-    )
-} 
+private fun StatisticCard(
+    modifier: Modifier,
+    icon: @Composable () -> Unit,
+    value: String,
+    label: String,
+) {
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Box(Modifier.size(28.dp), contentAlignment = Alignment.Center) { icon() }
+            Text(value, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleLarge)
+            Text(label, style = MaterialTheme.typography.labelMedium)
+        }
+    }
+}

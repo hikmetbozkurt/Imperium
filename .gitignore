@@ -1,5 +1,6 @@
 *.iml
 .gradle
+/.kotlin
 /local.properties
 /.idea/caches
 /.idea/libraries
@@ -7,8 +8,12 @@
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
+/.idea/AndroidProjectSystem.xml
+/.idea/runConfigurations.xml
+/.idea/shelf/
 .DS_Store
 /build
+/app/release/
 /captures
 .externalNativeBuild
 .cxx

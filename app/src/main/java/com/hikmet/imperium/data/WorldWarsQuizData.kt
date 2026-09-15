@@ -35,8 +35,8 @@ object WorldWarsQuizData {
             correctAnswerIndex = 1
         ),
         Question(
-            text = "What was the code name for the Allied invasion of Normandy?",
-            options = listOf("Operation Torch", "Operation Barbarossa", "Operation Overlord", "Operation Market Garden"),
+            text = "What was the code name for the Allied evacuation from Dunkirk?",
+            options = listOf("Operation Torch", "Operation Barbarossa", "Operation Dynamo", "Operation Market Garden"),
             correctAnswerIndex = 2
         ),
         Question(
@@ -47,7 +47,7 @@ object WorldWarsQuizData {
     )
     val level3Questions = listOf(
         Question(
-            text = "Which treaty ended World War I?",
+            text = "Which treaty formally ended the state of war between Germany and most Allied powers after World War I?",
             options = listOf("Treaty of Versailles", "Treaty of Paris", "Treaty of Tordesillas", "Treaty of Ghent"),
             correctAnswerIndex = 0
         ),
@@ -118,7 +118,7 @@ object WorldWarsQuizData {
             correctAnswerIndex = 0
         ),
         Question(
-            text = "Which battle marked the first major defeat of the German army in WWII?",
+            text = "Which battle ended with the surrender of Germany's Sixth Army in February 1943?",
             options = listOf("Battle of El Alamein", "Battle of Stalingrad", "Battle of the Bulge", "Battle of Britain"),
             correctAnswerIndex = 1
         ),
@@ -162,7 +162,7 @@ object WorldWarsQuizData {
             correctAnswerIndex = 0
         ),
         Question(
-            text = "Which conference in 1945 set the terms for Germany's surrender and postwar Europe?",
+            text = "Which February 1945 conference planned occupation zones and other postwar arrangements for Germany?",
             options = listOf("Potsdam Conference", "Yalta Conference", "Tehran Conference", "Munich Conference"),
             correctAnswerIndex = 1
         ),
@@ -233,7 +233,7 @@ object WorldWarsQuizData {
             correctAnswerIndex = 1
         ),
         Question(
-            text = "Which battle was the largest tank battle in history?",
+            text = "Which 1943 battle centered on Germany's Operation Citadel?",
             options = listOf("Battle of El Alamein", "Battle of Stalingrad", "Battle of Kursk", "Battle of the Bulge"),
             correctAnswerIndex = 2
         ),
@@ -245,7 +245,7 @@ object WorldWarsQuizData {
     )
     val level12Questions = listOf(
         Question(
-            text = "Who was the US General who led the island-hopping campaign in the Pacific?",
+            text = "Which US general commanded Allied forces in the Southwest Pacific Area?",
             options = listOf("Douglas MacArthur", "Dwight D. Eisenhower", "George S. Patton", "Omar Bradley"),
             correctAnswerIndex = 0
         ),
@@ -321,19 +321,19 @@ object WorldWarsQuizData {
             correctAnswerIndex = 1
         ),
         Question(
-            text = "Which treaty ended the state of war between Germany and the Allied Powers after WWI?",
-            options = listOf("Treaty of Brest-Litovsk", "Treaty of Saint-Germain", "Treaty of Versailles", "Treaty of Trianon"),
+            text = "Which treaty established the postwar settlement with Austria after World War I?",
+            options = listOf("Treaty of Brest-Litovsk", "Treaty of Neuilly", "Treaty of Saint-Germain", "Treaty of Trianon"),
             correctAnswerIndex = 2
         ),
         Question(
-            text = "What was the name of the German plan to invade France in WWII?",
-            options = listOf("Schlieffen Plan", "Barbarossa Plan", "Overlord Plan", "Manstein Plan"),
+            text = "What was the German codename for the 1940 offensive in the Low Countries and France?",
+            options = listOf("Schlieffen Plan", "Operation Barbarossa", "Operation Overlord", "Fall Gelb"),
             correctAnswerIndex = 3
         )
     )
     val level16Questions = listOf(
         Question(
-            text = "Who was the Japanese Prime Minister during most of WWII?",
+            text = "Who was Japan's prime minister at the time of the attack on Pearl Harbor?",
             options = listOf("Hideki Tojo", "Fumimaro Konoe", "Shigeru Yoshida", "Kuniaki Koiso"),
             correctAnswerIndex = 0
         ),
@@ -399,7 +399,7 @@ object WorldWarsQuizData {
     )
     val level19Questions = listOf(
         Question(
-            text = "Which country was the first to sign an armistice with the Allies in WWII?",
+            text = "Which major European Axis member announced an armistice with the Allies on 8 September 1943?",
             options = listOf("Italy", "Germany", "Japan", "Hungary"),
             correctAnswerIndex = 0
         ),
@@ -409,12 +409,12 @@ object WorldWarsQuizData {
             correctAnswerIndex = 1
         ),
         Question(
-            text = "Which battle was the last major battle of WWII in Europe?",
+            text = "Which battle ended with the capture of the German capital in May 1945?",
             options = listOf("Battle of the Bulge", "Battle of Kursk", "Battle of Berlin", "Battle of Normandy"),
             correctAnswerIndex = 2
         ),
         Question(
-            text = "What was the name of the US policy to rebuild Europe after WWII?",
+            text = "What was the name of the US-funded recovery program for Europe after WWII?",
             options = listOf("Truman Doctrine", "Eisenhower Doctrine", "Monroe Doctrine", "Marshall Plan"),
             correctAnswerIndex = 3
         )
@@ -465,7 +465,7 @@ object WorldWarsQuizData {
             "18" -> level18Questions
             "19" -> level19Questions
             "20" -> level20Questions
-            else -> level1Questions
+            else -> emptyList()
         }
     }
-} 
+}

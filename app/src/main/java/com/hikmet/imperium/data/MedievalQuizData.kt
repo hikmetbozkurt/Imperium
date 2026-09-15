@@ -84,7 +84,7 @@ object MedievalQuizData {
             correctAnswerIndex = 2
         ),
         Question(
-            text = "The Children's Crusade of 1212 was:",
+            text = "What was the Children's Crusade of 1212?",
             options = listOf(
                 "A successful military campaign led by child soldiers",
                 "A peaceful pilgrimage of children to Jerusalem",
@@ -548,7 +548,7 @@ object MedievalQuizData {
             correctAnswerIndex = 1
         ),
         Question(
-            text = "What mathematical concept did Islamic scholars introduce to Europe?",
+            text = "Which numeral system did scholars writing in Arabic help transmit to medieval Europe?",
             options = listOf(
                 "Roman numerals",
                 "Fractions",
@@ -568,7 +568,7 @@ object MedievalQuizData {
             correctAnswerIndex = 1
         ),
         Question(
-            text = "What field of study was founded by the Islamic scholar Al-Khwarizmi?",
+            text = "Which field takes its name from the 'al-jabr' in Al-Khwarizmi's mathematical treatise?",
             options = listOf(
                 "Astronomy",
                 "Chemistry",
@@ -636,7 +636,7 @@ object MedievalQuizData {
             correctAnswerIndex = 2
         ),
         Question(
-            text = "At its height, the Mongol Empire was:",
+            text = "What was the Mongol Empire at its territorial height?",
             options = listOf(
                 "Limited to Central Asia",
                 "The largest contiguous land empire in history",
@@ -822,7 +822,7 @@ object MedievalQuizData {
             correctAnswerIndex = 2
         ),
         Question(
-            text = "Medieval romances often focused on:",
+            text = "What did medieval romances often focus on?",
             options = listOf(
                 "Realistic depictions of peasant life",
                 "Chivalry and courtly love",
@@ -977,4 +977,4 @@ object MedievalQuizData {
             allQuestions.shuffled().take(count)
         }
     }
-} 
+}

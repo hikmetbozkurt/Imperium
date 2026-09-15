@@ -22,36 +22,36 @@ object ModernHistoryLevels {
         ),
         ModernHistoryLevel(
             id = "2",
-            title = "Age of Imperialism",
-            description = "Learn about the expansion of empires and global influence.",
+            title = "Global War, 1914–1945",
+            description = "Trace the alliances, leaders, and conflicts that reshaped the first half of the twentieth century.",
             imageResId = R.drawable.ic_modern,
             requiredStars = 2
         ),
         ModernHistoryLevel(
             id = "3",
-            title = "World War I",
-            description = "Understand the causes, events, and consequences of the First World War.",
+            title = "Depression and Postwar Alliances",
+            description = "Connect economic crisis, global war, occupation, and the emerging alliance system.",
             imageResId = R.drawable.ic_modern,
             requiredStars = 4
         ),
         ModernHistoryLevel(
             id = "4",
-            title = "Interwar Period",
-            description = "Examine the social and political changes between the world wars.",
+            title = "Independence and Cold War Milestones",
+            description = "Follow decolonization, divided cities, regional war, and the first Moon landing.",
             imageResId = R.drawable.ic_modern,
             requiredStars = 6
         ),
         ModernHistoryLevel(
             id = "5",
-            title = "World War II",
-            description = "Study the global conflict, its leaders, and its impact on the world.",
+            title = "War Leadership and Early Cold War",
+            description = "Examine wartime leadership, economic recovery, and the first major Cold War crises.",
             imageResId = R.drawable.ic_modern,
             requiredStars = 8
         ),
         ModernHistoryLevel(
             id = "6",
-            title = "Cold War Era",
-            description = "Explore the rivalry between the US and USSR and the nuclear age.",
+            title = "Building the Postwar Order",
+            description = "Study Korea, occupied Germany, the United Nations, and the atomic age.",
             imageResId = R.drawable.ic_modern,
             requiredStars = 10
         ),
@@ -64,94 +64,94 @@ object ModernHistoryLevels {
         ),
         ModernHistoryLevel(
             id = "8",
-            title = "Civil Rights Movements",
-            description = "Examine the struggle for equality and justice in the 20th century.",
+            title = "Rights, Space, and Divided Worlds",
+            description = "Explore civil rights, the space race, Berlin, and revolutionary China.",
             imageResId = R.drawable.ic_modern,
             requiredStars = 14
         ),
         ModernHistoryLevel(
             id = "9",
-            title = "Technological Revolution",
-            description = "Discover the impact of computers, the internet, and modern technology.",
+            title = "Mass Media and International Integration",
+            description = "Connect television, early spaceflight, and Europe's first integration projects.",
             imageResId = R.drawable.ic_modern,
             requiredStars = 16
         ),
         ModernHistoryLevel(
             id = "10",
-            title = "Contemporary World",
-            description = "Analyze recent history and the challenges of the 21st century.",
+            title = "Détente and Political Change",
+            description = "Study lunar exploration, Vietnam, Watergate, and efforts to reduce Cold War tensions.",
             imageResId = R.drawable.ic_modern,
             requiredStars = 18
         ),
         ModernHistoryLevel(
             id = "11",
-            title = "Cold War Begins",
-            description = "Explore the origins and early years of the Cold War.",
+            title = "Cold War Power Blocs",
+            description = "Analyze containment, conflict in Korea, Soviet power, and Western leadership.",
             imageResId = R.drawable.ic_modern,
             requiredStars = 20
         ),
         ModernHistoryLevel(
             id = "12",
-            title = "Space Race",
-            description = "Discover the competition between the US and USSR to conquer space.",
+            title = "The Transformative 1980s",
+            description = "Examine political change, nuclear risk, democratic movements, and the weakening of apartheid.",
             imageResId = R.drawable.ic_modern,
             requiredStars = 22
         ),
         ModernHistoryLevel(
             id = "13",
-            title = "Civil Rights Movements",
-            description = "Examine the global movements for civil rights and equality.",
+            title = "Post-Cold War Realignment",
+            description = "Explore new states, regional conflicts, economic shifts, and European integration.",
             imageResId = R.drawable.ic_modern,
             requiredStars = 24
         ),
         ModernHistoryLevel(
             id = "14",
-            title = "Vietnam War",
-            description = "Learn about the causes, events, and impact of the Vietnam War.",
+            title = "Revolutions and Reunification",
+            description = "Study reforms in China, democratic transitions, apartheid's end, and German unity.",
             imageResId = R.drawable.ic_modern,
             requiredStars = 26
         ),
         ModernHistoryLevel(
             id = "15",
-            title = "End of the Cold War",
-            description = "Understand the events leading to the collapse of the Soviet Union.",
+            title = "Crises of the New Millennium",
+            description = "Analyze terrorism, war, pandemics, and political change in Europe.",
             imageResId = R.drawable.ic_modern,
             requiredStars = 28
         ),
         ModernHistoryLevel(
             id = "16",
-            title = "Rise of Technology",
-            description = "Explore the technological advancements of the late 20th century.",
+            title = "Leaders, Movements, and Emerging Powers",
+            description = "Compare modern political leadership, racial justice movements, and China's rise.",
             imageResId = R.drawable.ic_modern,
             requiredStars = 30
         ),
         ModernHistoryLevel(
             id = "17",
-            title = "Globalization",
-            description = "Discover the increasing interconnectedness of the modern world.",
+            title = "Digital Globalization",
+            description = "Explore technology companies, political change, social media, and interconnected economies.",
             imageResId = R.drawable.ic_modern,
             requiredStars = 32
         ),
         ModernHistoryLevel(
             id = "18",
-            title = "21st Century Challenges",
-            description = "Learn about the major challenges facing the world in the 21st century.",
+            title = "Innovation, Climate, and the Arab Spring",
+            description = "Connect digital industry and space exploration with climate action and popular uprisings.",
             imageResId = R.drawable.ic_modern,
             requiredStars = 34
         ),
         ModernHistoryLevel(
             id = "19",
-            title = "Modern Politics",
-            description = "Analyze the political changes and leaders of the modern era.",
+            title = "Global Milestones",
+            description = "Test detailed knowledge of science, public health, sport, and newly independent states.",
             imageResId = R.drawable.ic_modern,
             requiredStars = 36
         ),
         ModernHistoryLevel(
             id = "20",
-            title = "Modern History Review",
-            description = "Test your knowledge of modern history in this final challenge.",
+            title = "Contemporary Institutions and Climate",
+            description = "Complete an advanced review of global governance, climate policy, and European change.",
             imageResId = R.drawable.ic_modern,
             requiredStars = 38
         )
     )
-} 
+}
