@@ -11,11 +11,18 @@ import com.hikmet.imperium.data.RenaissanceLevels
 import com.hikmet.imperium.data.RenaissanceQuizData
 import com.hikmet.imperium.data.WorldWarsLevels
 import com.hikmet.imperium.data.WorldWarsQuizData
+import com.hikmet.imperium.data.content.AncientSupplementalQuestions
+import com.hikmet.imperium.data.content.MedievalSupplementalQuestions
+import com.hikmet.imperium.data.content.ModernSupplementalQuestions
+import com.hikmet.imperium.data.content.RenaissanceSupplementalQuestions
+import com.hikmet.imperium.data.content.WorldWarsSupplementalQuestions
 import com.hikmet.imperium.domain.model.CategoryId
 import com.hikmet.imperium.domain.model.HistoryCategory
 import com.hikmet.imperium.domain.model.HistoryLevel
 import com.hikmet.imperium.domain.model.QuizQuestion
 import com.hikmet.imperium.domain.repository.HistoryContentRepository
+import java.nio.charset.StandardCharsets
+import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -76,17 +83,29 @@ class LocalHistoryContentRepository @Inject constructor() : HistoryContentReposi
 
     override fun category(id: CategoryId): HistoryCategory? = catalog[id]
 
-    override fun questions(categoryId: CategoryId, levelNumber: Int): List<QuizQuestion> =
-        sourceQuestions(categoryId, levelNumber).mapIndexed { index, question ->
-            question.toDomain("${categoryId.value}-$levelNumber-${index + 1}")
+    override fun questions(categoryId: CategoryId, levelNumber: Int): List<QuizQuestion> {
+        if (catalog[categoryId]?.levels?.none { it.number == levelNumber } != false) return emptyList()
+        return sourceQuestions(categoryId, levelNumber).map { question ->
+            question.toDomain(categoryId, levelNumber)
         }
+    }
 
-    private fun sourceQuestions(categoryId: CategoryId, levelNumber: Int): List<Question> = when (categoryId) {
-        CategoryId.ANCIENT -> AncientQuizData.getQuestionsByLevel(levelNumber.toString())
-        CategoryId.MEDIEVAL -> MedievalQuizData.getQuestionsByLevel(levelNumber.toString())
-        CategoryId.RENAISSANCE -> RenaissanceQuizData.getQuestionsByLevel(levelNumber.toString())
-        CategoryId.MODERN -> ModernHistoryQuizData.getQuestionsByLevel(levelNumber.toString())
-        CategoryId.WORLD_WARS -> WorldWarsQuizData.getQuestionsByLevel(levelNumber.toString())
+    private fun sourceQuestions(categoryId: CategoryId, levelNumber: Int): List<Question> {
+        val original = when (categoryId) {
+            CategoryId.ANCIENT -> AncientQuizData.getQuestionsByLevel(levelNumber.toString())
+            CategoryId.MEDIEVAL -> MedievalQuizData.getQuestionsByLevel(levelNumber.toString())
+            CategoryId.RENAISSANCE -> RenaissanceQuizData.getQuestionsByLevel(levelNumber.toString())
+            CategoryId.MODERN -> ModernHistoryQuizData.getQuestionsByLevel(levelNumber.toString())
+            CategoryId.WORLD_WARS -> WorldWarsQuizData.getQuestionsByLevel(levelNumber.toString())
+        }
+        val supplemental = when (categoryId) {
+            CategoryId.ANCIENT -> AncientSupplementalQuestions.byLevel[levelNumber]
+            CategoryId.MEDIEVAL -> MedievalSupplementalQuestions.byLevel[levelNumber]
+            CategoryId.RENAISSANCE -> RenaissanceSupplementalQuestions.byLevel[levelNumber]
+            CategoryId.MODERN -> ModernSupplementalQuestions.byLevel[levelNumber]
+            CategoryId.WORLD_WARS -> WorldWarsSupplementalQuestions.byLevel[levelNumber]
+        }.orEmpty()
+        return original + supplemental
     }
 
     private fun category(
@@ -108,10 +127,21 @@ class LocalHistoryContentRepository @Inject constructor() : HistoryContentReposi
         levels = levels.filter { sourceQuestions(id, it.number).isNotEmpty() },
     )
 
-    private fun Question.toDomain(id: String) = QuizQuestion(
-        id = id,
-        text = text,
-        options = options,
-        correctAnswerIndex = correctAnswerIndex,
-    )
+    private fun Question.toDomain(categoryId: CategoryId, levelNumber: Int): QuizQuestion {
+        val stableId = id ?: UUID.nameUUIDFromBytes(
+            "${categoryId.value}|$levelNumber|$text|${options.joinToString("|")}".toByteArray(StandardCharsets.UTF_8),
+        ).toString()
+        return QuizQuestion(
+            id = stableId,
+            text = text,
+            options = options,
+            correctAnswerIndex = correctAnswerIndex,
+            conceptId = conceptId ?: stableId,
+            difficulty = difficultyForLevel(levelNumber),
+            explanation = explanation,
+        )
+    }
+
+    /** Five internal difficulty bands: levels 1-4 through levels 17-20. */
+    private fun difficultyForLevel(levelNumber: Int): Int = ((levelNumber - 1) / 4 + 1).coerceIn(1, 5)
 }

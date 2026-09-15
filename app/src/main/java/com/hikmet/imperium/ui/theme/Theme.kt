@@ -64,7 +64,7 @@ private val DarkColorScheme = darkColorScheme(
 @Composable
 fun ImperiumTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     val context = LocalContext.current
@@ -78,6 +78,7 @@ fun ImperiumTheme(
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,
+        shapes = ImperiumShapes,
         content = content,
     )
 }

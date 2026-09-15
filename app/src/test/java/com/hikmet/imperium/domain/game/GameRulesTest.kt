@@ -29,10 +29,28 @@ class GameRulesTest {
     }
 
     @Test
-    fun `successful attempt unlocks at most the next valid level`() {
-        assertEquals(2, GameRules.unlockedLevelAfterAttempt(1, 1, 1, 20))
-        assertEquals(7, GameRules.unlockedLevelAfterAttempt(7, 3, 3, 20))
-        assertEquals(20, GameRules.unlockedLevelAfterAttempt(20, 20, 3, 20))
-        assertEquals(4, GameRules.unlockedLevelAfterAttempt(4, 4, 0, 20))
+    fun `only a passing attempt at the progression frontier unlocks one level`() {
+        val requirements = mapOf(1 to 0, 2 to 2, 3 to 4, 4 to 6)
+
+        assertEquals(2, GameRules.unlockedLevelAfterAttempt(1, 1, 2, 2, requirements))
+        assertEquals(2, GameRules.unlockedLevelAfterAttempt(2, 1, 3, 5, requirements))
+        assertEquals(2, GameRules.unlockedLevelAfterAttempt(2, 2, 1, 5, requirements))
+        assertEquals(2, GameRules.unlockedLevelAfterAttempt(2, 2, 3, 3, requirements))
+        assertEquals(3, GameRules.unlockedLevelAfterAttempt(2, 2, 3, 6, requirements))
+        assertEquals(4, GameRules.unlockedLevelAfterAttempt(4, 4, 3, 12, requirements))
+    }
+
+    @Test
+    fun `quiz duration scales without shortening existing sessions`() {
+        assertEquals(120_000L, GameRules.quizDurationMs(4))
+        assertEquals(240_000L, GameRules.quizDurationMs(8))
+    }
+
+    @Test
+    fun `two stars is the minimum passing result`() {
+        assertEquals(false, GameRules.isPassingStars(0))
+        assertEquals(false, GameRules.isPassingStars(1))
+        assertEquals(true, GameRules.isPassingStars(2))
+        assertEquals(true, GameRules.isPassingStars(3))
     }
 }

@@ -84,7 +84,7 @@ object AncientQuizData {
             correctAnswerIndex = 3
         ),
         Question(
-            text = "Which pharaoh is known for establishing the first monotheistic religion in Egypt?",
+            text = "Which pharaoh promoted the exclusive worship of the Aten?",
             options = listOf(
                 "Akhenaten",
                 "Ramses II",
@@ -186,7 +186,7 @@ object AncientQuizData {
     // Level 5: Ancient Greece
     private val ancientGreeceQuestions = listOf(
         Question(
-            text = "Who was the legendary founder of Athens according to Greek mythology?",
+            text = "Which hero was traditionally credited with unifying Attica under Athens?",
             options = listOf(
                 "Theseus",
                 "Athena",
@@ -274,7 +274,7 @@ object AncientQuizData {
     // Level 7: Greek Culture and Philosophy
     private val greekCultureQuestions = listOf(
         Question(
-            text = "Who is considered the founder of Western philosophy?",
+            text = "Which philosopher taught Plato and left no writings of his own?",
             options = listOf(
                 "Plato",
                 "Socrates",
@@ -338,7 +338,7 @@ object AncientQuizData {
             correctAnswerIndex = 2
         ),
         Question(
-            text = "What was the term for a Roman citizen who could vote?",
+            text = "What was the Latin term for a Roman citizen?",
             options = listOf(
                 "Patrician",
                 "Plebeian",
@@ -372,4 +372,4 @@ object AncientQuizData {
             else -> emptyList()
         }
     }
-} 
+}

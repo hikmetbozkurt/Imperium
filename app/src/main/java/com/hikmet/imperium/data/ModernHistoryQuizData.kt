@@ -30,8 +30,8 @@ object ModernHistoryQuizData {
             correctAnswerIndex = 0
         ),
         Question(
-            text = "Which treaty ended World War I?",
-            options = listOf("Treaty of Paris", "Treaty of Versailles", "Treaty of Tordesillas", "Treaty of Ghent"),
+            text = "In which palace was the 1919 peace treaty with Germany signed?",
+            options = listOf("Tuileries Palace", "Palace of Versailles", "Buckingham Palace", "Winter Palace"),
             correctAnswerIndex = 1
         ),
         Question(
@@ -40,7 +40,7 @@ object ModernHistoryQuizData {
             correctAnswerIndex = 1
         ),
         Question(
-            text = "Which country was NOT part of the Axis Powers in WWII?",
+            text = "Which country signed the Molotov–Ribbentrop Pact with Germany in 1939?",
             options = listOf("Germany", "Italy", "Japan", "Soviet Union"),
             correctAnswerIndex = 3
         )
@@ -52,7 +52,7 @@ object ModernHistoryQuizData {
             correctAnswerIndex = 0
         ),
         Question(
-            text = "What was the main cause of the Great Depression?",
+            text = "Which 1929 event became the most visible trigger of the Great Depression?",
             options = listOf("World War I", "Stock Market Crash", "Oil Crisis", "Inflation"),
             correctAnswerIndex = 1
         ),
@@ -106,7 +106,7 @@ object ModernHistoryQuizData {
             correctAnswerIndex = 2
         ),
         Question(
-            text = "Who was the leader of the Soviet Union during the Cuban Missile Crisis?",
+            text = "Which Soviet leader delivered the Secret Speech denouncing Stalin in 1956?",
             options = listOf("Joseph Stalin", "Leonid Brezhnev", "Mikhail Gorbachev", "Nikita Khrushchev"),
             correctAnswerIndex = 3
         )
@@ -382,17 +382,17 @@ object ModernHistoryQuizData {
             correctAnswerIndex = 0
         ),
         Question(
-            text = "Who was the founder of Microsoft?",
+            text = "Who co-founded Microsoft with Paul Allen?",
             options = listOf("Steve Jobs", "Bill Gates", "Mark Zuckerberg", "Larry Page"),
             correctAnswerIndex = 1
         ),
         Question(
-            text = "Which Middle Eastern country experienced the Arab Spring uprising in 2011?",
+            text = "In which country did President Hosni Mubarak resign during the Arab Spring in 2011?",
             options = listOf("Saudi Arabia", "Iran", "Egypt", "Turkey"),
             correctAnswerIndex = 2
         ),
         Question(
-            text = "Which spacecraft was the first to land on Mars?",
+            text = "Which NASA spacecraft achieved the first fully successful landing on Mars?",
             options = listOf("Apollo 11", "Curiosity", "Spirit", "Viking 1"),
             correctAnswerIndex = 3
         )
@@ -414,7 +414,7 @@ object ModernHistoryQuizData {
             correctAnswerIndex = 2
         ),
         Question(
-            text = "Which African country was the last to gain independence from colonial rule in 2011?",
+            text = "Which country became independent from Sudan in 2011?",
             options = listOf("Eritrea", "Namibia", "Zimbabwe", "South Sudan"),
             correctAnswerIndex = 3
         )
@@ -465,7 +465,7 @@ object ModernHistoryQuizData {
             "18" -> level18Questions
             "19" -> level19Questions
             "20" -> level20Questions
-            else -> level1Questions
+            else -> emptyList()
         }
     }
-} 
+}

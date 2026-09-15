@@ -2,6 +2,7 @@ package com.hikmet.imperium.ui.profile
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -33,6 +35,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -46,11 +49,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.hikmet.imperium.retrofit.BadgeSection
 import com.hikmet.imperium.retrofit.BadgeViewModel
+import com.hikmet.imperium.R
+import com.hikmet.imperium.ui.components.ImperiumBackdrop
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,40 +73,50 @@ fun ProfileScreen(
         overview?.let { badgeViewModel.refreshBadges(it.totalStars) }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Profile", fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = navController::navigateUp) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+    ImperiumBackdrop(Modifier.fillMaxSize()) {
+        Scaffold(
+            containerColor = Color.Transparent,
+            topBar = {
+                TopAppBar(
+                    title = { Text(stringResource(R.string.profile_title), fontWeight = FontWeight.Bold) },
+                    navigationIcon = {
+                        IconButton(onClick = navController::navigateUp) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.common_back),
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
+                )
+            },
+        ) { padding ->
+            Box(Modifier.fillMaxSize().padding(padding)) {
+                Column(
+                    modifier = Modifier
+                        .widthIn(max = 840.dp)
+                        .fillMaxSize()
+                        .align(Alignment.TopCenter)
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(18.dp),
+                ) {
+                    ProfileHeader()
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
+                        Stat(Modifier.weight(1f), Icons.Default.Star, stars.toString(), stringResource(R.string.progress_stars))
+                        Stat(Modifier.weight(1f), Icons.Default.Quiz, (overview?.totalQuizzes ?: 0).toString(), stringResource(R.string.progress_quizzes))
+                        Stat(Modifier.weight(1f), Icons.Default.EmojiEvents, "${overview?.bestScore ?: 0}%", stringResource(R.string.profile_best))
                     }
-                },
-            )
-        },
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(18.dp),
-        ) {
-            ProfileHeader()
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-                Stat(Modifier.weight(1f), Icons.Default.Star, stars.toString(), "Stars")
-                Stat(Modifier.weight(1f), Icons.Default.Quiz, (overview?.totalQuizzes ?: 0).toString(), "Quizzes")
-                Stat(Modifier.weight(1f), Icons.Default.EmojiEvents, "${overview?.bestScore ?: 0}%", "Best")
+                    BadgeSection(
+                        badgeState = badgeState,
+                        userStars = stars,
+                    )
+                    SoundSettings(profileViewModel)
+                    Spacer(Modifier.height(24.dp))
+                }
             }
-            BadgeSection(
-                badgeState = badgeState,
-                userStars = stars,
-            )
-            SoundSettings(profileViewModel)
-            Spacer(Modifier.height(24.dp))
         }
     }
 }
@@ -127,8 +143,8 @@ private fun ProfileHeader() {
             )
         }
         Spacer(Modifier.height(12.dp))
-        Text("History Explorer", color = Color.White, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-        Text("Progress is calculated from your completed quizzes", color = Color.White.copy(alpha = 0.82f))
+        Text(stringResource(R.string.profile_history_explorer), color = Color.White, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        Text(stringResource(R.string.profile_summary), color = Color.White.copy(alpha = 0.82f))
     }
 }
 
@@ -153,12 +169,12 @@ private fun SoundSettings(viewModel: ProfileViewModel) {
     var musicEnabled by remember { mutableStateOf(soundManager.isMusicEnabled()) }
 
     Column(Modifier.padding(horizontal = 16.dp)) {
-        Text("Sound", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+        Text(stringResource(R.string.profile_sound), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(8.dp))
         Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)) {
             SoundToggle(
                 icon = if (effectsEnabled) Icons.AutoMirrored.Filled.VolumeUp else Icons.AutoMirrored.Filled.VolumeOff,
-                label = "Sound effects",
+                label = stringResource(R.string.profile_sound_effects),
                 checked = effectsEnabled,
                 onCheckedChange = {
                     effectsEnabled = it
@@ -167,7 +183,7 @@ private fun SoundSettings(viewModel: ProfileViewModel) {
             )
             SoundToggle(
                 icon = Icons.Default.MusicNote,
-                label = "Background music",
+                label = stringResource(R.string.profile_background_music),
                 checked = musicEnabled,
                 onCheckedChange = {
                     musicEnabled = it

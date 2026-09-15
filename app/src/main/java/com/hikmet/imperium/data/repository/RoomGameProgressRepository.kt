@@ -5,6 +5,7 @@ import com.hikmet.imperium.data.database.ImperiumDatabase
 import com.hikmet.imperium.data.entities.CategoryEntity
 import com.hikmet.imperium.data.entities.LevelProgressEntity
 import com.hikmet.imperium.data.entities.QuizAttemptEntity
+import com.hikmet.imperium.data.entities.QuestionResponseEntity
 import com.hikmet.imperium.data.entities.UserProgressEntity
 import com.hikmet.imperium.domain.game.GameRules
 import com.hikmet.imperium.domain.model.CategoryId
@@ -38,46 +39,61 @@ class RoomGameProgressRepository @Inject constructor(
 
             ensureCategoryExists(category)
 
+            val categoryId = attempt.categoryId.value
+            val previousCategory = database.userProgressDao().getProgressForCategory(categoryId)
+                ?: UserProgressEntity(categoryId = categoryId)
+            require(attempt.levelNumber <= previousCategory.unlockedLevels) {
+                "Level ${attempt.levelNumber} is locked for $categoryId"
+            }
+
             val score = GameRules.score(attempt.correctAnswers, attempt.totalQuestions)
             val stars = GameRules.stars(score)
-            val categoryId = attempt.categoryId.value
             val previousLevel = database.levelProgressDao()
                 .getLevelProgress(categoryId, attempt.levelNumber)
             val previousBestStars = previousLevel?.starsEarned ?: 0
+            val bestStarsForLevel = maxOf(previousBestStars, stars)
             val starDelta = GameRules.starDelta(previousBestStars, stars)
+            val isSuccessful = GameRules.isPassingStars(stars)
 
             database.levelProgressDao().insertOrUpdateLevelProgress(
                 LevelProgressEntity(
                     categoryId = categoryId,
                     levelNumber = attempt.levelNumber,
-                    starsEarned = maxOf(previousBestStars, stars),
+                    starsEarned = bestStarsForLevel,
                     highestScore = maxOf(previousLevel?.highestScore ?: 0, score),
-                    completed = true,
-                    bestTimeMs = bestTime(previousLevel?.bestTimeMs, attempt.durationMs),
+                    completed = previousLevel?.completed == true || isSuccessful,
+                    bestTimeMs = if (isSuccessful) {
+                        bestTime(previousLevel?.bestTimeMs, attempt.durationMs)
+                    } else {
+                        previousLevel?.bestTimeMs
+                    },
                     attemptCount = (previousLevel?.attemptCount ?: 0) + 1,
                     lastPlayedTimestamp = attempt.completedAtEpochMs,
                 ),
             )
 
-            val previousCategory = database.userProgressDao().getProgressForCategory(categoryId)
-                ?: UserProgressEntity(categoryId = categoryId)
             val updatedLevelStars = database.levelProgressDao()
                 .getLevelProgressForCategory(categoryId)
                 .associate { it.levelNumber to it.starsEarned }
+            val totalStars = updatedLevelStars.values.sum()
             val unlockedLevels = GameRules.unlockedLevelAfterAttempt(
                 currentlyUnlocked = previousCategory.unlockedLevels,
                 completedLevel = attempt.levelNumber,
-                earnedStars = stars,
-                totalLevels = category.levels.size,
+                bestStarsForLevel = bestStarsForLevel,
+                totalStars = totalStars,
+                requiredStarsByLevel = category.levels.associate { it.number to it.requiredStars },
             )
+            val newlyUnlockedLevel = unlockedLevels
+                .takeIf { it > previousCategory.unlockedLevels }
             database.userProgressDao().insertOrUpdateProgress(
                 previousCategory.copy(
                     unlockedLevels = unlockedLevels,
-                    totalStarsEarned = updatedLevelStars.values.sum(),
-                    highestLevelCompleted = maxOf(
-                        previousCategory.highestLevelCompleted,
-                        attempt.levelNumber,
-                    ),
+                    totalStarsEarned = totalStars,
+                    highestLevelCompleted = if (isSuccessful) {
+                        maxOf(previousCategory.highestLevelCompleted, attempt.levelNumber)
+                    } else {
+                        previousCategory.highestLevelCompleted
+                    },
                     lastPlayedTimestamp = attempt.completedAtEpochMs,
                     levelStars = updatedLevelStars,
                 ),
@@ -92,20 +108,51 @@ class RoomGameProgressRepository @Inject constructor(
                 totalQuestions = attempt.totalQuestions,
                 durationMs = attempt.durationMs,
             )
-            val attemptId = database.quizAttemptDao().insert(result.toEntity(attempt.completedAtEpochMs))
-            RecordedAttempt(
-                id = attemptId,
+            val isNewBest = (previousLevel == null && score > 0) ||
+                stars > previousBestStars ||
+                score > (previousLevel?.highestScore ?: 0)
+            val recorded = RecordedAttempt(
+                id = 0,
                 result = result,
-                isNewBest = previousLevel == null ||
-                    stars > previousBestStars ||
-                    score > previousLevel.highestScore,
+                isNewBest = isNewBest,
                 addedStars = starDelta,
                 unlockedLevels = unlockedLevels,
+                newlyUnlockedLevel = newlyUnlockedLevel,
+            )
+            val attemptId = database.quizAttemptDao().insert(
+                result.toEntity(
+                    completedAtEpochMs = attempt.completedAtEpochMs,
+                    sessionSeed = attempt.sessionSeed,
+                    recorded = recorded,
+                ),
+            )
+            if (attempt.responses.isNotEmpty()) {
+                database.questionResponseDao().insertAll(
+                    attempt.responses.map { response ->
+                        QuestionResponseEntity(
+                            attemptId = attemptId,
+                            questionId = response.questionId,
+                            selectedAnswerIndex = response.selectedAnswerIndex,
+                            correctAnswerIndex = response.correctAnswerIndex,
+                            isCorrect = response.isCorrect,
+                            responseTimeMs = response.responseTimeMs,
+                            position = response.position,
+                        )
+                    },
+                )
+            }
+            recorded.copy(
+                id = attemptId,
             )
         }
 
     override fun observeResult(attemptId: Long): Flow<QuizResult?> =
         database.quizAttemptDao().observeById(attemptId).map { it?.toDomain() }
+
+    override fun observeRecordedAttempt(attemptId: Long): Flow<RecordedAttempt?> =
+        database.quizAttemptDao().observeById(attemptId).map { entity ->
+            entity?.toRecordedAttempt()
+        }
 
     override fun observeCategory(categoryId: CategoryId): Flow<CategoryProgress> =
         database.userProgressDao().getProgressForCategoryAsFlow(categoryId.value).map { progress ->
@@ -116,6 +163,15 @@ class RoomGameProgressRepository @Inject constructor(
                 levelStars = progress?.levelStars.orEmpty(),
             )
         }
+
+    override suspend fun recentQuestionIds(
+        categoryId: CategoryId,
+        levelNumber: Int,
+        limit: Int,
+    ): Set<String> = database.questionResponseDao()
+        .recentForLevel(categoryId.value, levelNumber, limit.coerceAtLeast(1))
+        .map(QuestionResponseEntity::questionId)
+        .toSet()
 
     private suspend fun ensureCategoryExists(category: HistoryCategory) {
         if (database.categoryDao().getCategoryById(category.id.value) != null) return
@@ -138,7 +194,11 @@ class RoomGameProgressRepository @Inject constructor(
     private fun bestTime(previous: Long?, candidate: Long): Long =
         previous?.let { minOf(it, candidate) } ?: candidate
 
-    private fun QuizResult.toEntity(completedAtEpochMs: Long) = QuizAttemptEntity(
+    private fun QuizResult.toEntity(
+        completedAtEpochMs: Long,
+        sessionSeed: Long,
+        recorded: RecordedAttempt,
+    ) = QuizAttemptEntity(
         categoryId = categoryId.value,
         levelNumber = levelNumber,
         score = score,
@@ -147,6 +207,11 @@ class RoomGameProgressRepository @Inject constructor(
         totalQuestions = totalQuestions,
         durationMs = durationMs,
         completedAtEpochMs = completedAtEpochMs,
+        sessionSeed = sessionSeed,
+        isNewBest = recorded.isNewBest,
+        addedStars = recorded.addedStars,
+        unlockedLevels = recorded.unlockedLevels,
+        newlyUnlockedLevel = recorded.newlyUnlockedLevel,
     )
 
     private fun QuizAttemptEntity.toDomain(): QuizResult? {
@@ -159,6 +224,18 @@ class RoomGameProgressRepository @Inject constructor(
             correctAnswers = correctAnswers,
             totalQuestions = totalQuestions,
             durationMs = durationMs,
+        )
+    }
+
+    private fun QuizAttemptEntity.toRecordedAttempt(): RecordedAttempt? {
+        val result = toDomain() ?: return null
+        return RecordedAttempt(
+            id = id,
+            result = result,
+            isNewBest = isNewBest,
+            addedStars = addedStars,
+            unlockedLevels = unlockedLevels,
+            newlyUnlockedLevel = newlyUnlockedLevel,
         )
     }
 }

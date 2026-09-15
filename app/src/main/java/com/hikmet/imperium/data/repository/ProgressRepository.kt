@@ -2,6 +2,7 @@ package com.hikmet.imperium.data.repository
 
 import com.hikmet.imperium.data.dao.QuizAttemptDao
 import com.hikmet.imperium.data.entities.QuizAttemptEntity
+import com.hikmet.imperium.domain.game.GameRules
 import com.hikmet.imperium.domain.repository.CategoryAnalytics
 import com.hikmet.imperium.domain.repository.HistoryContentRepository
 import com.hikmet.imperium.domain.repository.ProgressAnalyticsRepository
@@ -55,7 +56,11 @@ class ProgressRepository @Inject constructor(
                 CategoryAnalytics(
                     categoryId = category.id,
                     title = category.title,
-                    completedLevels = categoryAttempts.map(QuizAttemptEntity::levelNumber).distinct().size,
+                    completedLevels = categoryAttempts
+                        .filter { GameRules.isPassingStars(it.stars) }
+                        .map(QuizAttemptEntity::levelNumber)
+                        .distinct()
+                        .size,
                     totalLevels = category.levels.size,
                     stars = bestStarsByLevel
                         .filterKeys { (categoryId, _) -> categoryId == category.id.value }

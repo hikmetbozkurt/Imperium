@@ -52,8 +52,8 @@ object RenaissanceLevels {
         ),
         RenaissanceLevel(
             id = "6",
-            title = "Exploration and Discovery",
-            description = "Follow the journeys of Columbus, da Gama, and Magellan during the Age of Exploration.",
+            title = "Art, Science, and Exploration",
+            description = "Connect courtly culture and artistic achievement with scientific and geographic discovery.",
             imageResId = R.drawable.ic_renaissance,
             requiredStars = 10
         ),
@@ -87,57 +87,57 @@ object RenaissanceLevels {
         ),
         RenaissanceLevel(
             id = "11",
-            title = "Renaissance Science",
-            description = "Explore the scientific advancements and discoveries of the Renaissance.",
+            title = "Renaissance Science and Court Culture",
+            description = "Explore scientific methods alongside the patrons, techniques, and city-states that sustained learning.",
             imageResId = R.drawable.ic_renaissance,
             requiredStars = 20
         ),
         RenaissanceLevel(
             id = "12",
-            title = "Renaissance Literature",
-            description = "Discover the influential writers and poets of the Renaissance.",
+            title = "Literature and Visual Narrative",
+            description = "Discover influential writing and the art that communicated Renaissance stories and ideas.",
             imageResId = R.drawable.ic_renaissance,
             requiredStars = 22
         ),
         RenaissanceLevel(
             id = "13",
-            title = "Renaissance Architecture",
-            description = "Examine the architectural innovations and masterpieces of the era.",
+            title = "Architecture and Learned Culture",
+            description = "Examine architectural innovation alongside the political, musical, and anatomical culture of the era.",
             imageResId = R.drawable.ic_renaissance,
             requiredStars = 24
         ),
         RenaissanceLevel(
             id = "14",
-            title = "Renaissance Exploration",
-            description = "Learn about the explorers and new worlds discovered during the Renaissance.",
+            title = "Exploration and Expanding Knowledge",
+            description = "Learn how travel, anatomy, art, and education widened Renaissance horizons.",
             imageResId = R.drawable.ic_renaissance,
             requiredStars = 26
         ),
         RenaissanceLevel(
             id = "15",
-            title = "Renaissance Politics",
-            description = "Understand the political changes and influential leaders of the period.",
+            title = "Politics, Patronage, and Cultural Power",
+            description = "Understand the rulers, banks, writers, and artists who shaped cultural power.",
             imageResId = R.drawable.ic_renaissance,
             requiredStars = 28
         ),
         RenaissanceLevel(
             id = "16",
-            title = "Renaissance Philosophy",
-            description = "Explore the philosophical ideas and thinkers of the Renaissance.",
+            title = "Philosophy and the Unity of Knowledge",
+            description = "Explore humanist philosophy in relation to art, architecture, and astronomy.",
             imageResId = R.drawable.ic_renaissance,
             requiredStars = 30
         ),
         RenaissanceLevel(
             id = "17",
-            title = "Renaissance Music",
-            description = "Discover the music and composers that defined the Renaissance sound.",
+            title = "Music and Courtly Arts",
+            description = "Discover Renaissance music alongside sculpture, painting, glass, and papal patronage.",
             imageResId = R.drawable.ic_renaissance,
             requiredStars = 32
         ),
         RenaissanceLevel(
             id = "18",
-            title = "Renaissance Daily Life",
-            description = "Learn about the daily life, customs, and culture of Renaissance people.",
+            title = "Renaissance Daily Life and Urban Culture",
+            description = "Learn about work, food, clothing, households, music, and civic culture.",
             imageResId = R.drawable.ic_renaissance,
             requiredStars = 34
         ),
@@ -156,4 +156,4 @@ object RenaissanceLevels {
             requiredStars = 38
         )
     )
-} 
+}

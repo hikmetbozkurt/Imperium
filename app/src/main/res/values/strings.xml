@@ -1,4 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Imperium</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_progress">Progress</string>
+    <string name="nav_profile">Profile</string>
+    <string name="common_back">Back</string>
+    <string name="home_quote_next">Another quote</string>
+    <plurals name="home_stars">
+        <item quantity="one">%1$d star</item>
+        <item quantity="other">%1$d stars</item>
+    </plurals>
+    <plurals name="home_levels_unlocked">
+        <item quantity="one">%1$d/%2$d level unlocked</item>
+        <item quantity="other">%1$d/%2$d levels unlocked</item>
+    </plurals>
+    <string name="category_about">About this era</string>
+    <string name="category_fallback_title">Category</string>
+    <string name="category_levels">Levels</string>
+    <string name="category_stars">Stars</string>
+    <string name="category_per_question">Per question</string>
+    <string name="category_explore_levels">Explore levels</string>
+    <string name="category_illustration_content_description">%1$s illustration</string>
+    <string name="category_open_content_description">Open %1$s</string>
+    <string name="quiz_title">Quiz</string>
+    <string name="quiz_leave_content_description">Leave quiz</string>
+    <string name="quiz_question_progress">Question %1$d of %2$d</string>
+    <string name="quiz_seconds">%1$ds</string>
+    <string name="quiz_finish">Finish</string>
+    <string name="quiz_next_question">Next question</string>
+    <string name="quiz_answer_correct">Correct</string>
+    <string name="quiz_answer_not_quite">Not quite</string>
+    <string name="quiz_time_up">Time’s up</string>
+    <string name="quiz_correct_answer">The correct answer is %1$s.</string>
+    <string name="quiz_option_correct">Correct answer</string>
+    <string name="quiz_option_incorrect">Incorrect answer</string>
+    <string name="quiz_option_selected">Selected answer</string>
+    <string name="result_not_found">Result could not be found</string>
+    <string name="result_home">Home</string>
+    <string name="result_level_complete">Level complete</string>
+    <string name="result_keep_learning">Keep learning</string>
+    <string name="result_level_label">%1$s · Level %2$d</string>
+    <string name="result_correct">Correct</string>
+    <string name="result_time">Time</string>
+    <string name="result_stars">Stars</string>
+    <string name="result_seconds">%1$ds</string>
+    <string name="result_continue">Continue</string>
+    <string name="result_try_again">Try again</string>
+    <string name="result_new_best">New personal best</string>
+    <plurals name="result_added_stars">
+        <item quantity="one">+%1$d new star</item>
+        <item quantity="other">+%1$d new stars</item>
+    </plurals>
+    <string name="result_level_unlocked">Level %1$s unlocked</string>
+    <string name="levels_title">Levels</string>
+    <plurals name="levels_stars_earned">
+        <item quantity="one">%1$d star earned</item>
+        <item quantity="other">%1$d stars earned</item>
+    </plurals>
+    <plurals name="levels_more_stars_needed">
+        <item quantity="one">%1$d more star needed</item>
+        <item quantity="other">%1$d more stars needed</item>
+    </plurals>
+    <string name="levels_pass_previous">Pass the previous level with at least 2 stars</string>
+    <string name="progress_title">Your progress</string>
+    <string name="progress_quizzes">Quizzes</string>
+    <string name="progress_stars">Stars</string>
+    <string name="progress_average">Average</string>
+    <plurals name="progress_streak">
+        <item quantity="one">Current streak: %1$d day</item>
+        <item quantity="other">Current streak: %1$d days</item>
+    </plurals>
+    <string name="progress_best_change">Best score %1$d%% · Change %2$d%%</string>
+    <string name="progress_categories">Categories</string>
+    <string name="progress_recent_accuracy">Recent accuracy</string>
+    <string name="progress_empty_timeline">Complete a quiz to start your real activity timeline.</string>
+    <plurals name="progress_category_summary">
+        <item quantity="one">%1$d/%2$d level · %3$d%% average</item>
+        <item quantity="other">%1$d/%2$d levels · %3$d%% average</item>
+    </plurals>
+    <string name="profile_title">Profile</string>
+    <string name="profile_history_explorer">History Explorer</string>
+    <string name="profile_summary">Progress is calculated from your completed quizzes</string>
+    <string name="profile_best">Best</string>
+    <string name="profile_sound">Sound</string>
+    <string name="profile_sound_effects">Sound effects</string>
+    <string name="profile_background_music">Background music</string>
 </resources>

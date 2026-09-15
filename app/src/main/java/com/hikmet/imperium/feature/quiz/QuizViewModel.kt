@@ -4,10 +4,13 @@ import android.os.SystemClock
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.hikmet.imperium.domain.game.GameRules
 import com.hikmet.imperium.domain.game.QuizSession
 import com.hikmet.imperium.domain.game.QuizSessionStatus
+import com.hikmet.imperium.domain.game.QuestionSelector
 import com.hikmet.imperium.domain.model.CategoryId
 import com.hikmet.imperium.domain.model.HistoryCategory
+import com.hikmet.imperium.domain.model.QuestionResponse
 import com.hikmet.imperium.domain.model.QuizAttempt
 import com.hikmet.imperium.domain.repository.GameProgressRepository
 import com.hikmet.imperium.domain.repository.HistoryContentRepository
@@ -18,6 +21,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -35,9 +39,10 @@ sealed interface QuizEvent {
 
 @HiltViewModel
 class QuizViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+    private val savedStateHandle: SavedStateHandle,
     private val progressRepository: GameProgressRepository,
     contentRepository: HistoryContentRepository,
+    private val questionSelector: QuestionSelector,
     private val soundManager: SoundManager,
 ) : ViewModel() {
     private val _state = MutableStateFlow(QuizScreenState())
@@ -52,24 +57,52 @@ class QuizViewModel @Inject constructor(
         val categoryId = savedStateHandle.get<String>("categoryId")?.let(CategoryId::from)
         val levelNumber = savedStateHandle.get<Int>("levelNumber")
         val category = categoryId?.let(contentRepository::category)
-        val questions = if (categoryId != null && levelNumber != null) {
-            contentRepository.questions(categoryId, levelNumber).shuffled()
-        } else {
-            emptyList()
-        }
+        val pool = if (categoryId != null && levelNumber != null) {
+            contentRepository.questions(categoryId, levelNumber)
+        } else emptyList()
 
-        if (categoryId == null || levelNumber == null || category == null || questions.isEmpty()) {
+        if (categoryId == null || levelNumber == null || category == null || pool.isEmpty()) {
             _state.value = QuizScreenState(error = "Quiz content could not be loaded")
         } else {
-            _state.value = QuizScreenState(
-                category = category,
-                session = QuizSession(
+            val sessionSeed = savedStateHandle.get<Long>(KEY_SESSION_SEED)
+                ?: newSessionSeed().also { savedStateHandle[KEY_SESSION_SEED] = it }
+            viewModelScope.launch {
+                val progress = runCatching {
+                    progressRepository.observeCategory(categoryId).first()
+                }.getOrElse { throwable ->
+                    _state.value = QuizScreenState(
+                        category = category,
+                        error = throwable.message ?: "Progress could not be loaded",
+                    )
+                    return@launch
+                }
+                if (levelNumber > progress.unlockedLevels) {
+                    _state.value = QuizScreenState(category = category, error = "This level is locked")
+                    return@launch
+                }
+                val recentQuestionIds = runCatching {
+                    progressRepository.recentQuestionIds(categoryId, levelNumber)
+                }.getOrDefault(emptySet())
+                val questions = questionSelector.select(
+                    pool = pool,
+                    recentQuestionIds = recentQuestionIds,
+                    seed = sessionSeed,
+                )
+                val session = restoreSession(
                     categoryId = categoryId,
                     levelNumber = levelNumber,
                     questions = questions,
-                ),
-            )
-            startTimer()
+                    sessionSeed = sessionSeed,
+                ) ?: QuizSession(
+                    categoryId = categoryId,
+                    levelNumber = levelNumber,
+                    questions = questions,
+                    sessionSeed = sessionSeed,
+                )
+                _state.value = QuizScreenState(category = category, session = session)
+                persistSession(session)
+                startTimer()
+            }
         }
     }
 
@@ -78,6 +111,7 @@ class QuizViewModel @Inject constructor(
         val updated = session.selectAnswer(index)
         if (updated === session) return
         _state.value = _state.value.copy(session = updated)
+        persistSession(updated)
         if (index == session.currentQuestion.correctAnswerIndex) {
             soundManager.playCorrectAnswer()
         } else {
@@ -89,6 +123,7 @@ class QuizViewModel @Inject constructor(
         val session = _state.value.session ?: return
         val updated = session.nextQuestion()
         _state.value = _state.value.copy(session = updated)
+        persistSession(updated)
         if (updated.status == QuizSessionStatus.COMPLETED) completeQuiz(updated)
     }
 
@@ -101,7 +136,17 @@ class QuizViewModel @Inject constructor(
                 val session = _state.value.session ?: break
                 val updated = session.tick(now - previousTick)
                 previousTick = now
-                _state.value = _state.value.copy(session = updated)
+                if (updated !== session) {
+                    _state.value = _state.value.copy(session = updated)
+                }
+                if (!session.isCurrentQuestionTimedOut && updated.isCurrentQuestionTimedOut) {
+                    soundManager.playWrongAnswer()
+                }
+                if (updated.remainingTimeMs / 1_000 != session.remainingTimeMs / 1_000 ||
+                    updated.status == QuizSessionStatus.COMPLETED
+                ) {
+                    persistSession(updated)
+                }
                 if (updated.status == QuizSessionStatus.COMPLETED) completeQuiz(updated)
             }
         }
@@ -121,6 +166,8 @@ class QuizViewModel @Inject constructor(
                         totalQuestions = session.questions.size,
                         durationMs = session.elapsedTimeMs,
                         completedAtEpochMs = System.currentTimeMillis(),
+                        sessionSeed = session.sessionSeed,
+                        responses = session.responses,
                     ),
                 )
             }.onSuccess { recorded ->
@@ -136,7 +183,93 @@ class QuizViewModel @Inject constructor(
         }
     }
 
+    private fun persistSession(session: QuizSession) {
+        savedStateHandle[KEY_CURRENT_INDEX] = session.currentQuestionIndex
+        savedStateHandle[KEY_SELECTED_INDEX] = session.selectedAnswerIndex
+        savedStateHandle[KEY_CORRECT_ANSWERS] = session.correctAnswers
+        savedStateHandle[KEY_REMAINING_TIME] = session.remainingTimeMs
+        savedStateHandle[KEY_ELAPSED_TIME] = session.elapsedTimeMs
+        savedStateHandle[KEY_QUESTION_TIME] = session.questionElapsedTimeMs
+        savedStateHandle[KEY_TIMED_OUT] = session.isCurrentQuestionTimedOut
+        savedStateHandle[KEY_RESPONSES] = ArrayList(session.responses.map(::encodeResponse))
+    }
+
+    private fun restoreSession(
+        categoryId: CategoryId,
+        levelNumber: Int,
+        questions: List<com.hikmet.imperium.domain.model.QuizQuestion>,
+        sessionSeed: Long,
+    ): QuizSession? {
+        val currentIndex = savedStateHandle.get<Int>(KEY_CURRENT_INDEX) ?: return null
+        if (currentIndex !in questions.indices) return null
+        val selectedIndex = savedStateHandle.get<Int>(KEY_SELECTED_INDEX)
+        if (selectedIndex != null && selectedIndex !in questions[currentIndex].options.indices) return null
+        val correctAnswers = savedStateHandle.get<Int>(KEY_CORRECT_ANSWERS) ?: 0
+        val remainingTime = savedStateHandle.get<Long>(KEY_REMAINING_TIME) ?: return null
+        val elapsedTime = savedStateHandle.get<Long>(KEY_ELAPSED_TIME) ?: 0L
+        val questionTime = savedStateHandle.get<Long>(KEY_QUESTION_TIME) ?: 0L
+        val isTimedOut = savedStateHandle.get<Boolean>(KEY_TIMED_OUT) ?: false
+        val responses = savedStateHandle.get<ArrayList<String>>(KEY_RESPONSES)
+            .orEmpty()
+            .mapNotNull(::decodeResponse)
+        return runCatching {
+            QuizSession(
+                categoryId = categoryId,
+                levelNumber = levelNumber,
+                questions = questions,
+                currentQuestionIndex = currentIndex,
+                selectedAnswerIndex = selectedIndex,
+                correctAnswers = correctAnswers,
+                remainingTimeMs = remainingTime.coerceIn(0L, GameRules.QUESTION_DURATION_MS),
+                elapsedTimeMs = elapsedTime,
+                questionElapsedTimeMs = questionTime,
+                isCurrentQuestionTimedOut = isTimedOut,
+                sessionSeed = sessionSeed,
+                responses = responses,
+            )
+        }.getOrNull()
+    }
+
+    private fun encodeResponse(response: QuestionResponse): String = listOf(
+        response.questionId,
+        response.selectedAnswerIndex ?: NO_SELECTED_ANSWER,
+        response.correctAnswerIndex,
+        if (response.isCorrect) 1 else 0,
+        response.responseTimeMs,
+        response.position,
+    ).joinToString(RESPONSE_SEPARATOR)
+
+    private fun decodeResponse(value: String): QuestionResponse? {
+        val fields = value.split(RESPONSE_SEPARATOR)
+        if (fields.size != RESPONSE_FIELD_COUNT) return null
+        return runCatching {
+            val selectedIndex = fields[1].toInt().takeUnless { it == NO_SELECTED_ANSWER }
+            QuestionResponse(
+                questionId = fields[0],
+                selectedAnswerIndex = selectedIndex,
+                correctAnswerIndex = fields[2].toInt(),
+                isCorrect = fields[3] == "1",
+                responseTimeMs = fields[4].toLong(),
+                position = fields[5].toInt(),
+            )
+        }.getOrNull()
+    }
+
+    private fun newSessionSeed(): Long = System.currentTimeMillis() xor System.nanoTime()
+
     private companion object {
         const val TIMER_RESOLUTION_MS = 250L
+        const val KEY_SESSION_SEED = "quiz_session_seed"
+        const val KEY_CURRENT_INDEX = "quiz_current_index"
+        const val KEY_SELECTED_INDEX = "quiz_selected_index"
+        const val KEY_CORRECT_ANSWERS = "quiz_correct_answers"
+        const val KEY_REMAINING_TIME = "quiz_remaining_time"
+        const val KEY_ELAPSED_TIME = "quiz_elapsed_time"
+        const val KEY_QUESTION_TIME = "quiz_question_time"
+        const val KEY_TIMED_OUT = "quiz_timed_out"
+        const val KEY_RESPONSES = "quiz_responses"
+        const val RESPONSE_SEPARATOR = ";"
+        const val RESPONSE_FIELD_COUNT = 6
+        const val NO_SELECTED_ANSWER = -1
     }
 }

@@ -1,6 +1,7 @@
 package com.hikmet.imperium.domain.game
 
 import com.hikmet.imperium.domain.model.CategoryId
+import com.hikmet.imperium.domain.model.QuestionResponse
 import com.hikmet.imperium.domain.model.QuizQuestion
 import com.hikmet.imperium.domain.model.QuizResult
 
@@ -15,8 +16,12 @@ data class QuizSession(
     val currentQuestionIndex: Int = 0,
     val selectedAnswerIndex: Int? = null,
     val correctAnswers: Int = 0,
-    val remainingTimeMs: Long = GameRules.DEFAULT_QUIZ_DURATION_MS,
+    val remainingTimeMs: Long = GameRules.QUESTION_DURATION_MS,
     val elapsedTimeMs: Long = 0L,
+    val questionElapsedTimeMs: Long = 0L,
+    val isCurrentQuestionTimedOut: Boolean = false,
+    val sessionSeed: Long = 0L,
+    val responses: List<QuestionResponse> = emptyList(),
     val status: QuizSessionStatus = QuizSessionStatus.ACTIVE,
 ) {
     init {
@@ -25,6 +30,13 @@ data class QuizSession(
         require(currentQuestionIndex in questions.indices) { "Current question index is invalid" }
         require(remainingTimeMs >= 0) { "Remaining time cannot be negative" }
         require(elapsedTimeMs >= 0) { "Elapsed time cannot be negative" }
+        require(questionElapsedTimeMs >= 0) { "Question time cannot be negative" }
+        require(!isCurrentQuestionTimedOut || remainingTimeMs == 0L) {
+            "A timed out question cannot have remaining time"
+        }
+        require(responses.map(QuestionResponse::position).distinct().size == responses.size) {
+            "A session cannot contain duplicate response positions"
+        }
     }
 
     val currentQuestion: QuizQuestion
@@ -33,35 +45,64 @@ data class QuizSession(
     val isLastQuestion: Boolean
         get() = currentQuestionIndex == questions.lastIndex
 
+    val isAnswerRevealed: Boolean
+        get() = selectedAnswerIndex != null || isCurrentQuestionTimedOut
+
     fun selectAnswer(answerIndex: Int): QuizSession {
-        if (status != QuizSessionStatus.ACTIVE || selectedAnswerIndex != null) return this
+        if (status != QuizSessionStatus.ACTIVE || isAnswerRevealed) return this
         if (answerIndex !in currentQuestion.options.indices) return this
 
         return copy(
             selectedAnswerIndex = answerIndex,
             correctAnswers = correctAnswers + if (answerIndex == currentQuestion.correctAnswerIndex) 1 else 0,
+            responses = responses + QuestionResponse(
+                questionId = currentQuestion.id,
+                selectedAnswerIndex = answerIndex,
+                correctAnswerIndex = currentQuestion.correctAnswerIndex,
+                isCorrect = answerIndex == currentQuestion.correctAnswerIndex,
+                responseTimeMs = questionElapsedTimeMs,
+                position = currentQuestionIndex,
+            ),
         )
     }
 
     fun nextQuestion(): QuizSession {
-        if (status != QuizSessionStatus.ACTIVE || selectedAnswerIndex == null) return this
+        if (status != QuizSessionStatus.ACTIVE || !isAnswerRevealed) return this
         if (isLastQuestion) return copy(status = QuizSessionStatus.COMPLETED)
 
         return copy(
             currentQuestionIndex = currentQuestionIndex + 1,
             selectedAnswerIndex = null,
+            remainingTimeMs = GameRules.QUESTION_DURATION_MS,
+            questionElapsedTimeMs = 0L,
+            isCurrentQuestionTimedOut = false,
         )
     }
 
     fun tick(deltaMs: Long): QuizSession {
-        if (status != QuizSessionStatus.ACTIVE || deltaMs <= 0) return this
+        if (status != QuizSessionStatus.ACTIVE || isAnswerRevealed || deltaMs <= 0) return this
 
         val consumed = minOf(deltaMs, remainingTimeMs)
         val remaining = remainingTimeMs - consumed
+        val didTimeOut = remaining == 0L
+        val timedOutResponses = if (didTimeOut) {
+            responses + QuestionResponse(
+                questionId = currentQuestion.id,
+                selectedAnswerIndex = null,
+                correctAnswerIndex = currentQuestion.correctAnswerIndex,
+                isCorrect = false,
+                responseTimeMs = questionElapsedTimeMs + consumed,
+                position = currentQuestionIndex,
+            )
+        } else {
+            responses
+        }
         return copy(
             remainingTimeMs = remaining,
             elapsedTimeMs = elapsedTimeMs + consumed,
-            status = if (remaining == 0L) QuizSessionStatus.COMPLETED else status,
+            questionElapsedTimeMs = questionElapsedTimeMs + consumed,
+            isCurrentQuestionTimedOut = didTimeOut,
+            responses = timedOutResponses,
         )
     }
 

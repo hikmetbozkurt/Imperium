@@ -18,6 +18,8 @@ class QuizSessionTest {
 
         assertEquals(1, answered.correctAnswers)
         assertEquals(1, answered.selectedAnswerIndex)
+        assertEquals(1, answered.responses.size)
+        assertEquals(true, answered.responses.single().isCorrect)
     }
 
     @Test
@@ -45,12 +47,51 @@ class QuizSessionTest {
     }
 
     @Test
-    fun `timeout completes the current attempt without changing answers`() {
-        val completed = session(durationMs = 1_000).tick(1_500)
+    fun `timeout reveals current answer and pauses until user continues`() {
+        val timedOut = session(durationMs = 1_000).tick(1_500)
+
+        assertEquals(QuizSessionStatus.ACTIVE, timedOut.status)
+        assertEquals(true, timedOut.isCurrentQuestionTimedOut)
+        assertEquals(1_000, timedOut.elapsedTimeMs)
+        assertNull(timedOut.result())
+        assertNull(timedOut.responses.single().selectedAnswerIndex)
+
+        val next = timedOut.nextQuestion()
+        assertEquals(1, next.currentQuestionIndex)
+        assertEquals(GameRules.QUESTION_DURATION_MS, next.remainingTimeMs)
+        assertEquals(false, next.isCurrentQuestionTimedOut)
+    }
+
+    @Test
+    fun `timer stops after an answer is selected`() {
+        val answered = session(durationMs = 5_000).tick(1_000).selectAnswer(1)
+
+        assertEquals(answered, answered.tick(2_000))
+    }
+
+    @Test
+    fun `each question receives a fresh timer`() {
+        val next = session()
+            .tick(12_000)
+            .selectAnswer(1)
+            .nextQuestion()
+
+        assertEquals(GameRules.QUESTION_DURATION_MS, next.remainingTimeMs)
+        assertEquals(0L, next.questionElapsedTimeMs)
+        assertEquals(12_000L, next.elapsedTimeMs)
+    }
+
+    @Test
+    fun `timing out the last question can complete the challenge`() {
+        val completed = session(durationMs = 1_000)
+            .tick(1_000)
+            .nextQuestion()
+            .tick(GameRules.QUESTION_DURATION_MS)
+            .nextQuestion()
 
         assertEquals(QuizSessionStatus.COMPLETED, completed.status)
-        assertEquals(1_000, completed.elapsedTimeMs)
-        assertEquals(0, completed.result()!!.correctAnswers)
+        assertEquals(2, completed.responses.size)
+        assertEquals(0, completed.result()?.correctAnswers)
     }
 
     private fun session(durationMs: Long = 40_000) = QuizSession(

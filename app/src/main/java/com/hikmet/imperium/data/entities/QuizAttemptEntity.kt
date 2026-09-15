@@ -24,4 +24,9 @@ data class QuizAttemptEntity(
     val totalQuestions: Int,
     val durationMs: Long,
     val completedAtEpochMs: Long,
+    val sessionSeed: Long = 0L,
+    val isNewBest: Boolean = false,
+    val addedStars: Int = 0,
+    val unlockedLevels: Int = 1,
+    val newlyUnlockedLevel: Int? = null,
 )

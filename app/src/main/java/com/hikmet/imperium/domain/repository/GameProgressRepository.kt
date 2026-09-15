@@ -11,6 +11,7 @@ data class RecordedAttempt(
     val isNewBest: Boolean,
     val addedStars: Int,
     val unlockedLevels: Int,
+    val newlyUnlockedLevel: Int? = null,
 )
 
 data class CategoryProgress(
@@ -23,5 +24,11 @@ data class CategoryProgress(
 interface GameProgressRepository {
     suspend fun recordAttempt(attempt: QuizAttempt): RecordedAttempt
     fun observeResult(attemptId: Long): Flow<QuizResult?>
+    fun observeRecordedAttempt(attemptId: Long): Flow<RecordedAttempt?>
     fun observeCategory(categoryId: CategoryId): Flow<CategoryProgress>
+    suspend fun recentQuestionIds(
+        categoryId: CategoryId,
+        levelNumber: Int,
+        limit: Int = 24,
+    ): Set<String>
 }

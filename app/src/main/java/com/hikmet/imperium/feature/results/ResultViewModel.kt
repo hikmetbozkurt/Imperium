@@ -16,8 +16,12 @@ import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 data class ResultScreenState(
+    val attemptId: Long? = null,
     val result: QuizResult? = null,
     val category: HistoryCategory? = null,
+    val isNewBest: Boolean = false,
+    val addedStars: Int = 0,
+    val newlyUnlockedLevel: Int? = null,
     val isLoading: Boolean = true,
     val error: String? = null,
 )
@@ -33,13 +37,17 @@ class ResultViewModel @Inject constructor(
     val state: StateFlow<ResultScreenState> = if (attemptId == null) {
         flowOf(ResultScreenState(isLoading = false, error = "Result could not be found"))
     } else {
-        progressRepository.observeResult(attemptId).map { result ->
-            if (result == null) {
+        progressRepository.observeRecordedAttempt(attemptId).map { recorded ->
+            if (recorded == null) {
                 ResultScreenState(isLoading = false, error = "Result could not be found")
             } else {
                 ResultScreenState(
-                    result = result,
-                    category = contentRepository.category(result.categoryId),
+                    attemptId = recorded.id,
+                    result = recorded.result,
+                    category = contentRepository.category(recorded.result.categoryId),
+                    isNewBest = recorded.isNewBest,
+                    addedStars = recorded.addedStars,
+                    newlyUnlockedLevel = recorded.newlyUnlockedLevel,
                     isLoading = false,
                 )
             }

@@ -43,6 +43,19 @@ class ProgressRepositoryTest {
         assertEquals(0, repository.calculateOverview(attempts).improvementPercent)
     }
 
+    @Test
+    fun `failed attempts are not counted as completed levels`() {
+        val overview = repository.calculateOverview(
+            listOf(
+                attempt("ancient", level = 1, score = 25, stars = 0, completedAt = 1),
+                attempt("ancient", level = 2, score = 50, stars = 1, completedAt = 2),
+            ),
+        )
+
+        val ancient = overview.categories.single { it.categoryId == CategoryId.ANCIENT }
+        assertEquals(0, ancient.completedLevels)
+    }
+
     private fun attempt(
         category: String,
         level: Int,

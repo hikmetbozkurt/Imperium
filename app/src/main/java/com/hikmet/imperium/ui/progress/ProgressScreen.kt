@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -33,6 +34,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -41,12 +43,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.hikmet.imperium.domain.repository.CategoryAnalytics
 import com.hikmet.imperium.domain.repository.ProgressOverview
 import com.hikmet.imperium.domain.repository.ProgressPoint
+import com.hikmet.imperium.R
+import com.hikmet.imperium.ui.components.ImperiumBackdrop
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -57,25 +63,37 @@ fun ProgressScreen(
     viewModel: ProgressViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Your progress", fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = navController::navigateUp) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                },
-            )
-        },
-    ) { padding ->
-        val overview = state.overview
-        if (state.isLoading || overview == null) {
-            Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
+    ImperiumBackdrop(Modifier.fillMaxSize()) {
+        Scaffold(
+            containerColor = Color.Transparent,
+            topBar = {
+                TopAppBar(
+                    title = { Text(stringResource(R.string.progress_title), fontWeight = FontWeight.Bold) },
+                    navigationIcon = {
+                        IconButton(onClick = navController::navigateUp) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.common_back),
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
+                )
+            },
+        ) { padding ->
+            val overview = state.overview
+            if (state.isLoading || overview == null) {
+                Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            } else {
+                Box(Modifier.fillMaxSize().padding(padding)) {
+                    ProgressContent(
+                        overview,
+                        Modifier.widthIn(max = 840.dp).fillMaxSize().align(Alignment.TopCenter),
+                    )
+                }
             }
-        } else {
-            ProgressContent(overview, Modifier.padding(padding))
         }
     }
 }
@@ -89,9 +107,9 @@ private fun ProgressContent(overview: ProgressOverview, modifier: Modifier = Mod
     ) {
         item {
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                MetricCard(Modifier.weight(1f), Icons.Default.Quiz, overview.totalQuizzes.toString(), "Quizzes")
-                MetricCard(Modifier.weight(1f), Icons.Default.Star, overview.totalStars.toString(), "Stars")
-                MetricCard(Modifier.weight(1f), Icons.Default.EmojiEvents, "${overview.averageScore}%", "Average")
+                MetricCard(Modifier.weight(1f), Icons.Default.Quiz, overview.totalQuizzes.toString(), stringResource(R.string.progress_quizzes))
+                MetricCard(Modifier.weight(1f), Icons.Default.Star, overview.totalStars.toString(), stringResource(R.string.progress_stars))
+                MetricCard(Modifier.weight(1f), Icons.Default.EmojiEvents, "${overview.averageScore}%", stringResource(R.string.progress_average))
             }
         }
         item {
@@ -103,14 +121,21 @@ private fun ProgressContent(overview: ProgressOverview, modifier: Modifier = Mod
                     Icon(Icons.AutoMirrored.Filled.TrendingUp, contentDescription = null, modifier = Modifier.size(32.dp))
                     Spacer(Modifier.width(14.dp))
                     Column {
-                        Text("Current streak: ${overview.currentStreakDays} days", fontWeight = FontWeight.Bold)
-                        Text("Best score ${overview.bestScore}% · Change ${overview.improvementPercent}%")
+                        Text(
+                            pluralStringResource(
+                                R.plurals.progress_streak,
+                                overview.currentStreakDays,
+                                overview.currentStreakDays,
+                            ),
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Text(stringResource(R.string.progress_best_change, overview.bestScore, overview.improvementPercent))
                     }
                 }
             }
         }
         item { ActivityChart(overview.timeline.takeLast(7)) }
-        item { Text("Categories", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold) }
+        item { Text(stringResource(R.string.progress_categories), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold) }
         items(overview.categories, key = { it.categoryId.value }) { category ->
             CategoryProgressCard(category)
         }
@@ -135,10 +160,10 @@ private fun MetricCard(modifier: Modifier, icon: ImageVector, value: String, lab
 private fun ActivityChart(points: List<ProgressPoint>) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(18.dp)) {
-            Text("Recent accuracy", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.progress_recent_accuracy), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(16.dp))
             if (points.isEmpty()) {
-                Text("Complete a quiz to start your real activity timeline.")
+                Text(stringResource(R.string.progress_empty_timeline))
             } else {
                 Row(
                     modifier = Modifier.fillMaxWidth().height(150.dp),
@@ -184,7 +209,13 @@ private fun CategoryProgressCard(category: CategoryAnalytics) {
             LinearProgressIndicator(progress = { fraction }, modifier = Modifier.fillMaxWidth())
             Spacer(Modifier.height(6.dp))
             Text(
-                "${category.completedLevels}/${category.totalLevels} levels · ${category.averageScore}% average",
+                pluralStringResource(
+                    R.plurals.progress_category_summary,
+                    category.completedLevels,
+                    category.completedLevels,
+                    category.totalLevels,
+                    category.averageScore,
+                ),
                 style = MaterialTheme.typography.bodySmall,
             )
         }

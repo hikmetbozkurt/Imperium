@@ -120,7 +120,7 @@ object RenaissanceQuizData {
             correctAnswerIndex = 0
         ),
         Question(
-            text = "Who was the leading architect of St. Peter's Basilica in Rome?",
+            text = "Who created the initial High Renaissance design for the new St. Peter's Basilica?",
             options = listOf("Filippo Brunelleschi", "Donato Bramante", "Andrea Palladio", "Michelangelo"),
             correctAnswerIndex = 1
         ),
@@ -137,7 +137,7 @@ object RenaissanceQuizData {
     )
     val level7Questions = listOf(
         Question(
-            text = "Who was the leading figure of the Northern Renaissance in painting?",
+            text = "Which German artist created the influential 'Apocalypse' woodcut series?",
             options = listOf("Albrecht Dürer", "Jan van Eyck", "Hieronymus Bosch", "Hans Holbein"),
             correctAnswerIndex = 0
         ),
@@ -164,7 +164,7 @@ object RenaissanceQuizData {
             correctAnswerIndex = 0
         ),
         Question(
-            text = "Who was the most famous female artist of the Italian Renaissance?",
+            text = "Which Italian woman became a successful court portraitist for Philip II of Spain?",
             options = listOf("Artemisia Gentileschi", "Sofonisba Anguissola", "Plautilla Nelli", "Properzia de' Rossi"),
             correctAnswerIndex = 1
         ),
@@ -235,7 +235,7 @@ object RenaissanceQuizData {
             correctAnswerIndex = 1
         ),
         Question(
-            text = "Who was the leading patron of Michelangelo?",
+            text = "Which pope commissioned Michelangelo to paint the Sistine Chapel ceiling?",
             options = listOf("Lorenzo de' Medici", "Pope Leo X", "Pope Julius II", "Cesare Borgia"),
             correctAnswerIndex = 2
         ),
@@ -252,17 +252,17 @@ object RenaissanceQuizData {
             correctAnswerIndex = 0
         ),
         Question(
-            text = "Which Renaissance philosopher wrote about the ideal state in 'The Republic'?",
-            options = listOf("Aristotle", "Plato", "Cicero", "Augustine"),
+            text = "Who wrote the Renaissance pastoral romance 'Arcadia'?",
+            options = listOf("Edmund Spenser", "Jacopo Sannazaro", "Ludovico Ariosto", "Torquato Tasso"),
             correctAnswerIndex = 1
         ),
         Question(
-            text = "Who invented the first mechanical clock during the Renaissance?",
-            options = listOf("Leonardo da Vinci", "Galileo Galilei", "Giovanni Dondi", "Johannes Kepler"),
+            text = "Who wrote the epic poem 'Jerusalem Delivered'?",
+            options = listOf("Ludovico Ariosto", "Edmund Spenser", "Torquato Tasso", "Pierre de Ronsard"),
             correctAnswerIndex = 2
         ),
         Question(
-            text = "Which Renaissance work is considered the first modern novel?",
+            text = "Which Renaissance work is often described as the first modern novel?",
             options = listOf("The Decameron", "The Canterbury Tales", "Gargantua and Pantagruel", "Don Quixote"),
             correctAnswerIndex = 3
         )
@@ -279,8 +279,8 @@ object RenaissanceQuizData {
             correctAnswerIndex = 1
         ),
         Question(
-            text = "Who established the first modern university during the Renaissance?",
-            options = listOf("Paris", "Oxford", "Bologna", "Cambridge"),
+            text = "Which architect wrote the treatise 'On the Art of Building'?",
+            options = listOf("Andrea Palladio", "Donato Bramante", "Leon Battista Alberti", "Filippo Brunelleschi"),
             correctAnswerIndex = 2
         ),
         Question(
@@ -291,13 +291,13 @@ object RenaissanceQuizData {
     )
     val level14Questions = listOf(
         Question(
-            text = "Who was the first woman to receive a university degree during the Renaissance?",
-            options = listOf("Elena Cornaro Piscopia", "Christine de Pizan", "Isotta Nogarola", "Cassandra Fedele"),
+            text = "Which woman from Verona became a prominent fifteenth-century humanist?",
+            options = listOf("Isotta Nogarola", "Christine de Pizan", "Elena Cornaro Piscopia", "Artemisia Gentileschi"),
             correctAnswerIndex = 0
         ),
         Question(
-            text = "Which Renaissance explorer circumnavigated the globe?",
-            options = listOf("Vasco da Gama", "Ferdinand Magellan", "Christopher Columbus", "Amerigo Vespucci"),
+            text = "Who completed the first circumnavigation after Ferdinand Magellan died in the Philippines?",
+            options = listOf("Vasco da Gama", "Juan Sebastián Elcano", "Christopher Columbus", "Amerigo Vespucci"),
             correctAnswerIndex = 1
         ),
         Question(
@@ -323,7 +323,7 @@ object RenaissanceQuizData {
             correctAnswerIndex = 1
         ),
         Question(
-            text = "Who was the leading Venetian Renaissance painter?",
+            text = "Which Venetian painter created the 'Pesaro Madonna'?",
             options = listOf("Tintoretto", "Paolo Veronese", "Titian", "Giorgione"),
             correctAnswerIndex = 2
         ),
@@ -345,7 +345,7 @@ object RenaissanceQuizData {
             correctAnswerIndex = 1
         ),
         Question(
-            text = "Who was the leading Northern Renaissance humanist?",
+            text = "Which Northern humanist prepared an influential Greek edition of the New Testament?",
             options = listOf("Thomas More", "John Colet", "Desiderius Erasmus", "Jacques Lefèvre d'Étaples"),
             correctAnswerIndex = 2
         ),
@@ -379,17 +379,17 @@ object RenaissanceQuizData {
     )
     val level18Questions = listOf(
         Question(
-            text = "Who painted 'The Night Watch'?",
-            options = listOf("Rembrandt van Rijn", "Johannes Vermeer", "Frans Hals", "Jan Steen"),
+            text = "Which public square served as the civic and commercial center of many Italian cities?",
+            options = listOf("The piazza", "The nave", "The cloister", "The arsenal"),
             correctAnswerIndex = 0
         ),
         Question(
-            text = "Which Renaissance mathematician developed algebra?",
+            text = "Which Renaissance mathematician promoted systematic use of letters in algebra?",
             options = listOf("Gerolamo Cardano", "François Viète", "Niccolò Tartaglia", "Rafael Bombelli"),
             correctAnswerIndex = 1
         ),
         Question(
-            text = "Who was the leading composer of the Flemish school?",
+            text = "Which Franco-Flemish composer wrote the motet 'Ave Maria ... virgo serena'?",
             options = listOf("Guillaume Dufay", "Johannes Ockeghem", "Josquin des Prez", "Jacob Obrecht"),
             correctAnswerIndex = 2
         ),
@@ -416,30 +416,30 @@ object RenaissanceQuizData {
             correctAnswerIndex = 2
         ),
         Question(
-            text = "Which Renaissance invention revolutionized navigation?",
+            text = "Which navigation tool helped Renaissance sailors maintain a compass direction at sea?",
             options = listOf("Astrolabe", "Quadrant", "Sextant", "Compass"),
             correctAnswerIndex = 3
         )
     )
     val level20Questions = listOf(
         Question(
-            text = "Who was the last great Renaissance artist?",
+            text = "Which artist's early use of dramatic light strongly influenced Baroque painting?",
             options = listOf("Caravaggio", "Annibale Carracci", "Guido Reni", "Nicolas Poussin"),
             correctAnswerIndex = 0
         ),
         Question(
-            text = "Which Renaissance festival is still celebrated today?",
-            options = listOf("Palio", "Carnival", "Regata Storica", "Calcio Storico"),
+            text = "Which annual horse race in Siena preserves traditions associated with the city's contrade?",
+            options = listOf("Regata Storica", "The Palio", "Calcio Storico", "The Giostra del Saracino"),
             correctAnswerIndex = 1
         ),
         Question(
-            text = "Who established the first public library during the Renaissance?",
+            text = "Which Florentine ruler helped establish the collection that became the Laurentian Library?",
             options = listOf("Francesco Sforza", "Federico da Montefeltro", "Cosimo de' Medici", "Sigismondo Malatesta"),
             correctAnswerIndex = 2
         ),
         Question(
-            text = "Which Renaissance work marks the transition to the Baroque period?",
-            options = listOf("The Ecstasy of St. Teresa", "The School of Athens", "The Last Judgment", "The Calling of St. Matthew"),
+            text = "Which Caravaggio painting exemplifies the dramatic naturalism that helped shape Baroque art?",
+            options = listOf("The Ecstasy of Saint Teresa", "The School of Athens", "The Last Judgment", "The Calling of Saint Matthew"),
             correctAnswerIndex = 3
         )
     )
@@ -466,7 +466,7 @@ object RenaissanceQuizData {
             "18" -> level18Questions
             "19" -> level19Questions
             "20" -> level20Questions
-            else -> level1Questions
+            else -> emptyList()
         }
     }
-} 
+}
