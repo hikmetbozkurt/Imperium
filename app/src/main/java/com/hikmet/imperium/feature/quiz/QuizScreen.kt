@@ -2,14 +2,11 @@ package com.hikmet.imperium.feature.quiz
 
 import android.view.HapticFeedbackConstants
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.keyframes
@@ -63,13 +60,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.hikmet.imperium.R
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -80,7 +74,6 @@ import com.hikmet.imperium.ui.theme.CorrectAnswer
 import com.hikmet.imperium.ui.theme.IncorrectAnswer
 import com.hikmet.imperium.ui.theme.ImperiumMotion
 import com.hikmet.imperium.ui.components.ImperiumBackdrop
-import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -170,15 +163,6 @@ private fun QuizContent(
         label = "question-timer-color",
     )
 
-    var showResultBanner by remember(session.currentQuestion.id) { mutableIntStateOf(0) }
-    LaunchedEffect(session.currentQuestion.id, session.isAnswerRevealed) {
-        if (session.isAnswerRevealed) {
-            showResultBanner = 1
-            delay(if (session.isCurrentQuestionTimedOut) 2_400L else 1_600L)
-            showResultBanner = 0
-        }
-    }
-
     Box(Modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier
@@ -265,74 +249,6 @@ private fun QuizContent(
 
         }
 
-        AnimatedVisibility(
-            visible = showResultBanner == 1,
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .padding(horizontal = 20.dp, vertical = 12.dp)
-                .widthIn(max = 680.dp),
-            enter = fadeIn(tween(ImperiumMotion.Quick)) +
-                slideInVertically(tween(ImperiumMotion.Standard)) { -it / 2 },
-            exit = fadeOut(tween(ImperiumMotion.Quick)) +
-                slideOutVertically(tween(ImperiumMotion.Quick)) { -it / 3 },
-        ) {
-            AnswerResultBanner(session)
-        }
-    }
-}
-
-@Composable
-private fun AnswerResultBanner(session: QuizSession) {
-    if (!session.isAnswerRevealed) return
-    val isCorrect = session.selectedAnswerIndex == session.currentQuestion.correctAnswerIndex
-    val title = when {
-        session.isCurrentQuestionTimedOut -> stringResource(R.string.quiz_time_up)
-        isCorrect -> stringResource(R.string.quiz_answer_correct)
-        else -> stringResource(R.string.quiz_answer_not_quite)
-    }
-    val detail = if (isCorrect && !session.isCurrentQuestionTimedOut) {
-        null
-    } else {
-        stringResource(
-            R.string.quiz_correct_answer,
-            session.currentQuestion.options[session.currentQuestion.correctAnswerIndex],
-        )
-    }
-    Surface(
-        color = if (isCorrect) CorrectAnswer else IncorrectAnswer,
-        tonalElevation = 6.dp,
-        shadowElevation = 10.dp,
-        modifier = Modifier
-            .fillMaxWidth()
-            .semantics { liveRegion = LiveRegionMode.Polite },
-        shape = MaterialTheme.shapes.medium,
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 13.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(
-                imageVector = when {
-                    session.isCurrentQuestionTimedOut -> Icons.Default.AccessTime
-                    isCorrect -> Icons.Default.CheckCircle
-                    else -> Icons.Default.Cancel
-                },
-                contentDescription = null,
-                tint = if (isCorrect) Color(0xFF1B6E38) else MaterialTheme.colorScheme.error,
-            )
-            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(title, fontWeight = FontWeight.Bold)
-                detail?.let {
-                    Text(
-                        it,
-                        style = MaterialTheme.typography.bodyMedium,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-            }
-        }
     }
 }
 
