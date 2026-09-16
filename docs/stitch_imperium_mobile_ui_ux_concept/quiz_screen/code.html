@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><title>Imperium</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100%;margin:0;padding:0;background-color:#161214;color:#e8e0e3;}body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "tertiary-container": "#392e2b", "on-error-container": "#ffdad6", "inverse-on-surface": "#332f31", "on-tertiary-container": "#a49591", "surface-container-low": "#1e1b1d", "surface": "#161214", "surface-dim": "#161214", "surface-tint": "#ffb2bc", "on-background": "#e8e0e3", "on-primary-fixed": "#3e0313", "secondary-fixed-dim": "#e9c176", "tertiary": "#d4c3be", "error-container": "#93000a", "on-surface-variant": "#d9c1c3", "on-tertiary-fixed": "#231917", "on-secondary-fixed": "#261900", "error": "#ffb4ab", "on-primary-fixed-variant": "#772e3d", "surface-container": "#221f21", "primary-container": "#5a1827", "inverse-primary": "#944553", "on-tertiary": "#392e2b", "surface-container-lowest": "#100d0f", "on-primary": "#5a1827", "on-secondary-fixed-variant": "#5d4201", "surface-container-high": "#2d292b", "surface-container-highest": "#383436", "secondary-fixed": "#ffdea5", "on-secondary-container": "#dab36a", "on-surface": "#e8e0e3", "outline": "#a18c8d", "primary-fixed-dim": "#ffb2bc", "tertiary-fixed": "#f1dfda", "on-secondary": "#412d00", "outline-variant": "#534344", "on-primary-container": "#d97d8c", "on-error": "#690005", "surface-bright": "#3c383a", "primary-fixed": "#ffd9dd", "secondary-container": "#604403", "surface-variant": "#383436", "background": "#161214", "secondary": "#e9c176", "inverse-surface": "#e8e0e3", "tertiary-fixed-dim": "#d4c3be", "on-tertiary-fixed-variant": "#504441", "primary": "#ffb2bc" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "space-xl": "2rem", "gutter": "1rem", "space-lg": "1.5rem", "space-sm": "0.5rem", "space-xs": "0.25rem", "margin": "1rem", "space-md": "1rem" }, "fontFamily": { "body-md": ["Inter"], "label-lg": ["Inter"], "label-md": ["Inter"], "body-lg": ["Inter"], "body-sm": ["Inter"], "label-sm": ["Inter"], "display-lg": ["Libre Caslon Text"], "title-lg": ["Inter"], "display-lg-mobile": ["Libre Caslon Text"], "headline-sm": ["Libre Caslon Text"], "title-md": ["Inter"], "headline-lg": ["Libre Caslon Text"], "headline-md": ["Libre Caslon Text"] }, "fontSize": { "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }], "label-lg": ["14px", { "lineHeight": "18px", "letterSpacing": "0.05em", "fontWeight": "600" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.06em", "fontWeight": "600" }], "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }], "label-sm": ["10px", { "lineHeight": "14px", "letterSpacing": "0.08em", "fontWeight": "700" }], "display-lg": ["36px", { "lineHeight": "44px", "letterSpacing": "0.04em", "fontWeight": "700" }], "title-lg": ["18px", { "lineHeight": "24px", "fontWeight": "600" }], "display-lg-mobile": ["28px", { "lineHeight": "36px", "letterSpacing": "0.03em", "fontWeight": "700" }], "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }], "title-md": ["16px", { "lineHeight": "22px", "fontWeight": "600" }], "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "0.02em", "fontWeight": "700" }], "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "0.01em", "fontWeight": "600" }] } } } }</script></head><body class="bg-surface font-body-md text-body-md text-on-surface flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 pt-safe bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.60)]"><div class="h-16 px-gutter flex items-center justify-between"><div class="flex items-center gap-space-sm"><button aria-label="Return" class="w-11 h-11 flex items-center justify-center text-secondary hover:text-secondary-fixed rounded transition-colors" onclick="history.back()"><span class="material-symbols-outlined text-[24px]">arrow_back</span></button><img alt="Imperium Roman Coin Emblem" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1Xfh-SXs7QJg9ZdHLsugcHAKW_X3yVBpzjP0wh7-MfpMnb7SfgSTI6LFaYja5pipUfm7FYTJPtfso2SIc15EiOJur5Dh9qPdfFv6lb6KGyrhlourZrq5OscV3AzXa0_cJh-hzkTEJQnJREzeRFbesh1Kad0p92nS4qvEUmGY5uBxCTplS3QzmJh90iRmOJ44xdxoeJpR8SPSaR4yuOimJ4C_tmhbdgTIpSu7cIBO5y2wd_lalo4o_QeJ6Ax"/><h1 class="font-headline-sm text-headline-sm uppercase text-on-surface tracking-wide truncate max-w-[170px]">Trivia Trial</h1></div><div class="flex items-center gap-space-sm"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex-1 flex flex-col relative w-full pt-16 pb-safe bg-surface"><div class="flex flex-col w-full px-gutter pb-space-xl gap-space-md select-none">
+<!-- Top Quiz Bar -->
+<div class="flex items-center justify-between pt-space-xs">
+<button aria-label="Abandon campaign" class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant active:scale-95 transition-transform" type="button">
+<span class="material-symbols-outlined text-[20px] text-secondary">close</span>
+</button>
+<div class="flex flex-col items-center">
+<span class="font-headline-sm text-headline-sm uppercase text-secondary tracking-widest">
+        Questio IV <span class="text-outline text-body-sm font-body-sm">/ X</span>
+</span>
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant tracking-wider">Acta Diurna</span>
+</div>
+<!-- Sundial Circular Timer (18s / 30s) -->
+<div class="relative w-11 h-11 flex items-center justify-center">
+<svg class="w-full h-full -rotate-90 transform" viewbox="0 0 36 36">
+<circle class="text-surface-container-highest stroke-current" cx="18" cy="18" fill="transparent" r="15" stroke-width="2.5"></circle>
+<circle class="text-secondary stroke-current transition-all duration-1000 ease-linear" cx="18" cy="18" fill="transparent" id="timer-arc" r="15" stroke-dasharray="94.25" stroke-dashoffset="37.7" stroke-linecap="round" stroke-width="2.5"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="font-label-md text-label-md text-secondary font-bold" id="timer-display">XVIII</span>
+</div>
+</div>
+</div>
+<!-- Linear Roman Milestone Bar & Streak Indicator -->
+<div class="bg-surface-container-low rounded-xl p-space-sm flex items-center justify-between shadow-sm">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-[20px]" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-secondary font-bold uppercase tracking-wider">Combo III</span>
+<span class="font-label-sm text-label-sm text-primary">+XLV XP</span>
+</div>
+</div>
+<!-- Segmented Progression Dots -->
+<div class="flex items-center gap-1.5">
+<div class="w-2.5 h-2.5 rounded-full bg-secondary"></div>
+<div class="w-2.5 h-2.5 rounded-full bg-secondary"></div>
+<div class="w-2.5 h-2.5 rounded-full bg-secondary"></div>
+<div class="w-3.5 h-3.5 rounded-full bg-primary-container flex items-center justify-center shadow-inner">
+<div class="w-1.5 h-1.5 rounded-full bg-secondary animate-ping"></div>
+</div>
+<div class="w-2 h-2 rounded-full bg-surface-container-highest"></div>
+<div class="w-2 h-2 rounded-full bg-surface-container-highest"></div>
+<div class="w-2 h-2 rounded-full bg-surface-container-highest"></div>
+<div class="w-2 h-2 rounded-full bg-surface-container-highest"></div>
+<div class="w-2 h-2 rounded-full bg-surface-container-highest"></div>
+<div class="w-2 h-2 rounded-full bg-surface-container-highest"></div>
+</div>
+<!-- Lifeline / Reinforcement -->
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">shield</span>
+<span class="font-label-sm text-label-sm">I/II</span>
+</div>
+</div>
+<!-- Question Archival Slate -->
+<div class="relative bg-surface-container rounded-xl p-space-md shadow-md flex flex-col gap-space-sm overflow-hidden">
+<!-- Subtle Golden Roman corner bracket accents via SVG -->
+<svg class="absolute top-2 left-2 w-4 h-4 text-secondary/30" fill="currentColor" viewbox="0 0 16 16">
+<path d="M0 0h6v2H2v4H0V0z"></path>
+</svg>
+<svg class="absolute top-2 right-2 w-4 h-4 text-secondary/30" fill="currentColor" viewbox="0 0 16 16">
+<path d="M16 0h-6v2h4v4h2V0z"></path>
+</svg>
+<svg class="absolute bottom-2 left-2 w-4 h-4 text-secondary/30" fill="currentColor" viewbox="0 0 16 16">
+<path d="M0 16h6v-2H2v-4H0v6z"></path>
+</svg>
+<svg class="absolute bottom-2 right-2 w-4 h-4 text-secondary/30" fill="currentColor" viewbox="0 0 16 16">
+<path d="M16 16h-6v-2h4v-4h2v6z"></path>
+</svg>
+<!-- Category Pill -->
+<div class="self-start inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-primary-container text-on-primary-container">
+<span class="material-symbols-outlined text-[14px]">swords</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest font-bold">Res Militaris • Res Publica</span>
+</div>
+<!-- Historical Reference Image Placeholder -->
+<div class="relative w-full h-36 rounded-lg overflow-hidden bg-surface-container-low shadow-inner">
+<img class="w-full h-full object-cover opacity-75 mix-blend-luminosity hover:mix-blend-normal transition-all duration-300" data-alt="Ancient naval galley engagement near Actium with Roman warships ramming amidst Mediterranean coastal waters. Dramatic golden hour sunlight reflects off bronze-clad prows, billows of Tyrian purple standards, and smoke against a deep turquoise sea, rendered in a museum-grade classical historical oil painting style with rich tenebrism." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMOi6e6TQWGuEwdaUj5K1PSyzNKYnpm3kjDSJ-Kt3Uqt_Nv51UMtEmYTW97LimYMIPXrVOIn06_oSJd5t_XxsM-MYCHh5Ba5QiyoQe7ZlE4IBQdVWjyYDG9WhOXk0a3BasCdXQTodFomOMBvJmm8PSKAnw-VXJ6WfpKnh42gMS072pvNsTIIYsVsH1mPD1DScYQRWgAXNPwD2WDNODSFiuzJVqLXRp8eFtZq_EE1yejSH1za2ZIK7BpA"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container via-surface-container/30 to-transparent"></div>
+<div class="absolute bottom-2 left-2 flex items-center gap-1 text-secondary font-label-sm text-label-sm uppercase tracking-wider">
+<span class="material-symbols-outlined text-[13px]">history_edu</span>
+<span>Anno 31 BC</span>
+</div>
+</div>
+<!-- Question Stem -->
+<h2 class="font-title-lg text-title-lg text-on-surface leading-snug">
+      Which decisive clash marked the final ruin of Mark Antony and Cleopatra, yielding sole dominion over Rome to Octavian?
+    </h2>
+</div>
+<!-- Interactive Answer Tiles -->
+<div class="flex flex-col gap-space-sm" id="answer-grid">
+<!-- Option A -->
+<button class="group w-full min-h-[58px] rounded-lg bg-surface-container-high hover:bg-surface-bright active:translate-y-0.5 px-space-md py-space-sm flex items-center justify-between shadow-sm transition-all text-left" onclick="selectAnswer(this, true)" type="button">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-8 h-8 rounded bg-secondary-container text-on-secondary-container flex items-center justify-center font-title-md text-title-md shrink-0 shadow-inner">
+          A
+        </div>
+<span class="font-title-md text-title-md text-on-surface truncate">Pugna Actiaca (Actium)</span>
+</div>
+<span class="status-icon opacity-0 transition-opacity material-symbols-outlined text-secondary text-[22px]">resize</span>
+</button>
+<!-- Option B -->
+<button class="group w-full min-h-[58px] rounded-lg bg-surface-container-high hover:bg-surface-bright active:translate-y-0.5 px-space-md py-space-sm flex items-center justify-between shadow-sm transition-all text-left" onclick="selectAnswer(this, false)" type="button">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-8 h-8 rounded bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-title-md text-title-md shrink-0 shadow-inner">
+          B
+        </div>
+<span class="font-title-md text-title-md text-on-surface truncate">Pugna Cannensis (Cannae)</span>
+</div>
+<span class="status-icon opacity-0 transition-opacity material-symbols-outlined text-error text-[22px]">cancel</span>
+</button>
+<!-- Option C -->
+<button class="group w-full min-h-[58px] rounded-lg bg-surface-container-high hover:bg-surface-bright active:translate-y-0.5 px-space-md py-space-sm flex items-center justify-between shadow-sm transition-all text-left" onclick="selectAnswer(this, false)" type="button">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-8 h-8 rounded bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-title-md text-title-md shrink-0 shadow-inner">
+          C
+        </div>
+<span class="font-title-md text-title-md text-on-surface truncate">Proelium Zamense (Zama)</span>
+</div>
+<span class="status-icon opacity-0 transition-opacity material-symbols-outlined text-error text-[22px]">cancel</span>
+</button>
+<!-- Option D -->
+<button class="group w-full min-h-[58px] rounded-lg bg-surface-container-high hover:bg-surface-bright active:translate-y-0.5 px-space-md py-space-sm flex items-center justify-between shadow-sm transition-all text-left" onclick="selectAnswer(this, false)" type="button">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-8 h-8 rounded bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-title-md text-title-md shrink-0 shadow-inner">
+          D
+        </div>
+<span class="font-title-md text-title-md text-on-surface truncate">Proelium Pharsalicum (Pharsalus)</span>
+</div>
+<span class="status-icon opacity-0 transition-opacity material-symbols-outlined text-error text-[22px]">cancel</span>
+</button>
+</div>
+<!-- Micro-Feedback Sheet (Initially Hidden) -->
+<div class="hidden flex-col bg-surface-container-lowest rounded-xl p-space-md shadow-xl gap-space-sm" id="feedback-sheet">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs text-secondary">
+<span class="material-symbols-outlined text-[20px]">workspace_premium</span>
+<span class="font-headline-sm text-headline-sm uppercase">Victoria Magnifica!</span>
+</div>
+<span class="font-label-lg text-label-lg text-primary font-bold">+120 XP</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+      In 31 BC, Agrippa's swift Liburnian galleys trapped Antony's behemoth quinqueremes, sealing Octavian's rise as Augustus.
+    </p>
+<button class="w-full mt-space-xs h-12 rounded bg-primary-container hover:bg-inverse-primary text-on-primary font-label-lg text-label-lg tracking-widest uppercase flex items-center justify-center gap-space-xs shadow-md active:scale-[0.99] transition-transform" type="button">
+<span>Perge (Advance)</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+<!-- Auxiliary Tactical Lifelines -->
+<div class="flex items-center justify-around pt-space-xs pb-space-sm">
+<button class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-secondary group" type="button">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center group-hover:bg-secondary-container transition-colors">
+<span class="material-symbols-outlined text-[20px]">hourglass_top</span>
+</div>
+<span class="font-label-sm text-label-sm uppercase">Mora (+15s)</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-secondary group" type="button">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center group-hover:bg-secondary-container transition-colors">
+<span class="material-symbols-outlined text-[20px]">filter_vintage</span>
+</div>
+<span class="font-label-sm text-label-sm uppercase">50 / 50</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-secondary group" type="button">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center group-hover:bg-secondary-container transition-colors">
+<span class="material-symbols-outlined text-[20px]">menu_book</span>
+</div>
+<span class="font-label-sm text-label-sm uppercase">Oraculum</span>
+</button>
+</div>
+</div>
+<script>
+  let hasAnswered = false;
+  let timerSeconds = 18;
+  const numerals = ['0', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX'];
+
+  const timerInterval = setInterval(() => {
+    if (hasAnswered) {
+      clearInterval(timerInterval);
+      return;
+    }
+    if (timerSeconds > 0) {
+      timerSeconds--;
+      const display = document.getElementById('timer-display');
+      const arc = document.getElementById('timer-arc');
+      if (display) display.textContent = numerals[timerSeconds] || timerSeconds;
+      if (arc) {
+        const offset = 94.25 * (1 - (timerSeconds / 30));
+        arc.style.strokeDashoffset = offset;
+      }
+    } else {
+      clearInterval(timerInterval);
+    }
+  }, 1000);
+
+  function selectAnswer(button, isCorrect) {
+    if (hasAnswered) return;
+    hasAnswered = true;
+
+    const allButtons = document.querySelectorAll('#answer-grid button');
+    allButtons.forEach(btn => btn.setAttribute('disabled', 'true'));
+
+    const icon = button.querySelector('.status-icon');
+    if (icon) icon.classList.remove('opacity-0');
+
+    if (isCorrect) {
+      button.classList.remove('bg-surface-container-high');
+      button.classList.add('bg-secondary-container', 'text-on-secondary-container');
+      const letter = button.querySelector('div > div');
+      if (letter) {
+        letter.classList.remove('bg-secondary-container', 'text-on-secondary-container');
+        letter.classList.add('bg-secondary', 'text-on-secondary');
+      }
+    } else {
+      button.classList.remove('bg-surface-container-high');
+      button.classList.add('bg-error-container', 'text-on-error-container');
+      const letter = button.querySelector('div > div');
+      if (letter) {
+        letter.classList.remove('bg-surface-container-highest', 'text-on-surface-variant');
+        letter.classList.add('bg-error', 'text-on-error');
+      }
+      // Reveal the correct one
+      const correctBtn = allButtons[0];
+      correctBtn.classList.remove('bg-surface-container-high');
+      correctBtn.classList.add('bg-secondary-container');
+      const correctIcon = correctBtn.querySelector('.status-icon');
+      if (correctIcon) correctIcon.classList.remove('opacity-0');
+    }
+
+    const feedback = document.getElementById('feedback-sheet');
+    if (feedback) {
+      feedback.classList.remove('hidden');
+      feedback.classList.add('flex');
+    }
+  }
+</script></main></body></html>

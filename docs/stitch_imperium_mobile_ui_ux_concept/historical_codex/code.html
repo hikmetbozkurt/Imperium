@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><title>Imperium</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100%;margin:0;padding:0;background-color:#161214;color:#e8e0e3;}body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "tertiary-container": "#392e2b", "on-error-container": "#ffdad6", "inverse-on-surface": "#332f31", "on-tertiary-container": "#a49591", "surface-container-low": "#1e1b1d", "surface": "#161214", "surface-dim": "#161214", "surface-tint": "#ffb2bc", "on-background": "#e8e0e3", "on-primary-fixed": "#3e0313", "secondary-fixed-dim": "#e9c176", "tertiary": "#d4c3be", "error-container": "#93000a", "on-surface-variant": "#d9c1c3", "on-tertiary-fixed": "#231917", "on-secondary-fixed": "#261900", "error": "#ffb4ab", "on-primary-fixed-variant": "#772e3d", "surface-container": "#221f21", "primary-container": "#5a1827", "inverse-primary": "#944553", "on-tertiary": "#392e2b", "surface-container-lowest": "#100d0f", "on-primary": "#5a1827", "on-secondary-fixed-variant": "#5d4201", "surface-container-high": "#2d292b", "surface-container-highest": "#383436", "secondary-fixed": "#ffdea5", "on-secondary-container": "#dab36a", "on-surface": "#e8e0e3", "outline": "#a18c8d", "primary-fixed-dim": "#ffb2bc", "tertiary-fixed": "#f1dfda", "on-secondary": "#412d00", "outline-variant": "#534344", "on-primary-container": "#d97d8c", "on-error": "#690005", "surface-bright": "#3c383a", "primary-fixed": "#ffd9dd", "secondary-container": "#604403", "surface-variant": "#383436", "background": "#161214", "secondary": "#e9c176", "inverse-surface": "#e8e0e3", "tertiary-fixed-dim": "#d4c3be", "on-tertiary-fixed-variant": "#504441", "primary": "#ffb2bc" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "space-xl": "2rem", "gutter": "1rem", "space-lg": "1.5rem", "space-sm": "0.5rem", "space-xs": "0.25rem", "margin": "1rem", "space-md": "1rem" }, "fontFamily": { "body-md": ["Inter"], "label-lg": ["Inter"], "label-md": ["Inter"], "body-lg": ["Inter"], "body-sm": ["Inter"], "label-sm": ["Inter"], "display-lg": ["Libre Caslon Text"], "title-lg": ["Inter"], "display-lg-mobile": ["Libre Caslon Text"], "headline-sm": ["Libre Caslon Text"], "title-md": ["Inter"], "headline-lg": ["Libre Caslon Text"], "headline-md": ["Libre Caslon Text"] }, "fontSize": { "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }], "label-lg": ["14px", { "lineHeight": "18px", "letterSpacing": "0.05em", "fontWeight": "600" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.06em", "fontWeight": "600" }], "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }], "label-sm": ["10px", { "lineHeight": "14px", "letterSpacing": "0.08em", "fontWeight": "700" }], "display-lg": ["36px", { "lineHeight": "44px", "letterSpacing": "0.04em", "fontWeight": "700" }], "title-lg": ["18px", { "lineHeight": "24px", "fontWeight": "600" }], "display-lg-mobile": ["28px", { "lineHeight": "36px", "letterSpacing": "0.03em", "fontWeight": "700" }], "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }], "title-md": ["16px", { "lineHeight": "22px", "fontWeight": "600" }], "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "0.02em", "fontWeight": "700" }], "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "0.01em", "fontWeight": "600" }] } } } }</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-body-md text-on-surface flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 pt-safe bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.60)]"><div class="h-16 px-gutter flex items-center justify-between"><div class="flex items-center gap-space-sm"><img alt="Imperium Roman Coin Emblem" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1Xfh-SXs7QJg9ZdHLsugcHAKW_X3yVBpzjP0wh7-MfpMnb7SfgSTI6LFaYja5pipUfm7FYTJPtfso2SIc15EiOJur5Dh9qPdfFv6lb6KGyrhlourZrq5OscV3AzXa0_cJh-hzkTEJQnJREzeRFbesh1Kad0p92nS4qvEUmGY5uBxCTplS3QzmJh90iRmOJ44xdxoeJpR8SPSaR4yuOimJ4C_tmhbdgTIpSu7cIBO5y2wd_lalo4o_QeJ6Ax"/><div class="flex flex-col"><span class="font-headline-sm text-headline-sm uppercase tracking-wider text-secondary leading-none">Imperium</span><span class="font-label-sm text-label-sm uppercase text-on-surface-variant leading-none pt-space-xs">Codex</span></div></div><div class="flex items-center gap-space-sm"><div class="flex items-center gap-space-xs bg-surface-container-high px-space-sm py-1 rounded"><span class="material-symbols-outlined text-[16px] text-secondary">local_fire_department</span><span class="font-label-sm text-label-sm text-secondary font-bold">VII DIES</span></div><div class="flex items-center gap-space-xs bg-surface-container px-space-sm py-1 rounded"><span class="font-label-sm text-label-sm text-on-surface-variant font-bold">TRIBVNE</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex-1 flex flex-col relative w-full pt-16 pb-20 bg-surface"><div class="flex flex-col w-full px-gutter pb-space-xl space-y-space-lg">
+<!-- Codex Archival Overview Header -->
+<header class="flex flex-col space-y-space-sm pt-space-md">
+<div class="flex items-baseline justify-between">
+<h1 class="font-headline-lg text-headline-lg uppercase text-secondary tracking-widest">
+        Historical Codex
+      </h1>
+<span class="font-label-sm text-label-sm text-secondary uppercase bg-secondary-container/40 px-space-sm py-0.5 rounded">
+        Tomus IV
+      </span>
+</div>
+<!-- Progress Meter & Curatorial Stat -->
+<div class="flex flex-col space-y-1.5 bg-surface-container-low p-space-md rounded-xl shadow-md">
+<div class="flex justify-between items-center text-on-surface-variant">
+<span class="font-label-md text-label-md uppercase tracking-wider text-tertiary">Archival Preservation</span>
+<span class="font-label-md text-label-md font-bold text-secondary">124 / 350 Annals</span>
+</div>
+<!-- Tactile stone inlaid progress groove -->
+<div class="w-full h-2 bg-surface-container-lowest rounded-full overflow-hidden p-0.5 shadow-inner">
+<div class="h-full bg-gradient-to-r from-primary-container via-primary to-secondary rounded-full" style="width: 35.4%;"></div>
+</div>
+<div class="flex justify-between items-center pt-1 font-label-sm text-label-sm text-on-surface-variant">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-secondary">auto_stories</span>
+          35% Documented
+        </span>
+<span class="text-secondary-fixed-dim">Next Tier: Praetor's Scholar</span>
+</div>
+</div>
+<!-- Incised Basalt Search Well -->
+<div class="relative w-full mt-space-xs">
+<div class="absolute inset-y-0 left-0 pl-space-md flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-secondary text-[20px]">search</span>
+</div>
+<input class="w-full bg-surface-container-lowest text-on-surface placeholder:text-outline-variant font-body-md text-body-md pl-11 pr-10 py-3 rounded-lg shadow-inner focus:outline-none focus:bg-surface-container focus:text-on-surface transition-colors" placeholder="Query annals, legions, or decrees..." type="search"/>
+<div class="absolute inset-y-0 right-0 pr-space-md flex items-center">
+<button aria-label="Filters" class="text-on-surface-variant hover:text-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">tune</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Tactile Era / Category Filter Chips -->
+<nav aria-label="Codex Categories" class="flex items-center gap-space-xs overflow-x-auto py-1 -mx-gutter px-gutter no-scrollbar">
+<button class="shrink-0 px-3.5 py-1.5 rounded bg-surface-container-high text-on-surface-variant font-label-md text-label-md uppercase tracking-wider hover:text-on-surface transition-all">
+      All
+    </button>
+<button class="shrink-0 px-3.5 py-1.5 rounded bg-surface-container-high text-on-surface-variant font-label-md text-label-md uppercase tracking-wider hover:text-on-surface transition-all">
+      People
+    </button>
+<!-- Active Chip: Battles (Imperial Tyrian) -->
+<button class="shrink-0 px-3.5 py-1.5 rounded bg-primary-container text-secondary font-label-md text-label-md uppercase tracking-widest shadow-md flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px] text-secondary">swords</span>
+      Battles
+    </button>
+<button class="shrink-0 px-3.5 py-1.5 rounded bg-surface-container-high text-on-surface-variant font-label-md text-label-md uppercase tracking-wider hover:text-on-surface transition-all">
+      Empires
+    </button>
+<button class="shrink-0 px-3.5 py-1.5 rounded bg-surface-container-high text-on-surface-variant font-label-md text-label-md uppercase tracking-wider hover:text-on-surface transition-all">
+      Events
+    </button>
+<button class="shrink-0 px-3.5 py-1.5 rounded bg-surface-container-high text-on-surface-variant font-label-md text-label-md uppercase tracking-wider hover:text-on-surface transition-all">
+      Places
+    </button>
+<button class="shrink-0 px-3.5 py-1.5 rounded bg-surface-container-high text-on-surface-variant font-label-md text-label-md uppercase tracking-wider hover:text-on-surface transition-all">
+      Artifacts
+    </button>
+</nav>
+<!-- Codex Archival Catalog Grid -->
+<section class="grid grid-cols-2 gap-space-md">
+<!-- Card 1: Battle of Actium (Unlocked) -->
+<article class="group flex flex-col justify-between bg-surface-container rounded-xl overflow-hidden shadow-lg hover:shadow-2xl active:scale-[0.98] transition-all cursor-pointer" onclick="openScrollModal('Battle of Actium', '31 BC • Naval Battle', 'Marcus Vipsanius Agrippa commanded the fleet of Octavian to a decisive naval triumph over Mark Antony and Cleopatra VII off the western coast of Greece. The victory effectively ended the Roman Republic and birthed the Pax Augusta.')">
+<div class="relative w-full aspect-[4/3] bg-surface-container-lowest overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90" data-alt="An intricately engraved antique etching of an ancient Roman trireme warship navigating stormy Mediterranean seas during the Battle of Actium, woodcut line art style on aged dark parchment, bronze and sepia highlights, museum catalog aesthetic, warm ambient candlelight, high historical fidelity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDX0_EBnmb8ej5R33bwfs5EknwdrfqrQn2oGactrEzPHPrcwnnRDN8isCJwxrUq0qmNqth8FCgxDyuhXfWUPnGXrLmiJIGw2vxH7PClNXGv2Gtb5-N03u15khVDyJ89nRk_YKBtrj63T0XgBMdxGW3KY8PB047AyAwA-Rhn5dM4UF2gvqyWi_JnwHb7yb5_cqkLFZOyoxkCQahbkTq3BXGtMpbY7bOe_gygsjrg7E243hBZgybuFRDxlQ"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container via-transparent to-transparent"></div>
+<span class="absolute top-2 left-2 flex items-center gap-1 bg-surface-container-lowest/90 backdrop-blur-sm px-2 py-0.5 rounded font-label-sm text-label-sm text-secondary shadow-sm">
+<span class="material-symbols-outlined text-[12px] text-secondary">workspace_premium</span>
+          RECOVERED
+        </span>
+</div>
+<div class="p-space-sm flex flex-col flex-1 justify-between">
+<div class="space-y-1">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-tertiary">31 BC • Naval</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface leading-tight group-hover:text-secondary transition-colors">
+            Battle of Actium
+          </h2>
+</div>
+<div class="pt-space-sm flex items-center justify-between text-secondary">
+<span class="font-label-sm text-label-sm tracking-widest uppercase flex items-center gap-0.5">
+            Inspect
+            <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">history_edu</span>
+</div>
+</div>
+</article>
+<!-- Card 2: Julius Caesar (Mastered) -->
+<article class="group flex flex-col justify-between bg-surface-container rounded-xl overflow-hidden shadow-lg hover:shadow-2xl active:scale-[0.98] transition-all cursor-pointer" onclick="openScrollModal('Julius Caesar', '100–44 BC • Statesman &amp; Imperator', 'Dictator perpetuo whose conquest of Gaul and march across the Rubicon dismantled the late Roman Republic. A military genius, orator, and architect of the Julian Calendar whose assassination on the Ides of March sealed the birth of the Principate.')">
+<div class="relative w-full aspect-[4/3] bg-surface-container-lowest overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90" data-alt="Classical antique Roman marble bust of Gaius Julius Caesar, dramatic chiaroscuro lighting against an imperial Tyrian porphyry backdrop, highly detailed stone carving texture, fine archival engraving lines, gold leaf laurel wreath glints, regal historic portraiture." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYo0qpc5_grrlza15gB-vutuufnTu3JdeiauUjd5UYWuIDQasVlakkESyPKOM77E93qrNWanZyAcGjC6TF2NYvU1T2Xj4WHophgv-dj2Q_rGEyX7pS9iC0cPbhXVF61jQbF05OqiRafI_JxjGI3_RSW7d7rF0q4g2r9jPxPmmMzMwjXFcCK3Yvm6wOz1AA8-UuOozAfLxfUNDeAEQLhenXfg71rl7R2cGRq3joJEIqH_oWnIZvsCf9Xg"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container via-transparent to-transparent"></div>
+<div class="absolute top-2 left-2 flex items-center gap-0.5 bg-surface-container-lowest/90 backdrop-blur-sm px-2 py-0.5 rounded font-label-sm text-label-sm text-secondary shadow-sm">
+<span class="material-symbols-outlined text-[12px] text-secondary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[12px] text-secondary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[12px] text-secondary" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<div class="p-space-sm flex flex-col flex-1 justify-between">
+<div class="space-y-1">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary-fixed-dim">100–44 BC • Statesman</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface leading-tight group-hover:text-secondary transition-colors">
+            Julius Caesar
+          </h2>
+</div>
+<div class="pt-space-sm flex items-center justify-between text-secondary">
+<span class="font-label-sm text-label-sm tracking-widest uppercase flex items-center gap-0.5">
+            Mastered
+            <span class="material-symbols-outlined text-[14px]">military_tech</span>
+</span>
+<span class="material-symbols-outlined text-[16px] text-secondary">verified</span>
+</div>
+</div>
+</article>
+<!-- Card 3: Lorica Segmentata (Unlocked Artifact) -->
+<article class="group flex flex-col justify-between bg-surface-container rounded-xl overflow-hidden shadow-lg hover:shadow-2xl active:scale-[0.98] transition-all cursor-pointer" onclick="openScrollModal('Lorica Segmentata', '1st Century AD • Legionary Armor', 'The segmented plate cuirass engineered by Roman blacksmiths. Composed of broad ferrous girth hoops affixed with leather straps, it offered peerless defense against barbarian slashing blades during the Pax Romana expansion.')">
+<div class="relative w-full aspect-[4/3] bg-surface-container-lowest overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90" data-alt="Detailed technical parchment engraving of Roman Lorica Segmentata armor plates and bronze hinge buckles, museum archival relic sketch style on weathered dark paper, subtle brass metallic highlights, museum display specimen, scholarly Roman archaeology." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC20CFSg_ri0mvJqjk7BHW3EQLs2T7wesNEYFqLOWnDTiIWR_-bNhLUmpIP1Z3Pvl9joWmyTqOP56Rzebai9pFjIZoqmz_MMX-9hjTGEzV2k1CMckbu0wq0qyIUSjrb4WxJKj-lJKoftOxVTdv7lqlK_fMd_rn2LFtTM4QoFPyPZubeQ0CLdnJMaFw_OdGu05-m5SqsjnAFmvpuGXBgnzSdqZgiGHBm7C2ZQrKEUKQuAL540MWBL13TXg"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container via-transparent to-transparent"></div>
+<span class="absolute top-2 left-2 flex items-center gap-1 bg-surface-container-lowest/90 backdrop-blur-sm px-2 py-0.5 rounded font-label-sm text-label-sm text-secondary shadow-sm">
+<span class="material-symbols-outlined text-[12px] text-secondary">token</span>
+          RELIC
+        </span>
+</div>
+<div class="p-space-sm flex flex-col flex-1 justify-between">
+<div class="space-y-1">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-tertiary">I Century AD • Relic</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface leading-tight group-hover:text-secondary transition-colors">
+            Lorica Segmentata
+          </h2>
+</div>
+<div class="pt-space-sm flex items-center justify-between text-secondary">
+<span class="font-label-sm text-label-sm tracking-widest uppercase flex items-center gap-0.5">
+            Inspect
+            <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">shield</span>
+</div>
+</div>
+</article>
+<!-- Card 4: Classified Imperial Decree (Locked) -->
+<article class="flex flex-col justify-between bg-surface-container-low rounded-xl overflow-hidden shadow-inner cursor-not-allowed select-none opacity-85" onclick="triggerHapticLock('Decree of the Senate requires Legion Campaign Chapter XVIII completion.')">
+<div class="relative w-full aspect-[4/3] bg-surface-container-lowest flex items-center justify-center overflow-hidden">
+<!-- Chiseled stone texture backing -->
+<div class="absolute inset-0 bg-gradient-to-b from-surface-container-lowest via-surface-container-high/20 to-surface-container-lowest"></div>
+<!-- Wax seal stamp element -->
+<div class="relative z-10 w-12 h-12 rounded-full bg-primary-container/80 flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined text-secondary text-[24px]">lock</span>
+</div>
+<span class="absolute top-2 right-2 bg-surface-container-lowest/80 px-2 py-0.5 rounded font-label-sm text-label-sm text-outline uppercase tracking-wider">
+          Arcanum
+        </span>
+</div>
+<div class="p-space-sm flex flex-col flex-1 justify-between bg-surface-container-low">
+<div class="space-y-1">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">??? BC • Pax Romana</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface-variant/70 leading-tight">
+            Classified Decree
+          </h2>
+</div>
+<div class="pt-space-sm">
+<div class="bg-surface-container px-2 py-1.5 rounded flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary text-[14px]">lock_clock</span>
+<span class="font-label-sm text-label-sm text-tertiary leading-none">Req. Campaign Rank 18</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Card 5: Teutoburg Forest (Locked Mystery Battle) -->
+<article class="flex flex-col justify-between bg-surface-container-low rounded-xl overflow-hidden shadow-inner cursor-not-allowed select-none opacity-85" onclick="triggerHapticLock('The Germanic frontier is shrouded in fog. Advance through the Rhine Campaigns to unearth Varus\' lost legions.')">
+<div class="relative w-full aspect-[4/3] bg-surface-container-lowest flex items-center justify-center overflow-hidden">
+<!-- Misty Dark Wood Vignette -->
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-high/30 to-surface-container-lowest"></div>
+<!-- Bronze seal emblem -->
+<div class="relative z-10 w-12 h-12 rounded-full bg-secondary-container/90 flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined text-secondary text-[24px]">gavel</span>
+</div>
+<span class="absolute top-2 right-2 bg-surface-container-lowest/80 px-2 py-0.5 rounded font-label-sm text-label-sm text-outline uppercase tracking-wider">
+          Classified
+        </span>
+</div>
+<div class="p-space-sm flex flex-col flex-1 justify-between bg-surface-container-low">
+<div class="space-y-1">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">9 AD • Germania</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface-variant/70 leading-tight">
+            Teutoburg Forest
+          </h2>
+</div>
+<div class="pt-space-sm">
+<div class="bg-surface-container px-2 py-1.5 rounded flex items-center gap-1.5">
+<span class="material-symbols-outlined text-secondary text-[14px]">explore</span>
+<span class="font-label-sm text-label-sm text-tertiary leading-none">Unlocks in Rhine Annal</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Card 6: Colosseum / Flavian Amphitheatre (Unlocked Monument) -->
+<article class="group flex flex-col justify-between bg-surface-container rounded-xl overflow-hidden shadow-lg hover:shadow-2xl active:scale-[0.98] transition-all cursor-pointer" onclick="openScrollModal('Amphitheatrum Flavium', '70–80 AD • Monumental Architecture', 'Commissioned by Emperor Vespasian of the Flavian dynasty and dedicated by Titus. Capable of seating over 50,000 spectators for gladiatorial munera, venationes, and simulated naval naumachia, embodying imperial engineering supremacy.')">
+<div class="relative w-full aspect-[4/3] bg-surface-container-lowest overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90" data-alt="Cross-sectional architectural Roman architectural blueprint engraving of the Colosseum amphitheater, travertine stone facades and subterranean hypogeum corridors, classical sepia inked parchment, bronze accents, archaeological study print." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQd6bbE-wfFKdiREgVusqrtntNFyW6mAwroc__ITlEcXZox69JIbETHP1tlN36ttU2mMnJTR1trXqzFqan6HZc4wO6Qm6C0T9g4rthlq7FSvEUB_Go-AKV6XwuI46l7zsOJ6nnuVisE7w8v4ADJ-ow8CDmXgiLxJVJ0zjMFzDZnBr-oW0jzkmFgOdd2eXqc1wlO_54hOrVfZ1gGQdWJSSkCb0dnWZH0Gnh4RZZ92jUt5mTuFGnr7kgNA"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container via-transparent to-transparent"></div>
+<span class="absolute top-2 left-2 flex items-center gap-1 bg-surface-container-lowest/90 backdrop-blur-sm px-2 py-0.5 rounded font-label-sm text-label-sm text-secondary shadow-sm">
+<span class="material-symbols-outlined text-[12px] text-secondary">temple_buddhist</span>
+          MONUMENT
+        </span>
+</div>
+<div class="p-space-sm flex flex-col flex-1 justify-between">
+<div class="space-y-1">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-tertiary">80 AD • Architecture</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface leading-tight group-hover:text-secondary transition-colors">
+            Amphitheatrum
+          </h2>
+</div>
+<div class="pt-space-sm flex items-center justify-between text-secondary">
+<span class="font-label-sm text-label-sm tracking-widest uppercase flex items-center gap-0.5">
+            Inspect
+            <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">villa</span>
+</div>
+</div>
+</article>
+</section>
+<!-- Curatorial Archive Action Plate -->
+<section class="bg-surface-container-high p-space-md rounded-xl flex items-center justify-between shadow-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-secondary shrink-0">
+<span class="material-symbols-outlined text-[22px]">history_toggle_off</span>
+</div>
+<div class="flex flex-col">
+<span class="font-title-md text-title-md text-on-surface">Senate Scriptorium</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Compile recovered records into codex volumes</span>
+</div>
+</div>
+<button class="bg-primary-container px-3.5 py-2 rounded text-secondary font-label-md text-label-md uppercase tracking-wider shadow hover:brightness-110 active:scale-95 transition-all">
+      Bind
+    </button>
+</section>
+<!-- Interactive Modal for Scroll Archival Inspection -->
+<div class="fixed inset-0 z-50 flex items-center justify-center p-gutter bg-surface-container-lowest/80 backdrop-blur-md hidden opacity-0 transition-opacity duration-300" id="scroll-modal">
+<div class="relative w-full max-w-md bg-surface-container rounded-xl p-space-lg shadow-2xl flex flex-col space-y-space-md transform scale-95 transition-transform duration-300" id="scroll-modal-content">
+<!-- Top Crest and Close -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[22px]">auto_stories</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest text-secondary">Imperial Record Office</span>
+</div>
+<button aria-label="Close Scroll" class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface" onclick="closeScrollModal()">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<!-- Inscriptional Header -->
+<div class="space-y-1">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary-fixed-dim" id="modal-date">Era Date</span>
+<h3 class="font-headline-lg text-headline-lg uppercase text-secondary tracking-wide leading-tight" id="modal-title">Record Title</h3>
+</div>
+<!-- Parchment archival text well -->
+<div class="bg-surface-container-lowest p-space-md rounded-lg shadow-inner">
+<p class="font-body-lg text-body-lg text-on-surface leading-relaxed italic" id="modal-body">
+          Archival script content...
+        </p>
+</div>
+<!-- Footer Actions -->
+<div class="flex items-center gap-space-sm pt-space-xs">
+<button class="flex-1 py-2.5 rounded bg-primary-container text-secondary font-label-lg text-label-lg uppercase tracking-wider shadow hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-1.5" onclick="closeScrollModal()">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+          Seal &amp; File
+        </button>
+</div>
+</div>
+</div>
+<!-- Locked Haptic Toast Notification -->
+<div class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-opacity duration-300 bg-surface-container-highest px-space-md py-space-sm rounded-lg shadow-2xl flex items-center gap-2 max-w-xs w-full" id="locked-toast">
+<span class="material-symbols-outlined text-primary text-[20px]">gavel</span>
+<span class="font-body-sm text-body-sm text-on-surface" id="toast-text">Restricted imperial record.</span>
+</div>
+</div>
+<script>
+  function openScrollModal(title, date, description) {
+    const modal = document.getElementById('scroll-modal');
+    const content = document.getElementById('scroll-modal-content');
+    document.getElementById('modal-title').innerText = title;
+    document.getElementById('modal-date').innerText = date;
+    document.getElementById('modal-body').innerText = '“' + description + '”';
+
+    modal.classList.remove('hidden');
+    requestAnimationFrame(() => {
+      modal.classList.remove('opacity-0');
+      content.classList.remove('scale-95');
+      content.classList.add('scale-100');
+    });
+  }
+
+  function closeScrollModal() {
+    const modal = document.getElementById('scroll-modal');
+    const content = document.getElementById('scroll-modal-content');
+    modal.classList.add('opacity-0');
+    content.classList.remove('scale-100');
+    content.classList.add('scale-95');
+    setTimeout(() => {
+      modal.classList.add('hidden');
+    }, 300);
+  }
+
+  let toastTimeout = null;
+  function triggerHapticLock(message) {
+    if (navigator.vibrate) {
+      navigator.vibrate([40, 60, 40]);
+    }
+    const toast = document.getElementById('locked-toast');
+    const toastText = document.getElementById('toast-text');
+    toastText.innerText = message;
+    
+    clearTimeout(toastTimeout);
+    toast.classList.remove('opacity-0');
+    
+    toastTimeout = setTimeout(() => {
+      toast.classList.add('opacity-0');
+    }, 2800);
+  }
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_-4px_16px_rgba(0,0,0,0.70)]" data-active-classes="text-secondary bg-surface-container/60"><div class="flex justify-around items-center h-20 px-space-sm"><a class="flex flex-col items-center justify-center gap-1 min-w-[64px] h-12 rounded transition-colors text-on-surface-variant hover:text-on-surface" data-path="home" href="#"><span class="material-symbols-outlined text-[22px]">temple_buddhist</span><span class="font-label-sm text-label-sm tracking-widest uppercase">Home</span></a><a class="flex flex-col items-center justify-center gap-1 min-w-[64px] h-12 rounded transition-colors text-on-surface-variant hover:text-on-surface" data-path="campaign" href="#"><span class="material-symbols-outlined text-[22px]">explore</span><span class="font-label-sm text-label-sm tracking-widest uppercase">Campaign</span></a><a aria-current="page" class="flex flex-col items-center justify-center gap-1 min-w-[64px] h-12 rounded transition-colors text-secondary bg-surface-container/60" data-path="codex" href="#"><span class="material-symbols-outlined text-[22px]">auto_stories</span><span class="font-label-sm text-label-sm tracking-widest uppercase">Codex</span></a><a class="flex flex-col items-center justify-center gap-1 min-w-[64px] h-12 rounded transition-colors text-on-surface-variant hover:text-on-surface" data-path="profile" href="#"><span class="material-symbols-outlined text-[22px]">military_tech</span><span class="font-label-sm text-label-sm tracking-widest uppercase">Profile</span></a></div></nav></body></html>

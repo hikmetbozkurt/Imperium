@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><title>Imperium</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100%;margin:0;padding:0;background-color:#161214;color:#e8e0e3;}body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "tertiary-container": "#392e2b", "on-error-container": "#ffdad6", "inverse-on-surface": "#332f31", "on-tertiary-container": "#a49591", "surface-container-low": "#1e1b1d", "surface": "#161214", "surface-dim": "#161214", "surface-tint": "#ffb2bc", "on-background": "#e8e0e3", "on-primary-fixed": "#3e0313", "secondary-fixed-dim": "#e9c176", "tertiary": "#d4c3be", "error-container": "#93000a", "on-surface-variant": "#d9c1c3", "on-tertiary-fixed": "#231917", "on-secondary-fixed": "#261900", "error": "#ffb4ab", "on-primary-fixed-variant": "#772e3d", "surface-container": "#221f21", "primary-container": "#5a1827", "inverse-primary": "#944553", "on-tertiary": "#392e2b", "surface-container-lowest": "#100d0f", "on-primary": "#5a1827", "on-secondary-fixed-variant": "#5d4201", "surface-container-high": "#2d292b", "surface-container-highest": "#383436", "secondary-fixed": "#ffdea5", "on-secondary-container": "#dab36a", "on-surface": "#e8e0e3", "outline": "#a18c8d", "primary-fixed-dim": "#ffb2bc", "tertiary-fixed": "#f1dfda", "on-secondary": "#412d00", "outline-variant": "#534344", "on-primary-container": "#d97d8c", "on-error": "#690005", "surface-bright": "#3c383a", "primary-fixed": "#ffd9dd", "secondary-container": "#604403", "surface-variant": "#383436", "background": "#161214", "secondary": "#e9c176", "inverse-surface": "#e8e0e3", "tertiary-fixed-dim": "#d4c3be", "on-tertiary-fixed-variant": "#504441", "primary": "#ffb2bc" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "space-xl": "2rem", "gutter": "1rem", "space-lg": "1.5rem", "space-sm": "0.5rem", "space-xs": "0.25rem", "margin": "1rem", "space-md": "1rem" }, "fontFamily": { "body-md": ["Inter"], "label-lg": ["Inter"], "label-md": ["Inter"], "body-lg": ["Inter"], "body-sm": ["Inter"], "label-sm": ["Inter"], "display-lg": ["Libre Caslon Text"], "title-lg": ["Inter"], "display-lg-mobile": ["Libre Caslon Text"], "headline-sm": ["Libre Caslon Text"], "title-md": ["Inter"], "headline-lg": ["Libre Caslon Text"], "headline-md": ["Libre Caslon Text"] }, "fontSize": { "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }], "label-lg": ["14px", { "lineHeight": "18px", "letterSpacing": "0.05em", "fontWeight": "600" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.06em", "fontWeight": "600" }], "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }], "label-sm": ["10px", { "lineHeight": "14px", "letterSpacing": "0.08em", "fontWeight": "700" }], "display-lg": ["36px", { "lineHeight": "44px", "letterSpacing": "0.04em", "fontWeight": "700" }], "title-lg": ["18px", { "lineHeight": "24px", "fontWeight": "600" }], "display-lg-mobile": ["28px", { "lineHeight": "36px", "letterSpacing": "0.03em", "fontWeight": "700" }], "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }], "title-md": ["16px", { "lineHeight": "22px", "fontWeight": "600" }], "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "0.02em", "fontWeight": "700" }], "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "0.01em", "fontWeight": "600" }] } } } }</script></head><body class="bg-surface font-body-md text-body-md text-on-surface flex flex-col min-h-screen pt-safe pb-safe"><main class="flex-1 flex flex-col relative w-full bg-surface"><div class="flex flex-col w-full relative px-gutter pb-space-xl">
+<!-- Subtle Ambient Glow Overlay -->
+<div class="absolute inset-x-0 top-0 h-96 bg-gradient-to-b from-primary-container/20 via-secondary-container/10 to-transparent pointer-events-none -z-10"></div>
+<!-- Victory Monument Header -->
+<section class="flex flex-col items-center text-center mt-space-md mb-space-lg relative">
+<!-- Epigraphic Subtitle -->
+<div class="inline-flex items-center gap-space-xs px-space-md py-1 rounded-full bg-secondary-container/30 mb-space-sm">
+<span class="material-symbols-outlined text-secondary text-sm" style="font-variation-settings: 'FILL' 1;">military_tech</span>
+<span class="font-label-sm text-secondary tracking-widest uppercase">Battle of Actium Conquered</span>
+</div>
+<!-- Classical Triumphal Header -->
+<h1 class="font-display-lg-mobile text-display-lg-mobile text-secondary-fixed tracking-wider uppercase drop-shadow-md">
+      Victoria
+    </h1>
+<p class="font-body-sm text-on-surface-variant max-w-xs mt-1">
+      The Senate and the People of Rome acknowledge thy erudition.
+    </p>
+<!-- Triumph Laurels & Stars Triptych -->
+<div class="relative flex items-center justify-center gap-space-md mt-space-lg">
+<!-- Star 1 -->
+<div class="relative flex flex-col items-center">
+<div class="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center shadow-md transform -rotate-6">
+<span class="material-symbols-outlined text-secondary text-2xl" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<!-- Center Star (Elevated Prominence) -->
+<div class="relative flex flex-col items-center -mt-3">
+<div class="w-16 h-16 rounded-xl bg-surface-container-highest flex items-center justify-center shadow-xl">
+<span class="material-symbols-outlined text-secondary-fixed text-4xl" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<span class="font-label-sm text-secondary mt-1 uppercase tracking-widest">Flawless</span>
+</div>
+<!-- Star 3 -->
+<div class="relative flex flex-col items-center">
+<div class="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center shadow-md transform rotate-6">
+<span class="material-symbols-outlined text-secondary text-2xl" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Performance Metrics Stone Tablet -->
+<section class="w-full bg-surface-container rounded-xl p-space-md shadow-lg mb-space-lg relative overflow-hidden">
+<div class="absolute -right-8 -bottom-8 w-32 h-32 bg-primary-container/20 rounded-full blur-2xl pointer-events-none"></div>
+<div class="flex items-center justify-between pb-space-sm mb-space-sm bg-surface-container-low rounded-lg p-space-sm">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-on-surface-variant uppercase tracking-wider">Score Achieved</span>
+<span class="font-title-lg text-title-lg text-secondary-fixed">850 PTS</span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-label-sm text-on-surface-variant uppercase tracking-wider block">Trial Rating</span>
+<span class="font-label-md text-label-md text-primary">Master Rank</span>
+</div>
+</div>
+<!-- Stats Dual Pill -->
+<div class="grid grid-cols-2 gap-space-sm">
+<div class="bg-surface-container-low p-space-sm rounded-lg flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-base">fact_check</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-on-surface-variant uppercase">Accuracy</span>
+<span class="font-title-md text-title-md text-on-surface truncate">8 / 10 Correct</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-space-sm rounded-lg flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-base" style="font-variation-settings: 'FILL' 1;">award_star</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-on-surface-variant uppercase">Speed Bonus</span>
+<span class="font-title-md text-title-md text-secondary truncate">+60 Laurels</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Scholar Progression Card -->
+<section class="w-full bg-surface-container rounded-xl p-space-md shadow-lg mb-space-lg">
+<div class="flex items-center justify-between mb-space-sm">
+<div class="flex items-center gap-space-sm">
+<!-- Coin Emblem Avatar -->
+<img alt="Imperium Roman Coin Emblem" class="w-12 h-12 rounded-lg object-cover shadow-md" src="https://lh3.googleusercontent.com/aida/AEtjO1Xfh-SXs7QJg9ZdHLsugcHAKW_X3yVBpzjP0wh7-MfpMnb7SfgSTI6LFaYja5pipUfm7FYTJPtfso2SIc15EiOJur5Dh9qPdfFv6lb6KGyrhlourZrq5OscV3AzXa0_cJh-hzkTEJQnJREzeRFbesh1Kad0p92nS4qvEUmGY5uBxCTplS3QzmJh90iRmOJ44xdxoeJpR8SPSaR4yuOimJ4C_tmhbdgTIpSu7cIBO5y2wd_lalo4o_QeJ6Ax"/>
+<div class="flex flex-col">
+<span class="font-label-sm text-secondary uppercase tracking-widest">Scholar Hierarchy</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">Historian IV</span>
+</div>
+</div>
+<div class="px-space-sm py-1 bg-secondary-container rounded-md flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-secondary text-xs">arrow_upward</span>
+<span class="font-label-sm text-on-secondary-container font-semibold">+450 XP</span>
+</div>
+</div>
+<!-- XP Bar Module -->
+<div class="w-full bg-surface-container-lowest h-3 rounded-full overflow-hidden p-0.5 shadow-inner">
+<div class="bg-gradient-to-r from-secondary-container via-secondary to-secondary-fixed h-full rounded-full transition-all duration-1000 w-[72%]"></div>
+</div>
+<div class="flex justify-between items-center mt-space-xs">
+<span class="font-body-sm text-on-surface-variant">720 / 1000 XP</span>
+<span class="font-label-sm text-secondary">280 XP to Praetor I</span>
+</div>
+</section>
+<!-- Codex Archival Discovery Section -->
+<section class="w-full bg-surface-container-high rounded-xl p-space-md shadow-xl mb-space-xl relative overflow-hidden">
+<!-- Archival Watermark Badge -->
+<div class="flex items-center gap-space-xs mb-space-sm">
+<div class="w-6 h-6 rounded-full bg-primary-container flex items-center justify-center text-primary shadow-sm">
+<span class="material-symbols-outlined text-xs">auto_stories</span>
+</div>
+<span class="font-label-sm text-primary tracking-wider uppercase font-semibold">New Codex Entry Unlocked</span>
+</div>
+<!-- Codex Visual Preview Tile -->
+<div class="flex gap-space-md items-center bg-surface-container-low p-space-sm rounded-lg">
+<div class="w-20 h-20 rounded-lg overflow-hidden shrink-0 shadow-md">
+<img class="w-full h-full object-cover" data-alt="A dark moody Roman bronze coin bas-relief carving displaying a quadrireme warship with oars cleaving ocean waves, ancient Roman epigraphy carved in marble, dramatic cinematic golden hour side-lighting on dark charcoal stone surface, prestigious historical museum artifact, high detail, authentic historical aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBz-dImUPwb8YbEOU80yxL8FNk63EKtHH1nvN6QbIDwf0w5EHHmFYwMiWrFEWS1O97x7nIOLH7arzn-v5bBb1gpnfa2OhbQcUpFISq2bxnj3VGL8Zj31WpFB_2uYoGmXWYgGoA0pbliab6L52LnLkUZWFVJflAf0HTvtKzWdG7LDrhZtVYfiSOIU6LjmyReQK-HzrunH7pDI20MsAJ_OPkdReLo2q3XWKjvkau-wDVKU4kDr4jGUomTmw"/>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate">Battle of Actium — 31 BC</span>
+<p class="font-body-sm text-on-surface-variant line-clamp-2 mt-1">
+          The naval clash that shattered the Antony-Cleopatra alliance and laid the foundation of the Roman Empire under Augustus.
+        </p>
+<span class="font-label-sm text-secondary mt-space-xs flex items-center gap-1 cursor-pointer">
+          Inspect in Archival Vault
+          <span class="material-symbols-outlined text-xs">chevron_right</span>
+</span>
+</div>
+</div>
+</section>
+<!-- Action CTAs -->
+<footer class="w-full flex flex-col gap-space-sm mt-auto">
+<!-- Primary CTA Button -->
+<button class="w-full h-14 bg-primary-container text-on-primary-fixed rounded-lg shadow-lg flex items-center justify-center gap-space-xs hover:bg-primary-container/90 active:scale-[0.99] transition-all" type="button">
+<span class="material-symbols-outlined text-primary text-xl">explore</span>
+<span class="font-label-lg text-label-lg text-primary tracking-wider uppercase">Continue Expedition</span>
+</button>
+<!-- Secondary Action Button -->
+<button class="w-full h-12 bg-surface-container text-on-surface rounded-lg shadow-md flex items-center justify-center gap-space-xs hover:bg-surface-container-high active:scale-[0.99] transition-all" type="button">
+<span class="material-symbols-outlined text-on-surface-variant text-base">replay</span>
+<span class="font-label-md text-label-md text-on-surface-variant tracking-wider uppercase">Replay Trial</span>
+</button>
+</footer>
+</div>
+<script>
+  // Micro-interaction: XP bar subtle progression load animation
+  window.addEventListener('DOMContentLoaded', () => {
+    const xpFill = document.querySelector('.bg-gradient-to-r');
+    if (xpFill) {
+      xpFill.style.width = '0%';
+      setTimeout(() => {
+        xpFill.style.transition = 'width 1.2s cubic-bezier(0.16, 1, 0.3, 1)';
+        xpFill.style.width = '72%';
+      }, 150);
+    }
+  });
+</script></main></body></html>
