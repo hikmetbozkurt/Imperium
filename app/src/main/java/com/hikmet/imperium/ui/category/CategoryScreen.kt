@@ -1,5 +1,6 @@
 package com.hikmet.imperium.ui.category
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -14,26 +15,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -50,16 +45,20 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.hikmet.imperium.R
-import com.hikmet.imperium.domain.model.HistoryCategory
 import com.hikmet.imperium.domain.game.GameRules
+import com.hikmet.imperium.domain.model.HistoryCategory
 import com.hikmet.imperium.feature.levels.LevelsViewModel
 import com.hikmet.imperium.ui.components.CategoryVisualAssets
+import com.hikmet.imperium.ui.components.ImperialColors
+import com.hikmet.imperium.ui.components.ImperialPanelShape
+import com.hikmet.imperium.ui.components.ImperialScreenBackground
+import com.hikmet.imperium.ui.components.ImperialTileShape
+import com.hikmet.imperium.ui.components.ImperialTopBar
+import com.hikmet.imperium.ui.components.ImperialTypography
 import com.hikmet.imperium.ui.components.categoryIcon
 import com.hikmet.imperium.ui.components.visualAssets
-import com.hikmet.imperium.ui.components.ImperiumBackdrop
 import com.hikmet.imperium.ui.navigation.NavDestinations
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryScreen(
     navController: NavHostController,
@@ -68,205 +67,162 @@ fun CategoryScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val category = state.category
-
-    ImperiumBackdrop(Modifier.fillMaxSize()) {
+    ImperialScreenBackground {
         Scaffold(
             containerColor = Color.Transparent,
             topBar = {
-                TopAppBar(
-                    title = { Text(category?.title ?: stringResource(R.string.category_fallback_title)) },
-                    navigationIcon = {
-                        IconButton(onClick = navController::navigateUp) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = stringResource(R.string.common_back),
-                            )
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
+                ImperialTopBar(
+                    title = category?.title ?: stringResource(R.string.category_fallback_title),
+                    onBack = navController::navigateUp,
                 )
             },
         ) { padding ->
             when {
-            state.error != null -> Box(
-                Modifier.fillMaxSize().padding(padding),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(state.error.orEmpty(), color = MaterialTheme.colorScheme.error)
-            }
-            category == null -> Box(
-                Modifier.fillMaxSize().padding(padding),
-                contentAlignment = Alignment.Center,
-            ) {
-                CircularProgressIndicator()
-            }
-            else -> {
-                val visualAssets = category.visualAssets()
-                Box(Modifier.fillMaxSize().padding(padding)) {
+                state.error != null -> Box(
+                    Modifier.fillMaxSize().padding(padding),
+                    contentAlignment = Alignment.Center,
+                ) { Text(state.error.orEmpty(), color = ImperialColors.Error) }
+                category == null -> Box(
+                    Modifier.fillMaxSize().padding(padding),
+                    contentAlignment = Alignment.Center,
+                ) { CircularProgressIndicator(color = ImperialColors.Gold) }
+                else -> Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                        .widthIn(max = 820.dp)
+                        .verticalScroll(rememberScrollState()),
+                ) {
+                    CategoryHero(category, category.visualAssets())
                     Column(
-                        modifier = Modifier
-                            .widthIn(max = 900.dp)
-                            .fillMaxSize()
-                            .align(Alignment.TopCenter)
-                            .verticalScroll(rememberScrollState()),
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(14.dp),
                     ) {
-                        CategoryHero(category)
-                        Column(
-                            modifier = Modifier.padding(20.dp),
-                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            ArchiveStat(
+                                Modifier.weight(1f),
+                                Icons.Default.CheckCircle,
+                                category.levels.size.toString(),
+                                stringResource(R.string.category_levels),
+                            )
+                            ArchiveStat(
+                                Modifier.weight(1f),
+                                Icons.Default.Star,
+                                (state.progress?.totalStars ?: 0).toString(),
+                                stringResource(R.string.category_stars),
+                            )
+                            ArchiveStat(
+                                Modifier.weight(1f),
+                                Icons.Default.Timer,
+                                stringResource(R.string.quiz_seconds, GameRules.QUESTION_DURATION_MS / 1_000),
+                                stringResource(R.string.category_per_question),
+                            )
+                        }
+                        Card(
+                            shape = ImperialPanelShape,
+                            colors = CardDefaults.cardColors(containerColor = ImperialColors.SurfaceHigh),
+                            border = BorderStroke(1.dp, ImperialColors.Outline),
                         ) {
-                            CategoryAboutCard(category, visualAssets)
-                            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                                StatisticCard(
-                                    modifier = Modifier.weight(1f),
-                                    icon = { Icon(Icons.Default.CheckCircle, contentDescription = null) },
-                                    value = "${category.levels.size}",
-                                    label = stringResource(R.string.category_levels),
+                            Column(Modifier.padding(18.dp)) {
+                                Text(
+                                    stringResource(R.string.category_about).uppercase(),
+                                    color = ImperialColors.Gold,
+                                    style = ImperialTypography.Label,
                                 )
-                                StatisticCard(
-                                    modifier = Modifier.weight(1f),
-                                    icon = { Icon(Icons.Default.Star, contentDescription = null) },
-                                    value = "${state.progress?.totalStars ?: 0}",
-                                    label = stringResource(R.string.category_stars),
-                                )
-                                StatisticCard(
-                                    modifier = Modifier.weight(1f),
-                                    icon = { Icon(Icons.Default.Timer, contentDescription = null) },
-                                    value = stringResource(
-                                        R.string.quiz_seconds,
-                                        GameRules.QUESTION_DURATION_MS / 1_000,
-                                    ),
-                                    label = stringResource(R.string.category_per_question),
+                                Spacer(Modifier.height(10.dp))
+                                Text(
+                                    category.longDescription,
+                                    color = ImperialColors.OnSurfaceVariant,
+                                    style = ImperialTypography.Body,
                                 )
                             }
-                            Button(
-                                onClick = { navController.navigate(NavDestinations.levels(categoryId)) },
-                                modifier = Modifier.fillMaxWidth().height(54.dp),
-                            ) {
-                                Text(stringResource(R.string.category_explore_levels))
-                            }
+                        }
+                        Button(
+                            onClick = { navController.navigate(NavDestinations.levels(categoryId)) },
+                            modifier = Modifier.fillMaxWidth().height(52.dp),
+                            shape = ImperialTileShape,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = ImperialColors.Burgundy,
+                                contentColor = ImperialColors.GoldLight,
+                            ),
+                            border = BorderStroke(1.dp, ImperialColors.Gold.copy(alpha = 0.55f)),
+                        ) {
+                            Text(stringResource(R.string.category_explore_levels).uppercase(), style = ImperialTypography.Label)
                         }
                     }
                 }
             }
-            }
         }
     }
 }
 
 @Composable
-private fun CategoryHero(
-    category: HistoryCategory,
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
+private fun CategoryHero(category: HistoryCategory, assets: CategoryVisualAssets) {
+    Box(Modifier.fillMaxWidth().height(260.dp)) {
+        assets.illustrationResId?.let {
+            Image(
+                painter = painterResource(it),
+                contentDescription = stringResource(R.string.category_illustration_content_description, category.title),
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop,
+            )
+        }
+        Box(
+            Modifier.fillMaxSize().background(
                 Brush.verticalGradient(
-                    listOf(Color(category.gradientStartColor), Color(category.gradientEndColor)),
+                    listOf(Color.Transparent, ImperialColors.Background.copy(alpha = 0.98f)),
                 ),
-            )
-            .padding(horizontal = 24.dp, vertical = 32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Surface(
-            modifier = Modifier.size(76.dp),
-            shape = RoundedCornerShape(24.dp),
-            color = Color.White.copy(alpha = 0.16f),
+            ),
+        )
+        Column(
+            modifier = Modifier.align(Alignment.BottomCenter).padding(22.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Icon(
-                imageVector = category.id.categoryIcon(),
-                contentDescription = null,
-                tint = Color.White,
-                modifier = Modifier.padding(17.dp),
-            )
-        }
-        Spacer(Modifier.height(16.dp))
-        Text(
-            category.title,
-            color = Color.White,
-            style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center,
-        )
-        Spacer(Modifier.height(10.dp))
-        Text(
-            category.description,
-            color = Color.White.copy(alpha = 0.9f),
-            textAlign = TextAlign.Center,
-        )
-    }
-}
-
-@Composable
-private fun CategoryAboutCard(
-    category: HistoryCategory,
-    visualAssets: CategoryVisualAssets,
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-    ) {
-        Column {
-            visualAssets.illustrationResId?.let { illustrationResId ->
-                Image(
-                    painter = painterResource(illustrationResId),
-                    contentDescription = stringResource(
-                        R.string.category_illustration_content_description,
-                        category.title,
-                    ),
-                    modifier = Modifier.fillMaxWidth().height(176.dp),
-                    contentScale = ContentScale.Crop,
+            Surface(
+                modifier = Modifier.size(58.dp),
+                color = ImperialColors.Burgundy,
+                shape = ImperialTileShape,
+                border = BorderStroke(1.dp, ImperialColors.Gold),
+            ) {
+                Icon(
+                    category.id.categoryIcon(),
+                    null,
+                    tint = ImperialColors.GoldLight,
+                    modifier = Modifier.padding(14.dp),
                 )
             }
-            Column(modifier = Modifier.padding(20.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Surface(
-                        modifier = Modifier.size(42.dp),
-                        shape = RoundedCornerShape(13.dp),
-                        color = Color(category.gradientStartColor).copy(alpha = 0.14f),
-                    ) {
-                        Icon(
-                            imageVector = category.id.categoryIcon(),
-                            contentDescription = null,
-                            tint = Color(category.gradientStartColor),
-                            modifier = Modifier.padding(9.dp),
-                        )
-                    }
-                    Text(
-                        text = stringResource(R.string.category_about),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(start = 12.dp),
-                    )
-                }
-                Spacer(Modifier.height(14.dp))
-                Text(category.longDescription, style = MaterialTheme.typography.bodyLarge)
-            }
+            Spacer(Modifier.height(10.dp))
+            Text(category.title, color = ImperialColors.OnSurface, style = ImperialTypography.Monument)
+            Text(
+                category.description,
+                color = ImperialColors.OnSurfaceVariant,
+                style = ImperialTypography.Body,
+                textAlign = TextAlign.Center,
+            )
         }
     }
 }
 
 @Composable
-private fun StatisticCard(
+private fun ArchiveStat(
     modifier: Modifier,
-    icon: @Composable () -> Unit,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
     value: String,
     label: String,
 ) {
     Card(
         modifier = modifier,
-        shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+        shape = ImperialTileShape,
+        colors = CardDefaults.cardColors(containerColor = ImperialColors.Surface),
+        border = BorderStroke(1.dp, ImperialColors.Outline),
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
+            modifier = Modifier.fillMaxWidth().padding(vertical = 13.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Box(Modifier.size(28.dp), contentAlignment = Alignment.Center) { icon() }
-            Text(value, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleLarge)
-            Text(label, style = MaterialTheme.typography.labelMedium)
+            Icon(icon, null, tint = ImperialColors.Gold, modifier = Modifier.size(19.dp))
+            Text(value, color = ImperialColors.OnSurface, fontWeight = FontWeight.Bold)
+            Text(label, color = ImperialColors.Muted, style = ImperialTypography.Label, textAlign = TextAlign.Center)
         }
     }
 }

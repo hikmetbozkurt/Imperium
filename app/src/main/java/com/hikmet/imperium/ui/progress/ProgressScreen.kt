@@ -1,9 +1,11 @@
 package com.hikmet.imperium.ui.progress
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,12 +15,9 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Quiz
@@ -26,148 +25,212 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.hikmet.imperium.R
 import com.hikmet.imperium.domain.repository.CategoryAnalytics
 import com.hikmet.imperium.domain.repository.ProgressOverview
 import com.hikmet.imperium.domain.repository.ProgressPoint
-import com.hikmet.imperium.R
-import com.hikmet.imperium.ui.components.ImperiumBackdrop
+import com.hikmet.imperium.ui.components.ImperialBrandHeader
+import com.hikmet.imperium.ui.components.ImperialBottomBar
+import com.hikmet.imperium.ui.components.ImperialColors
+import com.hikmet.imperium.ui.components.ImperialDestination
+import com.hikmet.imperium.ui.components.ImperialPanelShape
+import com.hikmet.imperium.ui.components.ImperialScreenBackground
+import com.hikmet.imperium.ui.components.ImperialSectionTitle
+import com.hikmet.imperium.ui.components.ImperialTileShape
+import com.hikmet.imperium.ui.components.ImperialTypography
+import com.hikmet.imperium.ui.navigation.NavDestinations
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProgressScreen(
     navController: NavHostController,
     viewModel: ProgressViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    ImperiumBackdrop(Modifier.fillMaxSize()) {
+    ImperialScreenBackground {
         Scaffold(
             containerColor = Color.Transparent,
-            topBar = {
-                TopAppBar(
-                    title = { Text(stringResource(R.string.progress_title), fontWeight = FontWeight.Bold) },
-                    navigationIcon = {
-                        IconButton(onClick = navController::navigateUp) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = stringResource(R.string.common_back),
-                            )
+            bottomBar = {
+                ImperialBottomBar(
+                    selected = ImperialDestination.Codex,
+                    onHome = {
+                        navController.navigate(NavDestinations.HOME_ROUTE) {
+                            popUpTo(NavDestinations.HOME_ROUTE)
+                            launchSingleTop = true
                         }
                     },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
+                    onCodex = {},
+                    onProfile = { navController.navigate(NavDestinations.PROFILE_ROUTE) { launchSingleTop = true } },
                 )
             },
         ) { padding ->
             val overview = state.overview
             if (state.isLoading || overview == null) {
                 Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(color = ImperialColors.Gold)
                 }
             } else {
-                Box(Modifier.fillMaxSize().padding(padding)) {
-                    ProgressContent(
-                        overview,
-                        Modifier.widthIn(max = 840.dp).fillMaxSize().align(Alignment.TopCenter),
-                    )
-                }
+                CodexContent(overview, Modifier.fillMaxSize().padding(padding))
             }
         }
     }
 }
 
 @Composable
-private fun ProgressContent(overview: ProgressOverview, modifier: Modifier = Modifier) {
+private fun CodexContent(overview: ProgressOverview, modifier: Modifier = Modifier) {
     LazyColumn(
-        modifier = modifier.fillMaxSize(),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
+        modifier = modifier,
+        contentPadding = PaddingValues(bottom = 24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         item {
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                MetricCard(Modifier.weight(1f), Icons.Default.Quiz, overview.totalQuizzes.toString(), stringResource(R.string.progress_quizzes))
-                MetricCard(Modifier.weight(1f), Icons.Default.Star, overview.totalStars.toString(), stringResource(R.string.progress_stars))
-                MetricCard(Modifier.weight(1f), Icons.Default.EmojiEvents, "${overview.averageScore}%", stringResource(R.string.progress_average))
+            ImperialBrandHeader(
+                title = stringResource(R.string.codex_title),
+                subtitle = stringResource(R.string.codex_subtitle),
+            )
+        }
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                CodexMetric(
+                    Modifier.weight(1f),
+                    Icons.Default.Quiz,
+                    overview.totalQuizzes.toString(),
+                    stringResource(R.string.progress_quizzes),
+                )
+                CodexMetric(
+                    Modifier.weight(1f),
+                    Icons.Default.Star,
+                    overview.totalStars.toString(),
+                    stringResource(R.string.progress_stars),
+                )
+                CodexMetric(
+                    Modifier.weight(1f),
+                    Icons.Default.EmojiEvents,
+                    "${overview.averageScore}%",
+                    stringResource(R.string.progress_average),
+                )
             }
         }
         item {
             Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                shape = ImperialPanelShape,
+                colors = CardDefaults.cardColors(containerColor = ImperialColors.Burgundy),
+                border = BorderStroke(1.dp, ImperialColors.Gold.copy(alpha = 0.35f)),
             ) {
-                Row(Modifier.fillMaxWidth().padding(18.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.AutoMirrored.Filled.TrendingUp, contentDescription = null, modifier = Modifier.size(32.dp))
-                    Spacer(Modifier.width(14.dp))
-                    Column {
+                Row(
+                    Modifier.fillMaxWidth().padding(17.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.TrendingUp,
+                        null,
+                        tint = ImperialColors.Gold,
+                        modifier = Modifier.size(30.dp),
+                    )
+                    Column(Modifier.padding(start = 13.dp)) {
                         Text(
                             pluralStringResource(
                                 R.plurals.progress_streak,
                                 overview.currentStreakDays,
                                 overview.currentStreakDays,
                             ),
-                            fontWeight = FontWeight.Bold,
+                            color = ImperialColors.OnSurface,
+                            style = ImperialTypography.Section,
                         )
-                        Text(stringResource(R.string.progress_best_change, overview.bestScore, overview.improvementPercent))
+                        Text(
+                            stringResource(
+                                R.string.progress_best_change,
+                                overview.bestScore,
+                                overview.improvementPercent,
+                            ),
+                            color = ImperialColors.OnSurfaceVariant,
+                            style = ImperialTypography.Body,
+                        )
                     }
                 }
             }
         }
-        item { ActivityChart(overview.timeline.takeLast(7)) }
-        item { Text(stringResource(R.string.progress_categories), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold) }
+        item { AccuracyArchive(overview.timeline.takeLast(7)) }
+        item {
+            ImperialSectionTitle(
+                eyebrow = stringResource(R.string.codex_volumes_eyebrow),
+                title = stringResource(R.string.codex_volumes_title),
+                modifier = Modifier.padding(horizontal = 16.dp),
+            )
+        }
         items(overview.categories, key = { it.categoryId.value }) { category ->
-            CategoryProgressCard(category)
+            CodexVolume(category)
         }
     }
 }
 
 @Composable
-private fun MetricCard(modifier: Modifier, icon: ImageVector, value: String, label: String) {
-    Card(modifier = modifier) {
+private fun CodexMetric(modifier: Modifier, icon: ImageVector, value: String, label: String) {
+    Card(
+        modifier = modifier,
+        shape = ImperialTileShape,
+        colors = CardDefaults.cardColors(containerColor = ImperialColors.SurfaceHigh),
+        border = BorderStroke(1.dp, ImperialColors.Outline),
+    ) {
         Column(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
+            modifier = Modifier.fillMaxWidth().padding(vertical = 14.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-            Text(value, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-            Text(label, style = MaterialTheme.typography.labelMedium)
+            Icon(icon, null, tint = ImperialColors.Gold, modifier = Modifier.size(19.dp))
+            Text(value, color = ImperialColors.OnSurface, fontWeight = FontWeight.Bold)
+            Text(label, color = ImperialColors.Muted, style = ImperialTypography.Label, textAlign = TextAlign.Center)
         }
     }
 }
 
 @Composable
-private fun ActivityChart(points: List<ProgressPoint>) {
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(18.dp)) {
-            Text(stringResource(R.string.progress_recent_accuracy), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            Spacer(Modifier.height(16.dp))
+private fun AccuracyArchive(points: List<ProgressPoint>) {
+    Card(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+        shape = ImperialPanelShape,
+        colors = CardDefaults.cardColors(containerColor = ImperialColors.SurfaceLow),
+        border = BorderStroke(1.dp, ImperialColors.Outline),
+    ) {
+        Column(Modifier.padding(17.dp)) {
+            Text(
+                stringResource(R.string.progress_recent_accuracy).uppercase(),
+                color = ImperialColors.Gold,
+                style = ImperialTypography.Label,
+            )
+            Spacer(Modifier.height(15.dp))
             if (points.isEmpty()) {
-                Text(stringResource(R.string.progress_empty_timeline))
+                Text(
+                    stringResource(R.string.progress_empty_timeline),
+                    color = ImperialColors.OnSurfaceVariant,
+                    style = ImperialTypography.Body,
+                )
             } else {
                 Row(
-                    modifier = Modifier.fillMaxWidth().height(150.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth().height(140.dp),
+                    horizontalArrangement = Arrangement.spacedBy(7.dp),
                     verticalAlignment = Alignment.Bottom,
                 ) {
                     points.forEach { point ->
@@ -176,17 +239,22 @@ private fun ActivityChart(points: List<ProgressPoint>) {
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Bottom,
                         ) {
-                            Text("${point.averageScore}", style = MaterialTheme.typography.labelSmall)
+                            Text(
+                                point.averageScore.toString(),
+                                color = ImperialColors.OnSurfaceVariant,
+                                style = ImperialTypography.Label,
+                            )
                             Box(
                                 Modifier
                                     .fillMaxWidth()
-                                    .heightIn(min = 4.dp, max = 110.dp)
-                                    .height((point.averageScore.coerceIn(1, 100) * 1.1f).dp)
-                                    .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(6.dp)),
+                                    .heightIn(min = 4.dp, max = 100.dp)
+                                    .height((point.averageScore.coerceIn(1, 100)).dp)
+                                    .background(ImperialColors.Burgundy, ImperialTileShape),
                             )
                             Text(
                                 LocalDate.ofEpochDay(point.epochDay).format(DateTimeFormatter.ofPattern("E")),
-                                style = MaterialTheme.typography.labelSmall,
+                                color = ImperialColors.Muted,
+                                style = ImperialTypography.Label,
                             )
                         }
                     }
@@ -197,26 +265,39 @@ private fun ActivityChart(points: List<ProgressPoint>) {
 }
 
 @Composable
-private fun CategoryProgressCard(category: CategoryAnalytics) {
-    val fraction = if (category.totalLevels == 0) 0f else category.completedLevels.toFloat() / category.totalLevels
-    Card(modifier = Modifier.fillMaxWidth()) {
+private fun CodexVolume(category: CategoryAnalytics) {
+    val fraction = if (category.totalLevels == 0) 0f
+    else category.completedLevels.toFloat().div(category.totalLevels).coerceIn(0f, 1f)
+    Card(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+        shape = ImperialTileShape,
+        colors = CardDefaults.cardColors(containerColor = ImperialColors.SurfaceHigh),
+        border = BorderStroke(1.dp, ImperialColors.Outline),
+    ) {
         Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(category.title, modifier = Modifier.weight(1f), fontWeight = FontWeight.SemiBold)
-                Text("${category.stars} ★", color = Color(0xFFFFA000))
+                Column(Modifier.weight(1f)) {
+                    Text(category.title, color = ImperialColors.OnSurface, style = ImperialTypography.Section)
+                    Text(
+                        pluralStringResource(
+                            R.plurals.progress_category_summary,
+                            category.completedLevels,
+                            category.completedLevels,
+                            category.totalLevels,
+                            category.averageScore,
+                        ),
+                        color = ImperialColors.Muted,
+                        style = ImperialTypography.Body,
+                    )
+                }
+                Text("${category.stars} ★", color = ImperialColors.Gold, fontWeight = FontWeight.Bold)
             }
-            Spacer(Modifier.height(8.dp))
-            LinearProgressIndicator(progress = { fraction }, modifier = Modifier.fillMaxWidth())
-            Spacer(Modifier.height(6.dp))
-            Text(
-                pluralStringResource(
-                    R.plurals.progress_category_summary,
-                    category.completedLevels,
-                    category.completedLevels,
-                    category.totalLevels,
-                    category.averageScore,
-                ),
-                style = MaterialTheme.typography.bodySmall,
+            LinearProgressIndicator(
+                progress = { fraction },
+                modifier = Modifier.fillMaxWidth().padding(top = 11.dp).height(4.dp),
+                color = ImperialColors.Gold,
+                trackColor = ImperialColors.SurfaceHighest,
+                drawStopIndicator = {},
             )
         }
     }

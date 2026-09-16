@@ -1,5 +1,6 @@
 package com.hikmet.imperium.ui.profile
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,32 +11,24 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.VolumeOff
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.MusicNote
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Quiz
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -47,18 +40,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.hikmet.imperium.R
 import com.hikmet.imperium.retrofit.BadgeSection
 import com.hikmet.imperium.retrofit.BadgeViewModel
-import com.hikmet.imperium.R
-import com.hikmet.imperium.ui.components.ImperiumBackdrop
+import com.hikmet.imperium.ui.components.ImperialBottomBar
+import com.hikmet.imperium.ui.components.ImperialCoinEmblem
+import com.hikmet.imperium.ui.components.ImperialColors
+import com.hikmet.imperium.ui.components.ImperialDestination
+import com.hikmet.imperium.ui.components.ImperialPanelShape
+import com.hikmet.imperium.ui.components.ImperialScreenBackground
+import com.hikmet.imperium.ui.components.ImperialTileShape
+import com.hikmet.imperium.ui.components.ImperialTypography
+import com.hikmet.imperium.ui.navigation.NavDestinations
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     navController: NavHostController,
@@ -73,91 +74,119 @@ fun ProfileScreen(
         overview?.let { badgeViewModel.refreshBadges(it.totalStars) }
     }
 
-    ImperiumBackdrop(Modifier.fillMaxSize()) {
+    ImperialScreenBackground {
         Scaffold(
             containerColor = Color.Transparent,
-            topBar = {
-                TopAppBar(
-                    title = { Text(stringResource(R.string.profile_title), fontWeight = FontWeight.Bold) },
-                    navigationIcon = {
-                        IconButton(onClick = navController::navigateUp) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = stringResource(R.string.common_back),
-                            )
+            bottomBar = {
+                ImperialBottomBar(
+                    selected = ImperialDestination.Profile,
+                    onHome = {
+                        navController.navigate(NavDestinations.HOME_ROUTE) {
+                            popUpTo(NavDestinations.HOME_ROUTE)
+                            launchSingleTop = true
                         }
                     },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
+                    onCodex = { navController.navigate(NavDestinations.PROGRESS_ROUTE) { launchSingleTop = true } },
+                    onProfile = {},
                 )
             },
         ) { padding ->
-            Box(Modifier.fillMaxSize().padding(padding)) {
-                Column(
-                    modifier = Modifier
-                        .widthIn(max = 840.dp)
-                        .fillMaxSize()
-                        .align(Alignment.TopCenter)
-                        .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(18.dp),
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .widthIn(max = 820.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                ProfileArchiveHeader(stars)
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    ProfileHeader()
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    ) {
-                        Stat(Modifier.weight(1f), Icons.Default.Star, stars.toString(), stringResource(R.string.progress_stars))
-                        Stat(Modifier.weight(1f), Icons.Default.Quiz, (overview?.totalQuizzes ?: 0).toString(), stringResource(R.string.progress_quizzes))
-                        Stat(Modifier.weight(1f), Icons.Default.EmojiEvents, "${overview?.bestScore ?: 0}%", stringResource(R.string.profile_best))
-                    }
-                    BadgeSection(
-                        badgeState = badgeState,
-                        userStars = stars,
+                    ProfileStat(
+                        Modifier.weight(1f),
+                        Icons.Default.Star,
+                        stars.toString(),
+                        stringResource(R.string.progress_stars),
                     )
-                    SoundSettings(profileViewModel)
-                    Spacer(Modifier.height(24.dp))
+                    ProfileStat(
+                        Modifier.weight(1f),
+                        Icons.Default.Quiz,
+                        (overview?.totalQuizzes ?: 0).toString(),
+                        stringResource(R.string.progress_quizzes),
+                    )
+                    ProfileStat(
+                        Modifier.weight(1f),
+                        Icons.Default.EmojiEvents,
+                        "${overview?.bestScore ?: 0}%",
+                        stringResource(R.string.profile_best),
+                    )
                 }
+                BadgeSection(badgeState = badgeState, userStars = stars)
+                SoundSettings(profileViewModel)
+                Spacer(Modifier.height(24.dp))
             }
         }
     }
 }
 
 @Composable
-private fun ProfileHeader() {
+private fun ProfileArchiveHeader(stars: Int) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                Brush.horizontalGradient(
-                    listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.tertiary),
+                Brush.verticalGradient(
+                    listOf(ImperialColors.Burgundy, ImperialColors.Background),
                 ),
             )
-            .padding(28.dp),
+            .padding(horizontal = 20.dp, vertical = 28.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Surface(shape = CircleShape, color = Color.White.copy(alpha = 0.18f)) {
-            Icon(
-                Icons.Default.Person,
-                contentDescription = null,
-                tint = Color.White,
-                modifier = Modifier.padding(18.dp),
-            )
-        }
-        Spacer(Modifier.height(12.dp))
-        Text(stringResource(R.string.profile_history_explorer), color = Color.White, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-        Text(stringResource(R.string.profile_summary), color = Color.White.copy(alpha = 0.82f))
+        ImperialCoinEmblem(Modifier.size(76.dp))
+        Spacer(Modifier.height(14.dp))
+        Text(
+            stringResource(R.string.profile_history_explorer),
+            color = ImperialColors.OnSurface,
+            style = ImperialTypography.Monument,
+        )
+        Text(
+            stringResource(R.string.profile_archives_subtitle).uppercase(),
+            color = ImperialColors.Gold,
+            style = ImperialTypography.Label,
+        )
+        Text(
+            stringResource(R.string.profile_summary),
+            color = ImperialColors.OnSurfaceVariant,
+            style = ImperialTypography.Body,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(top = 10.dp),
+        )
+        Text(
+            stringResource(R.string.profile_recorded_stars, stars),
+            color = ImperialColors.Muted,
+            style = ImperialTypography.Label,
+            modifier = Modifier.padding(top = 8.dp),
+        )
     }
 }
 
 @Composable
-private fun Stat(modifier: Modifier, icon: ImageVector, value: String, label: String) {
-    Card(modifier = modifier, shape = RoundedCornerShape(16.dp)) {
+private fun ProfileStat(modifier: Modifier, icon: ImageVector, value: String, label: String) {
+    Card(
+        modifier = modifier,
+        shape = ImperialTileShape,
+        colors = CardDefaults.cardColors(containerColor = ImperialColors.SurfaceHigh),
+        border = BorderStroke(1.dp, ImperialColors.Outline),
+    ) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(vertical = 14.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-            Text(value, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-            Text(label, style = MaterialTheme.typography.labelMedium)
+            Icon(icon, null, tint = ImperialColors.Gold, modifier = Modifier.size(19.dp))
+            Text(value, color = ImperialColors.OnSurface, fontWeight = FontWeight.Bold)
+            Text(label, color = ImperialColors.Muted, style = ImperialTypography.Label, textAlign = TextAlign.Center)
         }
     }
 }
@@ -169,9 +198,17 @@ private fun SoundSettings(viewModel: ProfileViewModel) {
     var musicEnabled by remember { mutableStateOf(soundManager.isMusicEnabled()) }
 
     Column(Modifier.padding(horizontal = 16.dp)) {
-        Text(stringResource(R.string.profile_sound), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+        Text(
+            stringResource(R.string.profile_preferences).uppercase(),
+            color = ImperialColors.Gold,
+            style = ImperialTypography.Label,
+        )
         Spacer(Modifier.height(8.dp))
-        Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)) {
+        Card(
+            shape = ImperialPanelShape,
+            colors = CardDefaults.cardColors(containerColor = ImperialColors.SurfaceHigh),
+            border = BorderStroke(1.dp, ImperialColors.Outline),
+        ) {
             SoundToggle(
                 icon = if (effectsEnabled) Icons.AutoMirrored.Filled.VolumeUp else Icons.AutoMirrored.Filled.VolumeOff,
                 label = stringResource(R.string.profile_sound_effects),
@@ -181,6 +218,7 @@ private fun SoundSettings(viewModel: ProfileViewModel) {
                     soundManager.setSoundEnabled(it)
                 },
             )
+            Box(Modifier.fillMaxWidth().height(1.dp).background(ImperialColors.Outline))
             SoundToggle(
                 icon = Icons.Default.MusicNote,
                 label = stringResource(R.string.profile_background_music),
@@ -202,11 +240,25 @@ private fun SoundToggle(
     onCheckedChange: (Boolean) -> Unit,
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 15.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(icon, contentDescription = null)
-        Text(label, modifier = Modifier.weight(1f).padding(horizontal = 12.dp))
-        Switch(checked = checked, onCheckedChange = onCheckedChange)
+        Icon(icon, null, tint = ImperialColors.Gold)
+        Text(
+            label,
+            color = ImperialColors.OnSurface,
+            style = ImperialTypography.Body,
+            modifier = Modifier.weight(1f).padding(horizontal = 12.dp),
+        )
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = ImperialColors.GoldLight,
+                checkedTrackColor = ImperialColors.Burgundy,
+                uncheckedThumbColor = ImperialColors.Muted,
+                uncheckedTrackColor = ImperialColors.SurfaceLowest,
+            ),
+        )
     }
 }
