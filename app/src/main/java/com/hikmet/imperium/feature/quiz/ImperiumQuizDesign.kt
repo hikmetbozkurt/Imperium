@@ -157,6 +157,24 @@ internal enum class QuizAnswerVisualState {
     Dimmed,
 }
 
+internal enum class QuizLayoutDensity { Compact, Comfortable }
+
+internal fun quizLayoutDensity(availableHeightDp: Int): QuizLayoutDensity =
+    if (availableHeightDp < 720) QuizLayoutDensity.Compact else QuizLayoutDensity.Comfortable
+
+internal enum class QuizFeedbackKind { Correct, Incorrect, TimeUp }
+
+internal fun quizFeedbackKind(
+    selectedIndex: Int?,
+    correctIndex: Int,
+    timedOut: Boolean,
+): QuizFeedbackKind? = when {
+    timedOut -> QuizFeedbackKind.TimeUp
+    selectedIndex == null -> null
+    selectedIndex == correctIndex -> QuizFeedbackKind.Correct
+    else -> QuizFeedbackKind.Incorrect
+}
+
 internal fun answerVisualState(
     index: Int,
     selectedIndex: Int?,
@@ -273,6 +291,8 @@ internal fun QuizProgressHeader(
     levelTitle: String,
     remainingTimeMs: Long,
     isTimerFrozen: Boolean,
+    compact: Boolean,
+    modifier: Modifier = Modifier,
 ) {
     val timerColor = when {
         remainingTimeMs <= GameRules.TIMER_CRITICAL_THRESHOLD_MS -> ImperiumQuizColors.Error
@@ -286,13 +306,16 @@ internal fun QuizProgressHeader(
     )
     val progress = (remainingTimeMs.toFloat() / GameRules.QUESTION_DURATION_MS).coerceIn(0f, 1f)
 
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(if (compact) 5.dp else 8.dp),
+    ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Surface(
-                modifier = Modifier.size(40.dp),
+                modifier = Modifier.size(if (compact) 34.dp else 40.dp),
                 shape = CircleShape,
                 color = ImperiumQuizColors.SurfaceHigh,
             ) {
@@ -301,7 +324,7 @@ internal fun QuizProgressHeader(
                         Icons.Default.AccountBalance,
                         contentDescription = null,
                         tint = ImperiumQuizColors.Gold,
-                        modifier = Modifier.size(19.dp),
+                        modifier = Modifier.size(if (compact) 17.dp else 19.dp),
                     )
                 }
             }
@@ -334,6 +357,7 @@ internal fun QuizProgressHeader(
                 progress = progress,
                 color = animatedTimerColor,
                 isFrozen = isTimerFrozen,
+                compact = compact,
             )
         }
         LinearProgressIndicator(
@@ -354,12 +378,13 @@ private fun RomanCircularTimer(
     progress: Float,
     color: Color,
     isFrozen: Boolean,
+    compact: Boolean,
 ) {
     val seconds = ceil(remainingTimeMs / 1000.0).toInt()
     val timerDescription = stringResource(R.string.quiz_timer_accessibility, seconds)
     Box(
         modifier = Modifier
-            .size(48.dp)
+            .size(if (compact) 42.dp else 48.dp)
             .semantics {
                 contentDescription = timerDescription
                 if (isFrozen) stateDescription = "Paused"
@@ -387,23 +412,30 @@ private fun RomanCircularTimer(
 }
 
 @Composable
-internal fun ComboProgressCard(session: QuizSession) {
+internal fun ComboProgressCard(
+    session: QuizSession,
+    compact: Boolean,
+    modifier: Modifier = Modifier,
+) {
     val streak = session.responses.asReversed().takeWhile { it.isCorrect }.size
     Surface(
+        modifier = modifier,
         color = ImperiumQuizColors.SurfaceLow,
         shape = TabletShape,
         shadowElevation = 3.dp,
         border = BorderStroke(1.dp, Color.White.copy(alpha = 0.05f)),
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 9.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = if (compact) 6.dp else 9.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
                 Icons.Default.LocalFireDepartment,
                 contentDescription = null,
                 tint = ImperiumQuizColors.Gold,
-                modifier = Modifier.size(21.dp),
+                modifier = Modifier.size(if (compact) 18.dp else 21.dp),
             )
             Column(Modifier.padding(start = 6.dp)) {
                 Text(
@@ -467,6 +499,7 @@ internal fun HistoricalQuestionCard(
     category: HistoryCategory,
     levelTitle: String,
     question: QuizQuestion,
+    compact: Boolean,
 ) {
     val illustration = category.visualAssets().illustrationResId
     Surface(
@@ -479,8 +512,8 @@ internal fun HistoricalQuestionCard(
             .goldCornerBrackets(),
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+            modifier = Modifier.padding(if (compact) 10.dp else 16.dp),
+            verticalArrangement = Arrangement.spacedBy(if (compact) 6.dp else 10.dp),
         ) {
             Surface(
                 color = ImperiumQuizColors.Burgundy,
@@ -509,7 +542,7 @@ internal fun HistoricalQuestionCard(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(126.dp)
+                    .height(if (compact) 58.dp else 126.dp)
                     .clip(TabletShape)
                     .background(ImperiumQuizColors.SurfaceLow),
             ) {
@@ -566,7 +599,11 @@ internal fun HistoricalQuestionCard(
             Text(
                 text = question.text,
                 color = ImperiumQuizColors.OnSurface,
-                style = ImperiumQuizTypography.Question,
+                style = if (compact) {
+                    ImperiumQuizTypography.Question.copy(fontSize = 16.sp, lineHeight = 21.sp)
+                } else {
+                    ImperiumQuizTypography.Question
+                },
             )
         }
     }
@@ -615,6 +652,7 @@ internal fun AnswerOptionTile(
     index: Int,
     visualState: QuizAnswerVisualState,
     enabled: Boolean,
+    compact: Boolean,
     onClick: () -> Unit,
 ) {
     val containerTarget = when (visualState) {
@@ -686,11 +724,11 @@ internal fun AnswerOptionTile(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 12.dp),
+                .padding(horizontal = 12.dp, vertical = if (compact) 8.dp else 12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Surface(
-                modifier = Modifier.size(32.dp),
+                modifier = Modifier.size(if (compact) 28.dp else 32.dp),
                 shape = TileShape,
                 color = when (visualState) {
                     QuizAnswerVisualState.Correct -> ImperiumQuizColors.Correct
@@ -708,7 +746,11 @@ internal fun AnswerOptionTile(
                             QuizAnswerVisualState.Selected -> ImperiumQuizColors.GoldLight
                             else -> ImperiumQuizColors.OnSurfaceVariant
                         },
-                        style = ImperiumQuizTypography.Answer,
+                        style = if (compact) {
+                            ImperiumQuizTypography.Answer.copy(fontSize = 14.sp)
+                        } else {
+                            ImperiumQuizTypography.Answer
+                        },
                     )
                 }
             }
@@ -719,7 +761,11 @@ internal fun AnswerOptionTile(
                     QuizAnswerVisualState.Incorrect -> Color(0xFFFFDAD6)
                     else -> ImperiumQuizColors.OnSurface
                 },
-                style = ImperiumQuizTypography.Answer,
+                style = if (compact) {
+                    ImperiumQuizTypography.Answer.copy(fontSize = 15.sp, lineHeight = 19.sp)
+                } else {
+                    ImperiumQuizTypography.Answer
+                },
                 modifier = Modifier
                     .weight(1f)
                     .padding(horizontal = 12.dp),
@@ -742,47 +788,7 @@ internal fun AnswerOptionTile(
 }
 
 @Composable
-internal fun QuizFeedbackCard(
-    explanation: String?,
-    correctAnswer: String,
-) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        color = ImperiumQuizColors.SurfaceHigh,
-        shape = TabletShape,
-        shadowElevation = 5.dp,
-        border = BorderStroke(1.dp, ImperiumQuizColors.Gold.copy(alpha = 0.28f)),
-    ) {
-        Column(
-            modifier = Modifier.padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp),
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    Icons.Default.HistoryEdu,
-                    contentDescription = null,
-                    tint = ImperiumQuizColors.Gold,
-                    modifier = Modifier.size(17.dp),
-                )
-                Text(
-                    text = stringResource(R.string.quiz_historical_record),
-                    color = ImperiumQuizColors.Gold,
-                    style = ImperiumQuizTypography.Label,
-                    modifier = Modifier.padding(start = 7.dp),
-                )
-            }
-            Text(
-                text = explanation?.takeIf(String::isNotBlank)
-                    ?: stringResource(R.string.quiz_correct_answer, correctAnswer),
-                color = ImperiumQuizColors.OnSurfaceVariant,
-                style = ImperiumQuizTypography.Body,
-            )
-        }
-    }
-}
-
-@Composable
-internal fun QuizLifelineBar() {
+internal fun QuizLifelineBar(compact: Boolean) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -793,14 +799,17 @@ internal fun QuizLifelineBar() {
         LifelineItem(
             icon = Icons.Default.HourglassTop,
             label = stringResource(R.string.quiz_lifeline_mora),
+            compact = compact,
         )
         LifelineItem(
             icon = Icons.Default.FilterAlt,
             label = stringResource(R.string.quiz_lifeline_fifty),
+            compact = compact,
         )
         LifelineItem(
             icon = Icons.AutoMirrored.Filled.MenuBook,
             label = stringResource(R.string.quiz_lifeline_oraculum),
+            compact = compact,
         )
     }
 }
@@ -809,6 +818,7 @@ internal fun QuizLifelineBar() {
 private fun LifelineItem(
     icon: ImageVector,
     label: String,
+    compact: Boolean,
 ) {
     Column(
         modifier = Modifier.widthIn(min = 88.dp),
@@ -816,7 +826,7 @@ private fun LifelineItem(
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         Surface(
-            modifier = Modifier.size(40.dp),
+            modifier = Modifier.size(if (compact) 34.dp else 40.dp),
             shape = CircleShape,
             color = ImperiumQuizColors.Surface,
             border = BorderStroke(1.dp, ImperiumQuizColors.Outline),
@@ -826,7 +836,7 @@ private fun LifelineItem(
                     icon,
                     contentDescription = null,
                     tint = ImperiumQuizColors.OnSurfaceVariant,
-                    modifier = Modifier.size(19.dp),
+                    modifier = Modifier.size(if (compact) 16.dp else 19.dp),
                 )
             }
         }
@@ -845,18 +855,69 @@ internal fun QuizActionBar(
     isSaving: Boolean,
     onNext: () -> Unit,
 ) {
+    val feedback = quizFeedbackKind(
+        selectedIndex = session.selectedAnswerIndex,
+        correctIndex = session.currentQuestion.correctAnswerIndex,
+        timedOut = session.isCurrentQuestionTimedOut,
+    )
     Surface(
         color = ImperiumQuizColors.SurfaceLowest.copy(alpha = 0.98f),
         shadowElevation = 12.dp,
         border = BorderStroke(1.dp, ImperiumQuizColors.Outline.copy(alpha = 0.55f)),
     ) {
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .navigationBarsPadding()
                 .padding(horizontal = 16.dp, vertical = 10.dp),
-            contentAlignment = Alignment.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            if (feedback != null) {
+                val correctAnswer = session.currentQuestion.options[session.currentQuestion.correctAnswerIndex]
+                val feedbackColor = when (feedback) {
+                    QuizFeedbackKind.Correct -> Color(0xFF8DDBA0)
+                    QuizFeedbackKind.Incorrect,
+                    QuizFeedbackKind.TimeUp,
+                    -> ImperiumQuizColors.Error
+                }
+                Row(
+                    modifier = Modifier
+                        .widthIn(max = 568.dp)
+                        .fillMaxWidth()
+                        .padding(bottom = 7.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    Icon(
+                        imageVector = when (feedback) {
+                            QuizFeedbackKind.Correct -> Icons.Default.Check
+                            QuizFeedbackKind.Incorrect -> Icons.Default.Close
+                            QuizFeedbackKind.TimeUp -> Icons.Default.AccessTime
+                        },
+                        contentDescription = null,
+                        tint = feedbackColor,
+                        modifier = Modifier.size(17.dp),
+                    )
+                    Text(
+                        text = when (feedback) {
+                            QuizFeedbackKind.Correct -> stringResource(R.string.quiz_answer_correct)
+                            QuizFeedbackKind.Incorrect -> stringResource(
+                                R.string.quiz_feedback_wrong_answer,
+                                correctAnswer,
+                            )
+                            QuizFeedbackKind.TimeUp -> stringResource(
+                                R.string.quiz_feedback_time_up,
+                                correctAnswer,
+                            )
+                        }.uppercase(),
+                        color = feedbackColor,
+                        style = ImperiumQuizTypography.Label,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.padding(start = 6.dp),
+                    )
+                }
+            }
             Button(
                 onClick = onNext,
                 enabled = session.isAnswerRevealed && !isSaving,

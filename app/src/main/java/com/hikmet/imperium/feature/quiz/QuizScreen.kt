@@ -10,10 +10,11 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
@@ -126,83 +127,79 @@ private fun QuizContent(
         ?.title
         ?: stringResource(R.string.quiz_level_fallback, session.levelNumber)
 
-    LazyColumn(
+    BoxWithConstraints(
         modifier = Modifier
             .widthIn(max = 600.dp)
             .fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        item(key = "quiz-progress") {
+        val isCompact = quizLayoutDensity(maxHeight.value.toInt()) == QuizLayoutDensity.Compact
+        Column(Modifier.fillMaxSize()) {
             QuizProgressHeader(
                 currentQuestion = session.currentQuestionIndex + 1,
                 totalQuestions = session.questions.size,
                 levelTitle = levelTitle,
                 remainingTimeMs = session.remainingTimeMs,
                 isTimerFrozen = session.isAnswerRevealed,
+                compact = isCompact,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
             )
-        }
-
-        item(key = "combo-progress") {
-            ComboProgressCard(session)
-        }
-
-        item(key = "question-card") {
-            AnimatedContent(
-                targetState = session.currentQuestion,
-                transitionSpec = {
-                    (slideInHorizontally(
-                        animationSpec = tween(ImperiumMotion.Standard),
-                        initialOffsetX = { it / 5 },
-                    ) + fadeIn()) togetherWith
-                        (slideOutHorizontally(
-                            animationSpec = tween(ImperiumMotion.Quick),
-                            targetOffsetX = { -it / 6 },
-                        ) + fadeOut())
-                },
-                label = "question",
-            ) { question ->
-                HistoricalQuestionCard(
-                    category = category,
-                    levelTitle = levelTitle,
-                    question = question,
-                )
-            }
-        }
-
-        itemsIndexed(
-            items = session.currentQuestion.options,
-            key = { index, _ -> "${session.currentQuestion.id}-$index" },
-        ) { index, option ->
-            AnswerOptionTile(
-                text = option,
-                index = index,
-                visualState = answerVisualState(
-                    index = index,
-                    selectedIndex = session.selectedAnswerIndex,
-                    correctIndex = session.currentQuestion.correctAnswerIndex,
-                    isRevealed = session.isAnswerRevealed,
-                ),
-                enabled = !session.isAnswerRevealed,
-                onClick = { onAnswer(index) },
+            ComboProgressCard(
+                session = session,
+                compact = isCompact,
+                modifier = Modifier.padding(horizontal = 16.dp),
             )
-        }
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth().weight(1f),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = if (isCompact) 6.dp else 10.dp),
+                verticalArrangement = Arrangement.spacedBy(if (isCompact) 7.dp else 12.dp),
+            ) {
+                item(key = "question-card") {
+                    AnimatedContent(
+                        targetState = session.currentQuestion,
+                        transitionSpec = {
+                            (slideInHorizontally(
+                                animationSpec = tween(ImperiumMotion.Standard),
+                                initialOffsetX = { it / 5 },
+                            ) + fadeIn()) togetherWith
+                                (slideOutHorizontally(
+                                    animationSpec = tween(ImperiumMotion.Quick),
+                                    targetOffsetX = { -it / 6 },
+                                ) + fadeOut())
+                        },
+                        label = "question",
+                    ) { question ->
+                        HistoricalQuestionCard(
+                            category = category,
+                            levelTitle = levelTitle,
+                            question = question,
+                            compact = isCompact,
+                        )
+                    }
+                }
 
-        if (session.isAnswerRevealed) {
-            item(key = "feedback-${session.currentQuestion.id}") {
-                QuizFeedbackCard(
-                    explanation = session.currentQuestion.explanation,
-                    correctAnswer = session.currentQuestion.options[session.currentQuestion.correctAnswerIndex],
-                )
+                itemsIndexed(
+                    items = session.currentQuestion.options,
+                    key = { index, _ -> "${session.currentQuestion.id}-$index" },
+                ) { index, option ->
+                    AnswerOptionTile(
+                        text = option,
+                        index = index,
+                        visualState = answerVisualState(
+                            index = index,
+                            selectedIndex = session.selectedAnswerIndex,
+                            correctIndex = session.currentQuestion.correctAnswerIndex,
+                            isRevealed = session.isAnswerRevealed,
+                        ),
+                        enabled = !session.isAnswerRevealed,
+                        compact = isCompact,
+                        onClick = { onAnswer(index) },
+                    )
+                }
+
+                item(key = "lifelines") {
+                    QuizLifelineBar(compact = isCompact)
+                }
             }
-        }
-
-        item(key = "lifelines") {
-            QuizLifelineBar()
-        }
-
-        item(key = "bottom-space") {
-            Spacer(Modifier.height(4.dp))
         }
     }
 }

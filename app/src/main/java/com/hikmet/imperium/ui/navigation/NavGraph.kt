@@ -11,6 +11,7 @@ import com.hikmet.imperium.feature.quiz.QuizScreen
 import com.hikmet.imperium.feature.results.ResultScreen
 import com.hikmet.imperium.ui.category.CategoryScreen
 import com.hikmet.imperium.ui.home.HomeScreen
+import com.hikmet.imperium.ui.home.ExpeditionsScreen
 import com.hikmet.imperium.ui.profile.ProfileScreen
 import com.hikmet.imperium.ui.progress.ProgressScreen
 import com.hikmet.imperium.ui.splash.SplashScreen
@@ -19,6 +20,7 @@ object NavDestinations {
     const val SPLASH_ROUTE = "splash"
     const val HOME_ROUTE = "home"
     const val CATEGORY_ROUTE = "category"
+    const val EXPEDITIONS_ROUTE = "expeditions"
     const val LEVEL_SELECTION_ROUTE = "levels/{categoryId}"
     const val QUIZ_ROUTE = "quiz/{categoryId}/{levelNumber}"
     const val ATTEMPT_RESULT_ROUTE = "result/{attemptId}"
@@ -38,6 +40,7 @@ fun ImperiumNavGraph(
     NavHost(navController = navController, startDestination = startDestination) {
         composable(NavDestinations.SPLASH_ROUTE) { SplashScreen(navController) }
         composable(NavDestinations.HOME_ROUTE) { HomeScreen(navController) }
+        composable(NavDestinations.EXPEDITIONS_ROUTE) { ExpeditionsScreen(navController) }
         composable(
             route = "${NavDestinations.CATEGORY_ROUTE}/{categoryId}",
             arguments = listOf(navArgument("categoryId") { type = NavType.StringType }),

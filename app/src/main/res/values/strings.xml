@@ -10,8 +10,17 @@
     <string name="home_archive_subtitle">Historical learning archive</string>
     <string name="home_current_expedition">Current expedition</string>
     <string name="home_continue_expedition">Continue expedition</string>
+    <string name="home_resume_trial">Resume campaign</string>
+    <string name="home_expeditions_eyebrow">Expeditions</string>
+    <string name="home_expeditions_title">Explore the Ages</string>
+    <string name="home_expeditions_summary">%1$d eras · %2$d levels</string>
     <string name="home_collections_eyebrow">Imperial archives</string>
     <string name="home_collections_title">Explore every era</string>
+    <string name="expeditions_title">Expeditions</string>
+    <string name="expeditions_eyebrow">Historical campaigns</string>
+    <string name="expeditions_subtitle">Choose an era to begin</string>
+    <string name="expeditions_eras_count">%1$d eras available</string>
+    <string name="expeditions_levels_count">%1$d total levels</string>
     <plurals name="home_stars">
         <item quantity="one">%1$d star</item>
         <item quantity="other">%1$d stars</item>
@@ -48,6 +57,8 @@
     <string name="quiz_answer_correct">Correct</string>
     <string name="quiz_answer_not_quite">Not quite</string>
     <string name="quiz_time_up">Time’s up</string>
+    <string name="quiz_feedback_wrong_answer">Not quite · Correct: %1$s</string>
+    <string name="quiz_feedback_time_up">Time’s up · Correct: %1$s</string>
     <string name="quiz_correct_answer">The correct answer is %1$s.</string>
     <string name="quiz_option_correct">Correct answer</string>
     <string name="quiz_option_incorrect">Incorrect answer</string>

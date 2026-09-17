@@ -29,10 +29,32 @@ class HomePresentationTest {
         assertNull(selectCurrentExpedition(emptyList()))
     }
 
+    @Test
+    fun `expedition summary is derived from real category content and progress`() {
+        val ancient = homeCategory(
+            CategoryId.ANCIENT,
+            unlockedLevels = 3,
+            totalStars = 8,
+            levelCount = 20,
+        )
+        val medieval = homeCategory(
+            CategoryId.MEDIEVAL,
+            unlockedLevels = 1,
+            totalStars = 2,
+            levelCount = 20,
+        )
+
+        assertEquals(
+            ExpeditionSummary(categoryCount = 2, levelCount = 40, totalStars = 10),
+            summarizeExpeditions(listOf(ancient, medieval)),
+        )
+    }
+
     private fun homeCategory(
         id: CategoryId,
         unlockedLevels: Int,
         totalStars: Int,
+        levelCount: Int = 0,
     ) = HomeCategory(
         content = HistoryCategory(
             id = id,
@@ -42,7 +64,15 @@ class HomePresentationTest {
             iconResourceName = "",
             gradientStartColor = 0,
             gradientEndColor = 0,
-            levels = emptyList(),
+            levels = List(levelCount) { index ->
+                com.hikmet.imperium.domain.model.HistoryLevel(
+                    number = index + 1,
+                    title = "Level ${index + 1}",
+                    description = "description",
+                    iconResId = 0,
+                    requiredStars = 0,
+                )
+            },
         ),
         progress = CategoryProgress(
             categoryId = id,

@@ -6,6 +6,32 @@ import org.junit.Test
 class QuizPresentationTest {
 
     @Test
+    fun `short phones use the compact quiz layout`() {
+        assertEquals(QuizLayoutDensity.Compact, quizLayoutDensity(availableHeightDp = 620))
+        assertEquals(QuizLayoutDensity.Comfortable, quizLayoutDensity(availableHeightDp = 780))
+    }
+
+    @Test
+    fun `answer feedback distinguishes correct wrong timeout and unanswered states`() {
+        assertEquals(
+            QuizFeedbackKind.Correct,
+            quizFeedbackKind(selectedIndex = 1, correctIndex = 1, timedOut = false),
+        )
+        assertEquals(
+            QuizFeedbackKind.Incorrect,
+            quizFeedbackKind(selectedIndex = 2, correctIndex = 1, timedOut = false),
+        )
+        assertEquals(
+            QuizFeedbackKind.TimeUp,
+            quizFeedbackKind(selectedIndex = null, correctIndex = 1, timedOut = true),
+        )
+        assertEquals(
+            null,
+            quizFeedbackKind(selectedIndex = null, correctIndex = 1, timedOut = false),
+        )
+    }
+
+    @Test
     fun `timer seconds are rendered as roman numerals`() {
         assertEquals("0", romanNumeral(0))
         assertEquals("XVI", romanNumeral(16))
