@@ -9,17 +9,27 @@ import org.junit.Test
 
 class HomePresentationTest {
     @Test
-    fun `current expedition uses category with most unlocked levels`() {
-        val ancient = homeCategory(CategoryId.ANCIENT, unlockedLevels = 3, totalStars = 8)
-        val medieval = homeCategory(CategoryId.MEDIEVAL, unlockedLevels = 7, totalStars = 11)
+    fun `current expedition uses the most recently played category`() {
+        val ancient = homeCategory(
+            CategoryId.ANCIENT,
+            unlockedLevels = 9,
+            totalStars = 20,
+            lastPlayedTimestamp = 100,
+        )
+        val medieval = homeCategory(
+            CategoryId.MEDIEVAL,
+            unlockedLevels = 2,
+            totalStars = 3,
+            lastPlayedTimestamp = 200,
+        )
 
         assertEquals(medieval, selectCurrentExpedition(listOf(ancient, medieval)))
     }
 
     @Test
-    fun `current expedition keeps repository order when progress is tied`() {
-        val ancient = homeCategory(CategoryId.ANCIENT, unlockedLevels = 4, totalStars = 9)
-        val medieval = homeCategory(CategoryId.MEDIEVAL, unlockedLevels = 4, totalStars = 14)
+    fun `current expedition keeps repository order for a new player`() {
+        val ancient = homeCategory(CategoryId.ANCIENT, unlockedLevels = 1, totalStars = 0)
+        val medieval = homeCategory(CategoryId.MEDIEVAL, unlockedLevels = 1, totalStars = 0)
 
         assertEquals(ancient, selectCurrentExpedition(listOf(ancient, medieval)))
     }
@@ -55,6 +65,7 @@ class HomePresentationTest {
         unlockedLevels: Int,
         totalStars: Int,
         levelCount: Int = 0,
+        lastPlayedTimestamp: Long = 0,
     ) = HomeCategory(
         content = HistoryCategory(
             id = id,
@@ -79,6 +90,7 @@ class HomePresentationTest {
             unlockedLevels = unlockedLevels,
             totalStars = totalStars,
             levelStars = emptyMap(),
+            lastPlayedTimestamp = lastPlayedTimestamp,
         ),
     )
 }

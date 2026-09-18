@@ -161,6 +161,7 @@ class RoomGameProgressRepository @Inject constructor(
                 unlockedLevels = progress?.unlockedLevels ?: 1,
                 totalStars = progress?.levelStars?.values?.sum() ?: 0,
                 levelStars = progress?.levelStars.orEmpty(),
+                lastPlayedTimestamp = progress?.lastPlayedTimestamp ?: 0L,
             )
         }
 

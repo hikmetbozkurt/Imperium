@@ -183,7 +183,10 @@ private fun ContinueExpeditionCard(category: HomeCategory, onClick: () -> Unit) 
     val fraction = if (content.levels.isEmpty()) 0f
     else progress.unlockedLevels.toFloat().div(content.levels.size).coerceIn(0f, 1f)
     Card(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .heightIn(min = 184.dp),
         shape = ImperialPanelShape,
         colors = CardDefaults.cardColors(containerColor = ImperialColors.SurfaceHigh),
         border = BorderStroke(1.dp, ImperialColors.Gold.copy(alpha = 0.32f)),
@@ -256,7 +259,10 @@ private fun ContinueExpeditionCard(category: HomeCategory, onClick: () -> Unit) 
 private fun ExploreAgesCard(summary: ExpeditionSummary, onClick: () -> Unit) {
     Card(
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .heightIn(min = 156.dp),
         shape = ImperialPanelShape,
         colors = CardDefaults.cardColors(containerColor = ImperialColors.Burgundy),
         border = BorderStroke(1.dp, ImperialColors.Gold.copy(alpha = 0.48f)),
@@ -264,6 +270,7 @@ private fun ExploreAgesCard(summary: ExpeditionSummary, onClick: () -> Unit) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .heightIn(min = 156.dp)
                 .background(
                     Brush.horizontalGradient(
                         listOf(ImperialColors.Burgundy, ImperialColors.SurfaceHigh),
@@ -312,7 +319,7 @@ private fun QuoteShowcase(
         colors = CardDefaults.cardColors(containerColor = ImperialColors.SurfaceLow),
         border = BorderStroke(1.dp, ImperialColors.Outline),
     ) {
-        Box(Modifier.fillMaxWidth().heightIn(min = 176.dp)) {
+        Box(Modifier.fillMaxWidth().heightIn(min = 190.dp)) {
             Icon(
                 Icons.Default.FormatQuote,
                 contentDescription = null,

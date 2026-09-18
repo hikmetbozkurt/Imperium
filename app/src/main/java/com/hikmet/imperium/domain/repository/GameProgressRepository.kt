@@ -19,6 +19,7 @@ data class CategoryProgress(
     val unlockedLevels: Int,
     val totalStars: Int,
     val levelStars: Map<Int, Int>,
+    val lastPlayedTimestamp: Long = 0L,
 )
 
 interface GameProgressRepository {

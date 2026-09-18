@@ -1,13 +1,10 @@
 package com.hikmet.imperium.ui.home
 
-/**
- * Chooses the most advanced real category for the dashboard hero while keeping
- * repository order stable when progress is tied.
- */
+/** Chooses the most recently played real category and keeps repository order as fallback. */
 internal fun selectCurrentExpedition(categories: List<HomeCategory>): HomeCategory? =
     categories.withIndex()
         .maxWithOrNull(
-            compareBy<IndexedValue<HomeCategory>> { it.value.progress.unlockedLevels }
+            compareBy<IndexedValue<HomeCategory>> { it.value.progress.lastPlayedTimestamp }
                 .thenByDescending { it.index },
         )
         ?.value
