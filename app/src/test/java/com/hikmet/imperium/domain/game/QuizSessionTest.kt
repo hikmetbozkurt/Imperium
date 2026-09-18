@@ -3,7 +3,9 @@ package com.hikmet.imperium.domain.game
 import com.hikmet.imperium.domain.model.CategoryId
 import com.hikmet.imperium.domain.model.QuizQuestion
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class QuizSessionTest {
@@ -94,10 +96,61 @@ class QuizSessionTest {
         assertEquals(0, completed.result()?.correctAnswers)
     }
 
+    @Test
+    fun `mora adds fifteen seconds once and caps the question at forty five seconds`() {
+        val extended = session(durationMs = 40_000).addTime()
+
+        assertEquals(45_000L, extended.remainingTimeMs)
+        assertTrue(extended.moraUsed)
+        assertEquals(extended, extended.addTime())
+    }
+
+    @Test
+    fun `mora cannot be consumed after the answer is revealed`() {
+        val answered = session().selectAnswer(1)
+
+        assertEquals(answered, answered.addTime())
+        assertFalse(answered.moraUsed)
+    }
+
+    @Test
+    fun `fifty fifty deterministically hides two wrong answers only once`() {
+        val original = fourOptionSession(seed = 73L)
+        val reduced = original.useFiftyFifty()
+
+        assertTrue(reduced.fiftyFiftyUsed)
+        assertEquals(2, reduced.hiddenOptionIndices.size)
+        assertFalse(reduced.hiddenOptionIndices.contains(original.currentQuestion.correctAnswerIndex))
+        assertEquals(reduced.hiddenOptionIndices, fourOptionSession(seed = 73L).useFiftyFifty().hiddenOptionIndices)
+        assertEquals(reduced, reduced.useFiftyFifty())
+    }
+
+    @Test
+    fun `fifty fifty choices clear on next question but the lifeline stays consumed`() {
+        val reduced = fourOptionSession(seed = 91L).useFiftyFifty()
+        val next = reduced
+            .selectAnswer(reduced.currentQuestion.correctAnswerIndex)
+            .nextQuestion()
+
+        assertTrue(next.fiftyFiftyUsed)
+        assertTrue(next.hiddenOptionIndices.isEmpty())
+        assertEquals(next, next.useFiftyFifty())
+    }
+
     private fun session(durationMs: Long = 40_000) = QuizSession(
         categoryId = CategoryId.ANCIENT,
         levelNumber = 1,
         questions = questions,
         remainingTimeMs = durationMs,
+    )
+
+    private fun fourOptionSession(seed: Long) = QuizSession(
+        categoryId = CategoryId.ANCIENT,
+        levelNumber = 1,
+        questions = listOf(
+            QuizQuestion("four-1", "Question?", listOf("A", "B", "C", "D"), correctAnswerIndex = 2),
+            QuizQuestion("four-2", "Next?", listOf("A", "B", "C", "D"), correctAnswerIndex = 0),
+        ),
+        sessionSeed = seed,
     )
 }

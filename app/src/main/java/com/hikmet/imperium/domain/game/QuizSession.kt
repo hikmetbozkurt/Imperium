@@ -4,6 +4,7 @@ import com.hikmet.imperium.domain.model.CategoryId
 import com.hikmet.imperium.domain.model.QuestionResponse
 import com.hikmet.imperium.domain.model.QuizQuestion
 import com.hikmet.imperium.domain.model.QuizResult
+import kotlin.random.Random
 
 enum class QuizSessionStatus {
     ACTIVE,
@@ -20,6 +21,9 @@ data class QuizSession(
     val elapsedTimeMs: Long = 0L,
     val questionElapsedTimeMs: Long = 0L,
     val isCurrentQuestionTimedOut: Boolean = false,
+    val moraUsed: Boolean = false,
+    val fiftyFiftyUsed: Boolean = false,
+    val hiddenOptionIndices: Set<Int> = emptySet(),
     val sessionSeed: Long = 0L,
     val responses: List<QuestionResponse> = emptyList(),
     val status: QuizSessionStatus = QuizSessionStatus.ACTIVE,
@@ -33,6 +37,12 @@ data class QuizSession(
         require(questionElapsedTimeMs >= 0) { "Question time cannot be negative" }
         require(!isCurrentQuestionTimedOut || remainingTimeMs == 0L) {
             "A timed out question cannot have remaining time"
+        }
+        require(hiddenOptionIndices.all(currentQuestion.options.indices::contains)) {
+            "Hidden option index is invalid"
+        }
+        require(currentQuestion.correctAnswerIndex !in hiddenOptionIndices) {
+            "The correct option cannot be hidden"
         }
         require(responses.map(QuestionResponse::position).distinct().size == responses.size) {
             "A session cannot contain duplicate response positions"
@@ -51,6 +61,7 @@ data class QuizSession(
     fun selectAnswer(answerIndex: Int): QuizSession {
         if (status != QuizSessionStatus.ACTIVE || isAnswerRevealed) return this
         if (answerIndex !in currentQuestion.options.indices) return this
+        if (answerIndex in hiddenOptionIndices) return this
 
         return copy(
             selectedAnswerIndex = answerIndex,
@@ -76,6 +87,34 @@ data class QuizSession(
             remainingTimeMs = GameRules.QUESTION_DURATION_MS,
             questionElapsedTimeMs = 0L,
             isCurrentQuestionTimedOut = false,
+            hiddenOptionIndices = emptySet(),
+        )
+    }
+
+    fun addTime(): QuizSession {
+        if (status != QuizSessionStatus.ACTIVE || isAnswerRevealed || moraUsed) return this
+        if (remainingTimeMs >= GameRules.MORA_MAX_TIME_MS) return this
+        return copy(
+            remainingTimeMs = (remainingTimeMs + GameRules.MORA_BONUS_MS)
+                .coerceAtMost(GameRules.MORA_MAX_TIME_MS),
+            moraUsed = true,
+        )
+    }
+
+    fun useFiftyFifty(): QuizSession {
+        if (status != QuizSessionStatus.ACTIVE || isAnswerRevealed || fiftyFiftyUsed) return this
+        val wrongOptions = currentQuestion.options.indices
+            .filterNot { it == currentQuestion.correctAnswerIndex }
+        if (wrongOptions.size < 2) return this
+        val deterministicSeed = sessionSeed xor
+            currentQuestion.id.hashCode().toLong() xor
+            currentQuestionIndex.toLong()
+        return copy(
+            fiftyFiftyUsed = true,
+            hiddenOptionIndices = wrongOptions
+                .shuffled(Random(deterministicSeed))
+                .take(2)
+                .toSet(),
         )
     }
 

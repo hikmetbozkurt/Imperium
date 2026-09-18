@@ -15,10 +15,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -30,6 +32,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.foundation.background
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -96,6 +100,8 @@ fun QuizScreen(
                     category = requireNotNull(state.category),
                     session = requireNotNull(state.session),
                     onAnswer = viewModel::selectAnswer,
+                    onMora = viewModel::useMora,
+                    onFiftyFifty = viewModel::useFiftyFifty,
                 )
             }
         }
@@ -107,6 +113,8 @@ private fun QuizContent(
     category: HistoryCategory,
     session: QuizSession,
     onAnswer: (Int) -> Unit,
+    onMora: () -> Unit,
+    onFiftyFifty: () -> Unit,
 ) {
     val view = LocalView.current
     var handledResponseCount by remember(session.sessionSeed) {
@@ -132,7 +140,11 @@ private fun QuizContent(
             .widthIn(max = 600.dp)
             .fillMaxSize(),
     ) {
-        val isCompact = quizLayoutDensity(maxHeight.value.toInt()) == QuizLayoutDensity.Compact
+        val layoutDensity = quizLayoutDensity(maxHeight.value.toInt())
+        val isCompact = layoutDensity == QuizLayoutDensity.Compact
+        var measuredQuestionLines by remember(session.currentQuestion.id) { mutableIntStateOf(0) }
+        val questionPresentation = questionCardPresentation(layoutDensity, measuredQuestionLines)
+        val listState = rememberLazyListState()
         Column(Modifier.fillMaxSize()) {
             QuizProgressHeader(
                 currentQuestion = session.currentQuestionIndex + 1,
@@ -148,11 +160,13 @@ private fun QuizContent(
                 compact = isCompact,
                 modifier = Modifier.padding(horizontal = 16.dp),
             )
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth().weight(1f),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = if (isCompact) 6.dp else 10.dp),
-                verticalArrangement = Arrangement.spacedBy(if (isCompact) 7.dp else 12.dp),
-            ) {
+            Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = if (isCompact) 6.dp else 10.dp),
+                    verticalArrangement = Arrangement.spacedBy(if (isCompact) 7.dp else 12.dp),
+                ) {
                 item(key = "question-card") {
                     AnimatedContent(
                         targetState = session.currentQuestion,
@@ -173,6 +187,8 @@ private fun QuizContent(
                             levelTitle = levelTitle,
                             question = question,
                             compact = isCompact,
+                            presentation = questionPresentation,
+                            onQuestionLineCount = { measuredQuestionLines = it },
                         )
                     }
                 }
@@ -181,7 +197,7 @@ private fun QuizContent(
                     items = session.currentQuestion.options,
                     key = { index, _ -> "${session.currentQuestion.id}-$index" },
                 ) { index, option ->
-                    AnswerOptionTile(
+                    if (index !in session.hiddenOptionIndices) AnswerOptionTile(
                         text = option,
                         index = index,
                         visualState = answerVisualState(
@@ -195,11 +211,30 @@ private fun QuizContent(
                         onClick = { onAnswer(index) },
                     )
                 }
-
-                item(key = "lifelines") {
-                    QuizLifelineBar(compact = isCompact)
+                }
+                if (listState.canScrollForward) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .fillMaxWidth()
+                            .height(22.dp)
+                            .background(
+                                Brush.verticalGradient(
+                                    listOf(
+                                        ImperiumQuizColors.Background.copy(alpha = 0f),
+                                        ImperiumQuizColors.Background,
+                                    ),
+                                ),
+                            ),
+                    )
                 }
             }
+            QuizLifelineBar(
+                session = session,
+                compact = isCompact,
+                onMora = onMora,
+                onFiftyFifty = onFiftyFifty,
+            )
         }
     }
 }

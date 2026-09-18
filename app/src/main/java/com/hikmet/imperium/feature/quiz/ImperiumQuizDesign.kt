@@ -29,7 +29,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.Check
@@ -54,7 +53,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Brush
@@ -69,7 +67,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.TextStyle
@@ -161,6 +158,19 @@ internal enum class QuizLayoutDensity { Compact, Comfortable }
 
 internal fun quizLayoutDensity(availableHeightDp: Int): QuizLayoutDensity =
     if (availableHeightDp < 720) QuizLayoutDensity.Compact else QuizLayoutDensity.Comfortable
+
+internal enum class QuestionCardPresentation { Illustrated, TextFirst }
+
+internal fun questionCardPresentation(
+    layoutDensity: QuizLayoutDensity,
+    measuredLineCount: Int,
+): QuestionCardPresentation = if (
+    layoutDensity == QuizLayoutDensity.Compact || measuredLineCount >= 3
+) {
+    QuestionCardPresentation.TextFirst
+} else {
+    QuestionCardPresentation.Illustrated
+}
 
 internal enum class QuizFeedbackKind { Correct, Incorrect, TimeUp }
 
@@ -500,6 +510,8 @@ internal fun HistoricalQuestionCard(
     levelTitle: String,
     question: QuizQuestion,
     compact: Boolean,
+    presentation: QuestionCardPresentation,
+    onQuestionLineCount: (Int) -> Unit,
 ) {
     val illustration = category.visualAssets().illustrationResId
     Surface(
@@ -539,61 +551,89 @@ internal fun HistoricalQuestionCard(
                     )
                 }
             }
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(if (compact) 58.dp else 126.dp)
-                    .clip(TabletShape)
-                    .background(ImperiumQuizColors.SurfaceLow),
-            ) {
-                if (illustration != null) {
-                    val grayscale = remember {
-                        ColorMatrix().apply { setToSaturation(0f) }
-                    }
-                    Image(
-                        painter = painterResource(illustration),
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop,
-                        colorFilter = ColorFilter.colorMatrix(grayscale),
-                        alpha = 0.72f,
-                    )
-                } else {
-                    CategoryArtworkFallback(category.id.categoryIcon())
-                }
+            if (presentation == QuestionCardPresentation.Illustrated) {
                 Box(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            Brush.verticalGradient(
-                                listOf(
-                                    Color.Transparent,
-                                    ImperiumQuizColors.Surface.copy(alpha = 0.30f),
-                                    ImperiumQuizColors.Surface,
+                        .fillMaxWidth()
+                        .height(126.dp)
+                        .clip(TabletShape)
+                        .background(ImperiumQuizColors.SurfaceLow),
+                ) {
+                    if (illustration != null) {
+                        val grayscale = remember {
+                            ColorMatrix().apply { setToSaturation(0f) }
+                        }
+                        Image(
+                            painter = painterResource(illustration),
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop,
+                            colorFilter = ColorFilter.colorMatrix(grayscale),
+                            alpha = 0.72f,
+                        )
+                    } else {
+                        CategoryArtworkFallback(category.id.categoryIcon())
+                    }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                Brush.verticalGradient(
+                                    listOf(
+                                        Color.Transparent,
+                                        ImperiumQuizColors.Surface.copy(alpha = 0.30f),
+                                        ImperiumQuizColors.Surface,
+                                    ),
                                 ),
                             ),
-                        ),
-                )
-                Row(
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(10.dp),
-                    verticalAlignment = Alignment.CenterVertically,
+                    )
+                    Row(
+                        modifier = Modifier
+                            .align(Alignment.BottomStart)
+                            .padding(10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(
+                            Icons.Default.HistoryEdu,
+                            contentDescription = null,
+                            tint = ImperiumQuizColors.Gold,
+                            modifier = Modifier.size(14.dp),
+                        )
+                        Text(
+                            text = levelTitle.uppercase(),
+                            color = ImperiumQuizColors.Gold,
+                            style = ImperiumQuizTypography.Label,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.padding(start = 5.dp),
+                        )
+                    }
+                }
+            } else {
+                Surface(
+                    color = ImperiumQuizColors.SurfaceLow,
+                    shape = TileShape,
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
-                    Icon(
-                        Icons.Default.HistoryEdu,
-                        contentDescription = null,
-                        tint = ImperiumQuizColors.Gold,
-                        modifier = Modifier.size(14.dp),
-                    )
-                    Text(
-                        text = levelTitle.uppercase(),
-                        color = ImperiumQuizColors.Gold,
-                        style = ImperiumQuizTypography.Label,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.padding(start = 5.dp),
-                    )
+                    Row(
+                        modifier = Modifier.padding(horizontal = 9.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(
+                            Icons.Default.HistoryEdu,
+                            contentDescription = null,
+                            tint = ImperiumQuizColors.Gold,
+                            modifier = Modifier.size(14.dp),
+                        )
+                        Text(
+                            text = levelTitle.uppercase(),
+                            color = ImperiumQuizColors.Gold,
+                            style = ImperiumQuizTypography.Label,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.padding(start = 5.dp),
+                        )
+                    }
                 }
             }
             Text(
@@ -604,6 +644,7 @@ internal fun HistoricalQuestionCard(
                 } else {
                     ImperiumQuizTypography.Question
                 },
+                onTextLayout = { onQuestionLineCount(it.lineCount) },
             )
         }
     }
@@ -788,64 +829,82 @@ internal fun AnswerOptionTile(
 }
 
 @Composable
-internal fun QuizLifelineBar(compact: Boolean) {
+internal fun QuizLifelineBar(
+    session: QuizSession,
+    compact: Boolean,
+    onMora: () -> Unit,
+    onFiftyFifty: () -> Unit,
+) {
+    val canUse = !session.isAnswerRevealed
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .semantics { disabled() }
-            .alpha(0.56f),
-        horizontalArrangement = Arrangement.SpaceEvenly,
+            .padding(horizontal = 16.dp, vertical = if (compact) 4.dp else 7.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         LifelineItem(
+            modifier = Modifier.weight(1f),
             icon = Icons.Default.HourglassTop,
             label = stringResource(R.string.quiz_lifeline_mora),
             compact = compact,
+            enabled = canUse && !session.moraUsed,
+            used = session.moraUsed,
+            onClick = onMora,
         )
         LifelineItem(
+            modifier = Modifier.weight(1f),
             icon = Icons.Default.FilterAlt,
             label = stringResource(R.string.quiz_lifeline_fifty),
             compact = compact,
-        )
-        LifelineItem(
-            icon = Icons.AutoMirrored.Filled.MenuBook,
-            label = stringResource(R.string.quiz_lifeline_oraculum),
-            compact = compact,
+            enabled = canUse && !session.fiftyFiftyUsed,
+            used = session.fiftyFiftyUsed,
+            onClick = onFiftyFifty,
         )
     }
 }
 
 @Composable
 private fun LifelineItem(
+    modifier: Modifier,
     icon: ImageVector,
     label: String,
     compact: Boolean,
+    enabled: Boolean,
+    used: Boolean,
+    onClick: () -> Unit,
 ) {
-    Column(
-        modifier = Modifier.widthIn(min = 88.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(4.dp),
+    val tint = if (enabled) ImperiumQuizColors.Gold else ImperiumQuizColors.Muted
+    Surface(
+        modifier = modifier
+            .height(if (compact) 40.dp else 46.dp)
+            .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
+            .semantics {
+                contentDescription = label
+                if (used) stateDescription = "Used"
+            },
+        shape = TileShape,
+        color = if (enabled) ImperiumQuizColors.SurfaceHigh else ImperiumQuizColors.SurfaceLow,
+        border = BorderStroke(1.dp, if (enabled) ImperiumQuizColors.Gold.copy(alpha = 0.4f) else ImperiumQuizColors.Outline),
     ) {
-        Surface(
-            modifier = Modifier.size(if (compact) 34.dp else 40.dp),
-            shape = CircleShape,
-            color = ImperiumQuizColors.Surface,
-            border = BorderStroke(1.dp, ImperiumQuizColors.Outline),
+        Row(
+            modifier = Modifier.fillMaxSize().padding(horizontal = 12.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Box(contentAlignment = Alignment.Center) {
-                Icon(
-                    icon,
-                    contentDescription = null,
-                    tint = ImperiumQuizColors.OnSurfaceVariant,
-                    modifier = Modifier.size(if (compact) 16.dp else 19.dp),
-                )
-            }
+            Icon(
+                if (used) Icons.Default.Check else icon,
+                contentDescription = null,
+                tint = tint,
+                modifier = Modifier.size(if (compact) 16.dp else 18.dp),
+            )
+            Text(
+                text = label,
+                color = tint,
+                style = ImperiumQuizTypography.Label.copy(fontSize = if (compact) 9.sp else 10.sp),
+                maxLines = 1,
+                modifier = Modifier.padding(start = 7.dp),
+            )
         }
-        Text(
-            text = label,
-            color = ImperiumQuizColors.OnSurfaceVariant,
-            style = ImperiumQuizTypography.Label.copy(fontSize = 9.sp),
-            maxLines = 1,
-        )
     }
 }
 

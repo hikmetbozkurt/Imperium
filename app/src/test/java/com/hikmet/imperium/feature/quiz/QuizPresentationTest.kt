@@ -12,6 +12,22 @@ class QuizPresentationTest {
     }
 
     @Test
+    fun `long questions and short screens use a text first question card`() {
+        assertEquals(
+            QuestionCardPresentation.TextFirst,
+            questionCardPresentation(QuizLayoutDensity.Compact, measuredLineCount = 2),
+        )
+        assertEquals(
+            QuestionCardPresentation.TextFirst,
+            questionCardPresentation(QuizLayoutDensity.Comfortable, measuredLineCount = 4),
+        )
+        assertEquals(
+            QuestionCardPresentation.Illustrated,
+            questionCardPresentation(QuizLayoutDensity.Comfortable, measuredLineCount = 2),
+        )
+    }
+
+    @Test
     fun `answer feedback distinguishes correct wrong timeout and unanswered states`() {
         assertEquals(
             QuizFeedbackKind.Correct,

@@ -127,6 +127,18 @@ class QuizViewModel @Inject constructor(
         if (updated.status == QuizSessionStatus.COMPLETED) completeQuiz(updated)
     }
 
+    fun useMora() = updateActiveSession(QuizSession::addTime)
+
+    fun useFiftyFifty() = updateActiveSession(QuizSession::useFiftyFifty)
+
+    private fun updateActiveSession(transform: (QuizSession) -> QuizSession) {
+        val session = _state.value.session ?: return
+        val updated = transform(session)
+        if (updated === session || updated == session) return
+        _state.value = _state.value.copy(session = updated)
+        persistSession(updated)
+    }
+
     private fun startTimer() {
         viewModelScope.launch {
             var previousTick = SystemClock.elapsedRealtime()
@@ -191,6 +203,9 @@ class QuizViewModel @Inject constructor(
         savedStateHandle[KEY_ELAPSED_TIME] = session.elapsedTimeMs
         savedStateHandle[KEY_QUESTION_TIME] = session.questionElapsedTimeMs
         savedStateHandle[KEY_TIMED_OUT] = session.isCurrentQuestionTimedOut
+        savedStateHandle[KEY_MORA_USED] = session.moraUsed
+        savedStateHandle[KEY_FIFTY_FIFTY_USED] = session.fiftyFiftyUsed
+        savedStateHandle[KEY_HIDDEN_OPTIONS] = ArrayList(session.hiddenOptionIndices)
         savedStateHandle[KEY_RESPONSES] = ArrayList(session.responses.map(::encodeResponse))
     }
 
@@ -209,6 +224,9 @@ class QuizViewModel @Inject constructor(
         val elapsedTime = savedStateHandle.get<Long>(KEY_ELAPSED_TIME) ?: 0L
         val questionTime = savedStateHandle.get<Long>(KEY_QUESTION_TIME) ?: 0L
         val isTimedOut = savedStateHandle.get<Boolean>(KEY_TIMED_OUT) ?: false
+        val moraUsed = savedStateHandle.get<Boolean>(KEY_MORA_USED) ?: false
+        val fiftyFiftyUsed = savedStateHandle.get<Boolean>(KEY_FIFTY_FIFTY_USED) ?: false
+        val hiddenOptions = savedStateHandle.get<ArrayList<Int>>(KEY_HIDDEN_OPTIONS).orEmpty().toSet()
         val responses = savedStateHandle.get<ArrayList<String>>(KEY_RESPONSES)
             .orEmpty()
             .mapNotNull(::decodeResponse)
@@ -220,10 +238,13 @@ class QuizViewModel @Inject constructor(
                 currentQuestionIndex = currentIndex,
                 selectedAnswerIndex = selectedIndex,
                 correctAnswers = correctAnswers,
-                remainingTimeMs = remainingTime.coerceIn(0L, GameRules.QUESTION_DURATION_MS),
+                remainingTimeMs = remainingTime.coerceIn(0L, GameRules.MORA_MAX_TIME_MS),
                 elapsedTimeMs = elapsedTime,
                 questionElapsedTimeMs = questionTime,
                 isCurrentQuestionTimedOut = isTimedOut,
+                moraUsed = moraUsed,
+                fiftyFiftyUsed = fiftyFiftyUsed,
+                hiddenOptionIndices = hiddenOptions,
                 sessionSeed = sessionSeed,
                 responses = responses,
             )
@@ -267,6 +288,9 @@ class QuizViewModel @Inject constructor(
         const val KEY_ELAPSED_TIME = "quiz_elapsed_time"
         const val KEY_QUESTION_TIME = "quiz_question_time"
         const val KEY_TIMED_OUT = "quiz_timed_out"
+        const val KEY_MORA_USED = "quiz_mora_used"
+        const val KEY_FIFTY_FIFTY_USED = "quiz_fifty_fifty_used"
+        const val KEY_HIDDEN_OPTIONS = "quiz_hidden_options"
         const val KEY_RESPONSES = "quiz_responses"
         const val RESPONSE_SEPARATOR = ";"
         const val RESPONSE_FIELD_COUNT = 6

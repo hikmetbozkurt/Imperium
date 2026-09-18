@@ -2,6 +2,8 @@ package com.hikmet.imperium.domain.game
 
 object GameRules {
     const val QUESTION_DURATION_MS = 30_000L
+    const val MORA_BONUS_MS = 15_000L
+    const val MORA_MAX_TIME_MS = QUESTION_DURATION_MS + MORA_BONUS_MS
     const val TIMER_WARNING_THRESHOLD_MS = 20_000L
     const val TIMER_CRITICAL_THRESHOLD_MS = 10_000L
     const val MINIMUM_PASSING_STARS = 2
