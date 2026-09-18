@@ -13,7 +13,9 @@ import com.hikmet.imperium.ui.category.CategoryScreen
 import com.hikmet.imperium.ui.home.HomeScreen
 import com.hikmet.imperium.ui.home.ExpeditionsScreen
 import com.hikmet.imperium.ui.profile.ProfileScreen
+import com.hikmet.imperium.ui.profile.BadgesScreen
 import com.hikmet.imperium.ui.progress.ProgressScreen
+import com.hikmet.imperium.ui.settings.SettingsScreen
 import com.hikmet.imperium.ui.splash.SplashScreen
 
 object NavDestinations {
@@ -26,6 +28,8 @@ object NavDestinations {
     const val ATTEMPT_RESULT_ROUTE = "result/{attemptId}"
     const val PROGRESS_ROUTE = "progress"
     const val PROFILE_ROUTE = "profile"
+    const val BADGES_ROUTE = "badges"
+    const val SETTINGS_ROUTE = "settings"
 
     fun levels(categoryId: String) = "levels/$categoryId"
     fun quiz(categoryId: String, levelNumber: Int) = "quiz/$categoryId/$levelNumber"
@@ -98,5 +102,7 @@ fun ImperiumNavGraph(
         }
         composable(NavDestinations.PROGRESS_ROUTE) { ProgressScreen(navController) }
         composable(NavDestinations.PROFILE_ROUTE) { ProfileScreen(navController) }
+        composable(NavDestinations.BADGES_ROUTE) { BadgesScreen(navController) }
+        composable(NavDestinations.SETTINGS_ROUTE) { SettingsScreen(navController) }
     }
 }

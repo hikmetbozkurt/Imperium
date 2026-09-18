@@ -132,4 +132,19 @@
     </plurals>
     <string name="profile_sound_effects">Sound effects</string>
     <string name="profile_background_music">Background music</string>
+    <string name="profile_settings_content_description">Open settings</string>
+    <string name="profile_mastery">Expedition mastery</string>
+    <string name="profile_mastery_empty">Complete a quiz to begin recording category mastery.</string>
+    <string name="profile_mastery_levels">%1$d/%2$d</string>
+    <string name="profile_badges_cta">Badge archive</string>
+    <string name="profile_badges_description">Review earned honors and progress toward the next distinction.</string>
+    <string name="profile_rank_novice">Novice Chronicler</string>
+    <string name="profile_rank_archivist">Archivist</string>
+    <string name="profile_rank_historian">Historian</string>
+    <string name="profile_rank_imperial_scholar">Imperial Scholar</string>
+    <string name="badges_title">Badge Archive</string>
+    <string name="badges_subtitle">Historical honors</string>
+    <string name="settings_title">Settings</string>
+    <string name="settings_subtitle">Player preferences</string>
+    <string name="settings_audio">Audio</string>
 </resources>
